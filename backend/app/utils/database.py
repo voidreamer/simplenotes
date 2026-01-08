@@ -292,7 +292,8 @@ def add_item_to_list(list_id: str, household_id: str, item: Dict) -> Optional[Di
             ReturnValues="ALL_NEW"
         )
         return response.get("Attributes")
-    except ClientError:
+    except ClientError as e:
+        print(f"Error adding item to list: {e}")
         return None
 
 # ============================================

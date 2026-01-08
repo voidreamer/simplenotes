@@ -178,13 +178,16 @@ async def add_list_item(
     user: dict = Depends(get_current_user)
 ):
     """Add item to list"""
+    print(f"Adding item to list {list_id} in household {household_id}")
     list_item = get_list(list_id, household_id)
     if not list_item:
+        print(f"List not found: {list_id}")
         raise HTTPException(status_code=404, detail="List not found")
 
     # Verify membership
     household = get_household(household_id)
     if not household or user["user_id"] not in household.get("members", []):
+        print(f"User {user['user_id']} not authorized for household {household_id}")
         raise HTTPException(status_code=403, detail="Not authorized")
 
     item = {
@@ -196,10 +199,13 @@ async def add_list_item(
         "added_by": user["user_id"]
     }
 
+    print(f"Item to add: {item}")
     updated = add_item_to_list(list_id, household_id, item)
     if not updated:
+        print(f"Failed to add item to list {list_id}")
         raise HTTPException(status_code=500, detail="Failed to add item")
 
+    print(f"Updated list: {updated}")
     return ListResponse(**updated)
 
 @router.patch("/{list_id}/items/{item_id}/toggle")
