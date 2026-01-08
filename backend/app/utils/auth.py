@@ -53,7 +53,8 @@ def verify_token(token: str) -> Optional[Dict]:
             key,
             algorithms=["RS256"],
             audience=settings.COGNITO_CLIENT_ID,
-            issuer=f"https://cognito-idp.{settings.COGNITO_REGION}.amazonaws.com/{settings.COGNITO_USER_POOL_ID}"
+            issuer=f"https://cognito-idp.{settings.COGNITO_REGION}.amazonaws.com/{settings.COGNITO_USER_POOL_ID}",
+            options={"verify_at_hash": False}  # Skip at_hash validation for ID tokens
         )
         return claims
     except JWTError as e:
