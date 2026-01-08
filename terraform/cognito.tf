@@ -160,7 +160,7 @@ resource "aws_cognito_user_pool_client" "web" {
 # ============================================
 
 resource "aws_cognito_user_pool_domain" "main" {
-  domain       = "${var.project_name}-${local.account_id}"
+  domain       = "${var.project_name}-${var.environment}-${local.account_id}"
   user_pool_id = aws_cognito_user_pool.main.id
 }
 
