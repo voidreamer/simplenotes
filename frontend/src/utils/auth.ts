@@ -42,6 +42,15 @@ export function configureAuth() {
 // Auth functions
 export async function loginWithGoogle() {
   try {
+    // Check if already signed in, sign out first to avoid conflicts
+    try {
+      const session = await fetchAuthSession();
+      if (session.tokens?.accessToken) {
+        await signOut();
+      }
+    } catch {
+      // Not signed in, proceed with login
+    }
     await signInWithRedirect({ provider: 'Google' });
   } catch (error) {
     console.error('Google login error:', error);
