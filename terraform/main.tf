@@ -18,11 +18,11 @@ terraform {
   # Remote backend for state management
   # State is stored per workspace (staging/prod)
   backend "s3" {
-    bucket       = "simplenotes-terraform-state-523874366849"
-    key          = "terraform.tfstate"
-    region       = "ca-central-1"
-    encrypt      = true
-    use_lockfile = true
+    bucket         = "simplenotes-terraform-state-523874366849"
+    key            = "terraform.tfstate"
+    region         = "ca-central-1"
+    encrypt        = true
+    dynamodb_table = "simplenotes-terraform-locks"
   }
 }
 
