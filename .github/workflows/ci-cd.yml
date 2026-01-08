@@ -1,13 +1,15 @@
 # SimpleNotes CI/CD Pipeline
-# Runs tests, then deploys to AWS on success
+# Runs tests, then deploys to AWS
+# - staging branch -> staging environment
+# - main branch -> production environment
 
 name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, staging]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
 
 env:
   AWS_REGION: ca-central-1
@@ -108,13 +110,14 @@ jobs:
           retention-days: 1
 
   # ============================================
-  # Deploy to AWS (only on main)
+  # Deploy to Staging (on staging branch)
   # ============================================
-  deploy:
-    name: Deploy to AWS
+  deploy-staging:
+    name: Deploy to Staging
     needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    environment: staging
 
     steps:
       - name: Checkout code
@@ -144,7 +147,9 @@ jobs:
 
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init
+        run: |
+          terraform init
+          terraform workspace select staging || terraform workspace new staging
 
       - name: Terraform Validate
         working-directory: terraform
@@ -156,6 +161,7 @@ jobs:
           TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
           TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_environment: staging
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
@@ -164,6 +170,7 @@ jobs:
           TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
           TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_environment: staging
         run: terraform apply -auto-approve tfplan
 
       - name: Download frontend build
@@ -208,7 +215,123 @@ jobs:
 
       - name: Output deployment URLs
         run: |
-          echo "## Deployment Complete! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "## Staging Deployment Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Staging" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Frontend URL:** https://${{ steps.tf-outputs.outputs.frontend_bucket }}.s3.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**API URL:** ${{ steps.tf-outputs.outputs.api_url }}" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Deploy to Production (on main branch)
+  # ============================================
+  deploy-production:
+    name: Deploy to Production
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt -t .
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: |
+          terraform init
+          terraform workspace select prod || terraform workspace new prod
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform
+        env:
+          TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
+          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_environment: prod
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: terraform
+        env:
+          TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
+          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_environment: prod
+        run: terraform apply -auto-approve tfplan
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist
+
+      - name: Get Terraform outputs
+        id: tf-outputs
+        working-directory: terraform
+        run: |
+          echo "frontend_bucket=$(terraform output -raw frontend_bucket)" >> $GITHUB_OUTPUT
+          echo "api_url=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
+          echo "cognito_client_id=$(terraform output -raw cognito_client_id)" >> $GITHUB_OUTPUT
+          echo "cognito_user_pool_id=$(terraform output -raw cognito_user_pool_id)" >> $GITHUB_OUTPUT
+          echo "cognito_domain=$(terraform output -raw cognito_domain)" >> $GITHUB_OUTPUT
+
+      - name: Update frontend config
+        run: |
+          cat > frontend/dist/config.js << EOF
+          window.APP_CONFIG = {
+            API_URL: "${{ steps.tf-outputs.outputs.api_url }}",
+            COGNITO_CLIENT_ID: "${{ steps.tf-outputs.outputs.cognito_client_id }}",
+            COGNITO_USER_POOL_ID: "${{ steps.tf-outputs.outputs.cognito_user_pool_id }}",
+            COGNITO_DOMAIN: "${{ steps.tf-outputs.outputs.cognito_domain }}",
+            AWS_REGION: "${{ env.AWS_REGION }}"
+          };
+          EOF
+
+      - name: Deploy frontend to S3
+        run: |
+          aws s3 sync frontend/dist s3://${{ steps.tf-outputs.outputs.frontend_bucket }} \
+            --delete \
+            --cache-control "max-age=31536000,public" \
+            --exclude "index.html" \
+            --exclude "config.js"
+          aws s3 cp frontend/dist/index.html s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/index.html \
+            --cache-control "no-cache,no-store,must-revalidate"
+          aws s3 cp frontend/dist/config.js s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/config.js \
+            --cache-control "no-cache,no-store,must-revalidate"
+
+      - name: Output deployment URLs
+        run: |
+          echo "## Production Deployment Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Frontend URL:** https://${{ steps.tf-outputs.outputs.frontend_bucket }}.s3.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
