@@ -4,15 +4,16 @@ Unit tests for API endpoints with mocked dependencies
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 import sys
+import os
 
 # Mock boto3 before any imports
 mock_boto3 = MagicMock()
 sys.modules['boto3'] = mock_boto3
 
 # Environment setup
-env_vars = {
+os.environ.update({
     'ENVIRONMENT': 'test',
     'AWS_REGION': 'ca-central-1',
     'USERS_TABLE': 'test-users',
@@ -22,13 +23,11 @@ env_vars = {
     'COGNITO_USER_POOL_ID': 'test-pool-id',
     'COGNITO_CLIENT_ID': 'test-client-id',
     'COGNITO_REGION': 'ca-central-1',
-}
+})
 
-with patch.dict('os.environ', env_vars):
-    from fastapi.testclient import TestClient
-    from app.main import app
-
-client = TestClient(app)
+from fastapi.testclient import TestClient
+from app.main import app
+from app.utils.auth import get_current_user
 
 # Mock user for auth
 mock_current_user = {
@@ -39,10 +38,18 @@ mock_current_user = {
     'email_verified': True
 }
 
+# Override the auth dependency
+async def override_get_current_user():
+    return mock_current_user
+
+app.dependency_overrides[get_current_user] = override_get_current_user
+
+client = TestClient(app)
+
+
 class TestAuthEndpoints:
     """Test authentication endpoints"""
 
-    @patch('app.routes.auth.get_current_user')
     @patch('app.routes.auth.get_user_by_id')
     @patch('app.routes.auth.create_user')
     @patch('app.routes.auth.get_invites_by_email')
@@ -52,11 +59,9 @@ class TestAuthEndpoints:
         mock_welcome,
         mock_invites,
         mock_create,
-        mock_get_user,
-        mock_auth
+        mock_get_user
     ):
         """Test registering a new user"""
-        mock_auth.return_value = mock_current_user
         mock_get_user.return_value = None  # User doesn't exist
         mock_invites.return_value = []
         mock_welcome.return_value = True
@@ -78,11 +83,9 @@ class TestAuthEndpoints:
         data = response.json()
         assert data["email"] == "test@example.com"
 
-    @patch('app.routes.auth.get_current_user')
     @patch('app.routes.auth.get_user_by_id')
-    def test_get_current_user(self, mock_get_user, mock_auth):
+    def test_get_current_user(self, mock_get_user):
         """Test getting current user profile"""
-        mock_auth.return_value = mock_current_user
         mock_get_user.return_value = {
             **mock_current_user,
             'households': [],
@@ -102,11 +105,9 @@ class TestAuthEndpoints:
 class TestHouseholdEndpoints:
     """Test household endpoints"""
 
-    @patch('app.routes.households.get_current_user')
     @patch('app.routes.households.create_household')
-    def test_create_household(self, mock_create, mock_auth):
+    def test_create_household(self, mock_create):
         """Test creating a new household"""
-        mock_auth.return_value = mock_current_user
         mock_create.return_value = {
             'household_id': 'new-household-id',
             'name': 'My Household',
@@ -127,11 +128,9 @@ class TestHouseholdEndpoints:
         assert data["name"] == "My Household"
         assert data["owner_id"] == "test-user-id"
 
-    @patch('app.routes.households.get_current_user')
     @patch('app.routes.households.get_user_households')
-    def test_get_households(self, mock_get, mock_auth):
+    def test_get_households(self, mock_get):
         """Test getting user's households"""
-        mock_auth.return_value = mock_current_user
         mock_get.return_value = [
             {
                 'household_id': 'household-1',
@@ -157,13 +156,11 @@ class TestHouseholdEndpoints:
 class TestListEndpoints:
     """Test list endpoints"""
 
-    @patch('app.routes.lists.get_current_user')
     @patch('app.routes.lists.get_household')
     @patch('app.routes.lists.create_list')
     @patch('app.routes.lists.update_list')
-    def test_create_list(self, mock_update, mock_create, mock_household, mock_auth):
+    def test_create_list(self, mock_update, mock_create, mock_household):
         """Test creating a new list"""
-        mock_auth.return_value = mock_current_user
         mock_household.return_value = {
             'household_id': 'test-household-id',
             'members': ['test-user-id']
@@ -200,12 +197,10 @@ class TestListEndpoints:
         assert data["title"] == "Groceries"
         assert data["type"] == "shopping"
 
-    @patch('app.routes.lists.get_current_user')
     @patch('app.routes.lists.get_household')
     @patch('app.routes.lists.get_lists_by_household')
-    def test_get_household_lists(self, mock_lists, mock_household, mock_auth):
+    def test_get_household_lists(self, mock_lists, mock_household):
         """Test getting lists for a household"""
-        mock_auth.return_value = mock_current_user
         mock_household.return_value = {
             'household_id': 'test-household-id',
             'members': ['test-user-id']
