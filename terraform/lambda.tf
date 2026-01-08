@@ -222,6 +222,13 @@ resource "aws_apigatewayv2_route" "api" {
   authorization_type = "JWT"
 }
 
+# OPTIONS preflight route (no auth required for CORS preflight)
+resource "aws_apigatewayv2_route" "api_options" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "OPTIONS /api/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
 # Public routes (health check, docs)
 resource "aws_apigatewayv2_route" "health" {
   api_id    = aws_apigatewayv2_api.main.id
