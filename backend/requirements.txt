@@ -1,0 +1,25 @@
+# SimpleNotes Backend Dependencies
+# FastAPI with Mangum for AWS Lambda
+
+# Core
+fastapi==0.109.2
+mangum==0.17.0
+pydantic==2.6.1
+pydantic-settings==2.1.0
+
+# AWS SDK
+boto3==1.34.34
+botocore==1.34.34
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Utilities
+python-multipart==0.0.9
+python-dateutil==2.8.2
+email-validator==2.1.0.post1
+uuid6==2024.1.12
+
+# HTTP client (for token validation)
+httpx==0.26.0

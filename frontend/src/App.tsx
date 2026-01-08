@@ -1,0 +1,114 @@
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './stores/store';
+import { configureAuth, checkAuthSession } from './utils/auth';
+
+// Pages
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import CallbackPage from './pages/CallbackPage';
+import DashboardPage from './pages/DashboardPage';
+import HouseholdPage from './pages/HouseholdPage';
+import ListPage from './pages/ListPage';
+import InvitePage from './pages/InvitePage';
+import SettingsPage from './pages/SettingsPage';
+
+// Components
+import Layout from './components/Layout';
+import LoadingScreen from './components/LoadingScreen';
+
+// Configure auth on load
+configureAuth();
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function App() {
+  const { isLoading, setLoading } = useAuthStore();
+
+  useEffect(() => {
+    // Check for existing auth session
+    const initAuth = async () => {
+      try {
+        await checkAuthSession();
+      } catch {
+        setLoading(false);
+      }
+    };
+    initAuth();
+  }, [setLoading]);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/callback" element={<CallbackPage />} />
+        <Route path="/invite/:inviteId" element={<InvitePage />} />
+
+        {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <DashboardPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/household/:householdId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <HouseholdPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/list/:listId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ListPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <SettingsPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
