@@ -283,7 +283,10 @@ def add_item_to_list(list_id: str, household_id: str, item: Dict) -> Optional[Di
     try:
         response = table.update_item(
             Key={"list_id": list_id, "household_id": household_id},
-            UpdateExpression="SET items = list_append(if_not_exists(items, :empty), :item), updated_at = :now",
+            UpdateExpression="SET #items = list_append(if_not_exists(#items, :empty), :item), updated_at = :now",
+            ExpressionAttributeNames={
+                "#items": "items"
+            },
             ExpressionAttributeValues={
                 ":item": [item],
                 ":empty": [],

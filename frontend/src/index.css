@@ -4,15 +4,15 @@
 
 :root {
   /* Theme Variables - These are set by JavaScript based on selected theme */
-  --color-background: #f5f5f5;
+  --color-background: #e8e8e8;
   --color-surface: #ffffff;
-  --color-surface-hover: #fafafa;
+  --color-surface-hover: #f5f5f5;
   --color-border: #000000;
   --color-text: #000000;
-  --color-text-muted: #555555;
+  --color-text-muted: #444444;
   --color-primary: #ff3366;
   --color-primary-text: #ffffff;
-  --color-accent: #ffeb3b;
+  --color-accent: #00d4ff;
   --color-shadow: #000000;
   --font-heading: 'Arial Black', 'Helvetica Bold', sans-serif;
   --font-body: 'Arial', 'Helvetica', sans-serif;
