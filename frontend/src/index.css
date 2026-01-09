@@ -15,8 +15,8 @@
   --color-primary-text: #222222;
   --color-accent: #d41a5c;
   --color-shadow: rgba(0,0,0,0.15);
-  --font-heading: 'Comic Sans MS', 'Chalkboard', cursive;
-  --font-body: 'Comic Sans MS', 'Chalkboard', cursive;
+  --font-heading: 'Comic Neue', 'Comic Sans MS', cursive;
+  --font-body: 'Comic Neue', 'Comic Sans MS', cursive;
   --border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
   --border-width: 2px;
 
