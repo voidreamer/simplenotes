@@ -52,6 +52,7 @@ export default function Layout({ children }: LayoutProps) {
           <Link to="/dashboard" className={styles.sidebarLogo}>
             SimpleNotes
           </Link>
+          <ThemeSwitcher />
         </div>
 
         <nav className={styles.nav}>

@@ -10,12 +10,13 @@
   justify-content: center;
   min-height: 50vh;
   gap: var(--spacing-md);
+  color: var(--color-text-muted);
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--border-color);
+  border: 3px solid var(--color-border);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -32,12 +33,22 @@
 }
 
 .backButton {
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   padding: var(--spacing-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .backButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+.backButton:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .headerInfo {
@@ -47,6 +58,8 @@
 .title {
   font-size: 1.5rem;
   font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .meta {
@@ -65,23 +78,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text-muted);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .actionButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
 .actionButton:hover {
-  background: rgba(22, 33, 62, 0.8);
-  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .actionButton.pinned {
   color: var(--color-warning);
   background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.3);
+  border-color: var(--color-warning);
 }
 
 /* Progress */
@@ -95,15 +112,16 @@
 .progressBar {
   flex: 1;
   height: 8px;
-  background: var(--color-bg-glass);
-  border-radius: var(--radius-full);
+  background: var(--color-background);
+  border-radius: var(--border-radius);
   overflow: hidden;
+  border: 1px solid var(--color-border);
 }
 
 .progressFill {
   height: 100%;
-  background: var(--gradient-success);
-  border-radius: var(--radius-full);
+  background: var(--color-success);
+  border-radius: var(--border-radius);
   transition: width var(--transition-normal);
 }
 
@@ -123,17 +141,25 @@
 .addInput {
   flex: 1;
   padding: var(--spacing-md);
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--color-text-primary);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   outline: none;
+}
+
+[data-theme="brutalist"] .addInput {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .addInput:focus {
   border-color: var(--color-primary);
+}
+
+.addInput::placeholder {
+  color: var(--color-text-muted);
 }
 
 .addButton {
@@ -142,16 +168,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient-primary);
-  border: none;
-  border-radius: var(--radius-md);
-  color: white;
+  background: var(--color-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-primary-text);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .addButton {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .addButton:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
 .addButton:hover {
-  transform: scale(1.05);
+  opacity: 0.9;
 }
 
 .addButton:disabled {
@@ -172,21 +207,25 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .item {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
 .item:hover {
-  background: rgba(22, 33, 62, 0.8);
+  background: var(--color-surface-hover);
 }
 
 .checkbox {
   width: 24px;
   height: 24px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   background: transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -201,21 +240,22 @@
 }
 
 .checkboxChecked {
-  background: var(--gradient-success);
-  border-color: transparent;
+  background: var(--color-success);
+  border-color: var(--color-success);
   color: white;
 }
 
 .itemText {
   flex: 1;
-  color: var(--color-text-primary);
+  color: var(--color-text);
 }
 
 .itemQuantity {
   font-size: 0.8rem;
   padding: 2px 8px;
-  background: var(--color-bg-glass);
-  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
   color: var(--color-text-muted);
 }
 
@@ -251,6 +291,7 @@
 .completedHeader {
   font-size: 0.875rem;
   font-weight: 600;
+  font-family: var(--font-heading);
   color: var(--color-text-muted);
   margin-bottom: var(--spacing-sm);
 }
@@ -260,6 +301,13 @@
   text-align: center;
   padding: var(--spacing-2xl);
   color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: var(--border-width) dashed var(--color-border);
+  border-radius: var(--border-radius);
+}
+
+[data-theme="brutalist"] .emptyState {
+  box-shadow: 4px 4px 0 var(--color-shadow);
 }
 
 /* Responsive */

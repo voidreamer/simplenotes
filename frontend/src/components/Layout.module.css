@@ -11,19 +11,18 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: var(--color-bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  background: var(--color-surface);
+  border-bottom: var(--border-width) solid var(--color-border);
   padding: 0 var(--spacing-md);
   align-items: center;
   justify-content: space-between;
   z-index: 100;
-  backdrop-filter: blur(20px);
 }
 
 .menuButton {
   background: none;
   border: none;
-  color: var(--color-text-primary);
+  color: var(--color-text);
   cursor: pointer;
   padding: var(--spacing-sm);
 }
@@ -31,15 +30,14 @@
 .logo {
   font-size: 1.25rem;
   font-weight: 700;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .headerRight {
   display: flex;
   align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .avatar {
@@ -47,25 +45,27 @@
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
+  border: var(--border-width) solid var(--color-border);
 }
 
 .avatarPlaceholder {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
+  border: var(--border-width) solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: white;
+  color: var(--color-primary-text);
 }
 
 /* Sidebar */
 .sidebar {
   width: 260px;
-  background: var(--color-bg-secondary);
-  border-right: 1px solid var(--border-color);
+  background: var(--color-surface);
+  border-right: var(--border-width) solid var(--color-border);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -77,16 +77,17 @@
 
 .sidebarHeader {
   padding: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: var(--border-width) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .sidebarLogo {
   font-size: 1.5rem;
   font-weight: 800;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .nav {
@@ -100,8 +101,8 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  border-radius: var(--border-radius);
+  color: var(--color-text-muted);
   transition: all var(--transition-fast);
   cursor: pointer;
   border: none;
@@ -109,16 +110,17 @@
   width: 100%;
   text-align: left;
   font-size: 0.9375rem;
+  font-family: var(--font-body);
 }
 
 .navItem:hover {
-  background: var(--color-bg-glass);
-  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .navItemActive {
-  background: rgba(102, 126, 234, 0.15);
-  color: var(--color-primary-light);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .navSection {
@@ -143,31 +145,31 @@
   color: var(--color-text-muted);
   cursor: pointer;
   padding: var(--spacing-xs);
-  border-radius: var(--radius-sm);
+  border-radius: var(--border-radius);
   transition: all var(--transition-fast);
 }
 
 .addButton:hover {
-  background: var(--color-bg-glass);
-  color: var(--color-primary-light);
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
 }
 
 .householdIcon {
   width: 28px;
   height: 28px;
-  border-radius: var(--radius-sm);
-  background: var(--gradient-primary);
+  border-radius: var(--border-radius);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 0.8rem;
-  color: white;
+  color: var(--color-primary-text);
 }
 
 .sidebarFooter {
   padding: var(--spacing-md);
-  border-top: 1px solid var(--border-color);
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 /* Main Content */
