@@ -315,30 +315,42 @@ export default function HouseholdPage() {
         <div className={styles.listGrid}>
           {householdLists.map((list) => {
             const config = listTypeConfig[list.type as ListType] || listTypeConfig.note;
-            const Icon = config.icon;
             const checkedCount = list.items.filter(i => i.checked).length;
             const totalCount = list.items.length;
             const progress = totalCount > 0 ? (checkedCount / totalCount) * 100 : 0;
 
+            // Generate preview content
+            const getPreview = () => {
+              if (list.type === 'note') {
+                // Strip HTML tags and get first ~80 chars
+                const text = list.content?.replace(/<[^>]*>/g, '') || '';
+                return text.slice(0, 80) + (text.length > 80 ? '...' : '');
+              } else {
+                // Show first 3 unchecked items
+                const uncheckedItems = list.items.filter(i => !i.checked).slice(0, 3);
+                return uncheckedItems.map(i => i.text).join(' · ') || 'No items yet';
+              }
+            };
+
             return (
               <button
                 key={list.list_id}
-                className={styles.listCard}
+                className={`${styles.listCard} ${styles[config.colorClass + 'Border']}`}
                 onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
               >
-                <div className={styles.listCardHeader}>
-                  <div className={`${styles.listIcon} ${styles[config.colorClass]}`}>
-                    <Icon size={24} />
-                  </div>
-                </div>
                 <h3 className={styles.listTitle}>{list.title}</h3>
-                <p className={styles.listMeta}>{totalCount} item{totalCount !== 1 ? 's' : ''}</p>
-                <div className={styles.progressBar}>
-                  <div
-                    className={`${styles.progressFill} ${styles[config.colorClass]}`}
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
+                <p className={styles.listPreview}>{getPreview()}</p>
+                {list.type !== 'note' && totalCount > 0 && (
+                  <div className={styles.listFooter}>
+                    <span className={styles.listProgress}>{checkedCount}/{totalCount}</span>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={`${styles.progressFill} ${styles[config.colorClass]}`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </button>
             );
           })}
@@ -348,10 +360,8 @@ export default function HouseholdPage() {
             className={styles.addListCard}
             onClick={() => setShowCreateModal(true)}
           >
-            <div className={styles.addListIcon}>
-              <Plus size={24} />
-            </div>
-            <p className={styles.addListText}>Add new list</p>
+            <Plus size={18} />
+            <span className={styles.addListText}>Add list</span>
           </button>
         </div>
       </section>
