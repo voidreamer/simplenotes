@@ -29,6 +29,8 @@ export default function HouseholdPage() {
   const [newListTitle, setNewListTitle] = useState('');
   const [newListType, setNewListType] = useState<ListType>('shopping');
   const [inviteEmail, setInviteEmail] = useState('');
+  const [activeQuickCreate, setActiveQuickCreate] = useState<ListType | null>(null);
+  const [quickCreateTitle, setQuickCreateTitle] = useState('');
   const [creating, setCreating] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -47,6 +49,8 @@ export default function HouseholdPage() {
     setShowInviteModal(false);
     setShowDeleteModal(false);
     setShowOptionsMenu(false);
+    setActiveQuickCreate(null);
+    setQuickCreateTitle('');
   }, []));
 
   useEffect(() => {
@@ -93,8 +97,39 @@ export default function HouseholdPage() {
   };
 
   const handleQuickCreate = (type: ListType) => {
-    setNewListType(type);
-    setShowCreateModal(true);
+    setActiveQuickCreate(type);
+    setQuickCreateTitle('');
+  };
+
+  const handleInlineCreate = async (type: ListType) => {
+    if (!quickCreateTitle.trim() || !householdId) return;
+
+    setCreating(true);
+    try {
+      const list = await api.createList({
+        household_id: householdId,
+        title: quickCreateTitle.trim(),
+        type: type,
+      }) as List;
+      addList(list);
+      setActiveQuickCreate(null);
+      setQuickCreateTitle('');
+      navigate(`/list/${list.list_id}?household=${householdId}`);
+    } catch (error) {
+      console.error('Failed to create list:', error);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleInlineKeyDown = (e: React.KeyboardEvent, type: ListType) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleInlineCreate(type);
+    } else if (e.key === 'Escape') {
+      setActiveQuickCreate(null);
+      setQuickCreateTitle('');
+    }
   };
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -224,20 +259,43 @@ export default function HouseholdPage() {
         <div className={styles.quickActions}>
           {Object.entries(listTypeConfig).map(([type, config]) => {
             const Icon = config.icon;
+            const isActive = activeQuickCreate === type;
             return (
-              <button
+              <div
                 key={type}
-                className={styles.quickAction}
-                onClick={() => handleQuickCreate(type as ListType)}
+                className={`${styles.quickAction} ${isActive ? styles.quickActionActive : ''}`}
+                onClick={() => !isActive && handleQuickCreate(type as ListType)}
               >
                 <div className={`${styles.quickActionIcon} ${styles[config.colorClass]}`}>
                   <Icon size={20} />
                 </div>
-                <div className={styles.quickActionText}>
-                  <p className={styles.quickActionTitle}>{config.label}</p>
-                  <p className={styles.quickActionDesc}>{config.description}</p>
-                </div>
-              </button>
+                {isActive ? (
+                  <div className={styles.quickActionInput}>
+                    <input
+                      type="text"
+                      value={quickCreateTitle}
+                      onChange={(e) => setQuickCreateTitle(e.target.value)}
+                      onKeyDown={(e) => handleInlineKeyDown(e, type as ListType)}
+                      onBlur={() => {
+                        if (!quickCreateTitle.trim()) {
+                          setActiveQuickCreate(null);
+                          setQuickCreateTitle('');
+                        }
+                      }}
+                      placeholder={`${config.label} name...`}
+                      className={styles.inlineInput}
+                      autoFocus
+                      disabled={creating}
+                    />
+                    <span className={styles.inputHint}>Press Enter to create</span>
+                  </div>
+                ) : (
+                  <div className={styles.quickActionText}>
+                    <p className={styles.quickActionTitle}>{config.label}</p>
+                    <p className={styles.quickActionDesc}>{config.description}</p>
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
