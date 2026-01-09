@@ -118,39 +118,6 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Quick Stats */}
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1' }}>
-            <HomeIcon size={24} />
-          </div>
-          <div>
-            <p className={styles.statValue}>{households.length}</p>
-            <p className={styles.statLabel}>Households</p>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
-            <FileText size={24} />
-          </div>
-          <div>
-            <p className={styles.statValue}>{lists.length}</p>
-            <p className={styles.statLabel}>Lists</p>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
-            <CheckCircle2 size={24} />
-          </div>
-          <div>
-            <p className={styles.statValue}>
-              {lists.reduce((acc, list) => acc + list.items.filter(i => i.checked).length, 0)}
-            </p>
-            <p className={styles.statLabel}>Items Done</p>
-          </div>
-        </div>
-      </div>
-
       {/* Personal Lists */}
       {personalHouseholds.length > 0 && (
         <section className={styles.section}>

@@ -11,6 +11,7 @@
   min-height: 50vh;
   gap: var(--spacing-md);
   color: var(--color-text-muted);
+  font-family: var(--font-body);
 }
 
 .spinner {
@@ -65,6 +66,7 @@
 .meta {
   color: var(--color-text-muted);
   font-size: 0.875rem;
+  font-family: var(--font-body);
 }
 
 .typeLabel {
@@ -140,6 +142,7 @@
 
 .progressText {
   font-size: 0.875rem;
+  font-family: var(--font-body);
   color: var(--color-text-muted);
   white-space: nowrap;
 }
@@ -260,11 +263,13 @@
 
 .itemText {
   flex: 1;
+  font-family: var(--font-body);
   color: var(--color-text);
 }
 
 .itemQuantity {
   font-size: 0.8rem;
+  font-family: var(--font-body);
   padding: 2px 8px;
   background: var(--color-background);
   border: 1px solid var(--color-border);
@@ -314,6 +319,7 @@
   text-align: center;
   padding: var(--spacing-2xl);
   color: var(--color-text-muted);
+  font-family: var(--font-body);
   background: var(--color-surface);
   border: var(--border-width) dashed var(--color-border);
   border-radius: var(--border-radius);
