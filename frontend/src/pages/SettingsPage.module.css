@@ -10,6 +10,8 @@
 .header h1 {
   font-size: 1.75rem;
   font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-text);
   margin-bottom: var(--spacing-xs);
 }
 
@@ -19,11 +21,15 @@
 
 /* Section */
 .section {
-  background: var(--gradient-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   margin-bottom: var(--spacing-lg);
   overflow: hidden;
+}
+
+[data-theme="brutalist"] .section {
+  box-shadow: 4px 4px 0 var(--color-shadow);
 }
 
 .sectionHeader {
@@ -31,14 +37,15 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-color);
-  color: var(--color-text-secondary);
+  border-bottom: var(--border-width) solid var(--color-border);
+  color: var(--color-text-muted);
 }
 
 .sectionHeader h2 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .sectionContent {
@@ -57,14 +64,15 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: var(--color-primary-text);
   overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
 }
 
 .avatar img {
@@ -86,20 +94,24 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   margin-bottom: var(--spacing-sm);
 }
 
 .input {
   width: 100%;
   padding: var(--spacing-md);
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--color-text-primary);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   outline: none;
+}
+
+[data-theme="brutalist"] .input {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .input:focus {
@@ -108,23 +120,82 @@
 
 .saveButton {
   padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--gradient-primary);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
-  border: none;
-  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-normal);
 }
 
+[data-theme="brutalist"] .saveButton {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .saveButton:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
 .saveButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  opacity: 0.9;
 }
 
 .saveButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Theme Grid */
+.themeDescription {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.875rem;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.themeOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .themeOption {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+.themeOption:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-primary);
+}
+
+.themeOptionActive {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.themeIcon {
+  font-size: 1.5rem;
+}
+
+.themeName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 /* Toggle */
@@ -133,7 +204,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) 0;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: var(--border-width) solid var(--color-border);
 }
 
 .toggleRow:last-child {
@@ -142,6 +213,7 @@
 
 .toggleLabel {
   font-weight: 500;
+  color: var(--color-text);
   margin-bottom: var(--spacing-xs);
 }
 
@@ -154,9 +226,9 @@
   width: 48px;
   height: 24px;
   appearance: none;
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: 999px;
   position: relative;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -175,13 +247,13 @@
 }
 
 .toggle:checked {
-  background: var(--gradient-primary);
-  border-color: transparent;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .toggle:checked::before {
   transform: translateX(24px);
-  background: white;
+  background: var(--color-primary-text);
 }
 
 /* Logout */
@@ -191,12 +263,17 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
   background: rgba(239, 68, 68, 0.1);
-  color: var(--color-error);
+  color: #ef4444;
   font-weight: 600;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  border: var(--border-width) solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .logoutButton {
+  box-shadow: 3px 3px 0 rgba(239, 68, 68, 0.3);
 }
 
 .logoutButton:hover {

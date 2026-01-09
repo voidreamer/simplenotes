@@ -1,0 +1,251 @@
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Progress */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-background);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: var(--border-radius);
+  transition: width var(--transition-normal);
+}
+
+.progressText {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Add Form */
+.addForm {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.addInput {
+  flex: 1;
+  padding: var(--spacing-md);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  outline: none;
+}
+
+[data-theme="brutalist"] .addInput {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+.addInput:focus {
+  border-color: var(--color-primary);
+}
+
+.addInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.addButton {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-primary-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .addButton {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .addButton:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
+.addButton:hover {
+  opacity: 0.9;
+}
+
+.addButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Items List */
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  transition: all var(--transition-fast);
+  cursor: grab;
+}
+
+.item:active {
+  cursor: grabbing;
+}
+
+/* Drag and drop states */
+.item:global(.dragging) {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+.item:global(.dragOver) {
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+}
+
+[data-theme="brutalist"] .item:global(.dragOver) {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+[data-theme="brutalist"] .item {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+.item:hover {
+  background: var(--color-surface-hover);
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.checkbox:hover {
+  border-color: var(--color-primary);
+}
+
+/* Drag Handle */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  cursor: grab;
+  padding: var(--spacing-xs);
+  margin-left: calc(-1 * var(--spacing-sm));
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+
+.item:hover .dragHandle {
+  opacity: 1;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.checkboxChecked {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+}
+
+.itemText {
+  flex: 1;
+  color: var(--color-text);
+}
+
+.deleteButton {
+  opacity: 0;
+  background: none;
+  border: none;
+  padding: var(--spacing-xs);
+  color: var(--color-error);
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.item:hover .deleteButton {
+  opacity: 1;
+}
+
+/* Checked Items */
+.itemChecked {
+  opacity: 0.6;
+}
+
+.itemChecked .itemText {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+/* Completed Section */
+.completedSection {
+  margin-top: var(--spacing-md);
+}
+
+.completedHeader {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: var(--border-width) dashed var(--color-border);
+  border-radius: var(--border-radius);
+}
+
+[data-theme="brutalist"] .emptyState {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .deleteButton {
+    opacity: 1;
+  }
+}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Home as HomeIcon, ShoppingCart, CheckCircle2, FileText, Users, Sparkles } from 'lucide-react';
+import { Plus, Home as HomeIcon, ShoppingCart, CheckCircle2, FileText, Users, Sparkles, User } from 'lucide-react';
 import { useAuthStore, useHouseholdStore, useListsStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import styles from './DashboardPage.module.css';
@@ -90,6 +90,14 @@ export default function DashboardPage() {
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
     .slice(0, 6);
 
+  // Separate personal and shared households
+  const personalHouseholds = households.filter(
+    (h) => h.name === 'Personal' && (h.members?.length || 1) === 1
+  );
+  const sharedHouseholds = households.filter(
+    (h) => h.name !== 'Personal' || (h.members?.length || 1) > 1
+  );
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -107,59 +115,59 @@ export default function DashboardPage() {
           <h1 className={styles.greeting}>
             Welcome back, <span className={styles.gradient}>{user?.name?.split(' ')[0] || 'there'}</span>
           </h1>
-          <p className={styles.subtitle}>Here's what's happening with your lists</p>
         </div>
-        <button onClick={() => setShowCreateModal(true)} className={styles.createButton}>
-          <Plus size={20} />
-          New Household
-        </button>
       </header>
 
-      {/* Quick Stats */}
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1' }}>
-            <HomeIcon size={24} />
+      {/* Personal Lists */}
+      {personalHouseholds.length > 0 && (
+        <section className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <User size={20} />
+              Personal
+            </h2>
           </div>
-          <div>
-            <p className={styles.statValue}>{households.length}</p>
-            <p className={styles.statLabel}>Households</p>
+          <div className={styles.householdGrid}>
+            {personalHouseholds.map((household) => (
+              <button
+                key={household.household_id}
+                className={`${styles.householdCard} ${styles.personalCard}`}
+                onClick={() => {
+                  setCurrentHousehold(household);
+                  navigate(`/household/${household.household_id}`);
+                }}
+              >
+                <div className={styles.householdIcon} style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                  <User size={20} />
+                </div>
+                <div className={styles.householdInfo}>
+                  <h3>My Lists</h3>
+                  <p>
+                    {lists.filter(l => l.household_id === household.household_id).length} list
+                    {lists.filter(l => l.household_id === household.household_id).length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              </button>
+            ))}
           </div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
-            <FileText size={24} />
-          </div>
-          <div>
-            <p className={styles.statValue}>{lists.length}</p>
-            <p className={styles.statLabel}>Lists</p>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
-            <CheckCircle2 size={24} />
-          </div>
-          <div>
-            <p className={styles.statValue}>
-              {lists.reduce((acc, list) => acc + list.items.filter(i => i.checked).length, 0)}
-            </p>
-            <p className={styles.statLabel}>Items Done</p>
-          </div>
-        </div>
-      </div>
+        </section>
+      )}
 
-      {/* Households */}
+      {/* Shared Households */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Your Households</h2>
+          <h2 className={styles.sectionTitle}>
+            <Users size={20} />
+            Shared Households
+          </h2>
         </div>
 
-        {households.length === 0 ? (
+        {sharedHouseholds.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
               <Sparkles size={48} />
             </div>
-            <h3>Create your first household</h3>
+            <h3>Create a shared household</h3>
             <p>Households let you share lists with family members</p>
             <button onClick={() => setShowCreateModal(true)} className={styles.emptyButton}>
               <Plus size={20} />
@@ -168,7 +176,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className={styles.householdGrid}>
-            {households.map((household) => (
+            {sharedHouseholds.map((household) => (
               <button
                 key={household.household_id}
                 className={styles.householdCard}
@@ -189,6 +197,18 @@ export default function DashboardPage() {
                 </div>
               </button>
             ))}
+            <button
+              className={`${styles.householdCard} ${styles.addCard}`}
+              onClick={() => setShowCreateModal(true)}
+            >
+              <div className={styles.householdIcon}>
+                <Plus size={20} />
+              </div>
+              <div className={styles.householdInfo}>
+                <h3>Add Household</h3>
+                <p>Create a new shared space</p>
+              </div>
+            </button>
           </div>
         )}
       </section>

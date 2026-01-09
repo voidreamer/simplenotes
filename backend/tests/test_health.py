@@ -5,13 +5,14 @@ SimpleNotes - Health Check Tests
 import pytest
 from unittest.mock import patch, MagicMock
 import sys
+import os
 
 # Mock boto3 before any imports
 mock_boto3 = MagicMock()
 sys.modules['boto3'] = mock_boto3
 
-# Now import the app
-with patch.dict('os.environ', {
+# Environment setup
+os.environ.update({
     'ENVIRONMENT': 'test',
     'AWS_REGION': 'ca-central-1',
     'USERS_TABLE': 'test-users',
@@ -21,9 +22,10 @@ with patch.dict('os.environ', {
     'COGNITO_USER_POOL_ID': 'test-pool-id',
     'COGNITO_CLIENT_ID': 'test-client-id',
     'COGNITO_REGION': 'ca-central-1',
-}):
-    from fastapi.testclient import TestClient
-    from app.main import app
+})
+
+from fastapi.testclient import TestClient
+from app.main import app
 
 client = TestClient(app)
 

@@ -135,7 +135,7 @@ resource "aws_lambda_function" "api" {
       COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.web.id
       COGNITO_REGION        = var.aws_region
       SES_EMAIL             = var.ses_email
-      FRONTEND_URL          = "https://${aws_s3_bucket.frontend.bucket}.s3.${var.aws_region}.amazonaws.com"
+      FRONTEND_URL          = "https://${aws_cloudfront_distribution.frontend.domain_name}"
     }
   }
 
@@ -172,7 +172,7 @@ resource "aws_apigatewayv2_api" "main" {
     allow_origins     = [
       "http://localhost:3000",
       "http://localhost:5173",
-      "https://${aws_s3_bucket.frontend.bucket}.s3.${var.aws_region}.amazonaws.com"
+      "https://${aws_cloudfront_distribution.frontend.domain_name}"
     ]
     expose_headers    = ["*"]
     max_age           = 3600
@@ -220,6 +220,13 @@ resource "aws_apigatewayv2_route" "api" {
   target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
   authorization_type = "JWT"
+}
+
+# OPTIONS preflight route (no auth required for CORS preflight)
+resource "aws_apigatewayv2_route" "api_options" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "OPTIONS /api/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
 # Public routes (health check, docs)

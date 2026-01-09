@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Settings, LogOut, Menu, X, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Home, Settings, LogOut, Menu, X, Plus, Keyboard } from 'lucide-react';
+import { useState, useCallback } from 'react';
 import { useAuthStore, useHouseholdStore } from '../stores/store';
 import { logout } from '../utils/auth';
+import { useKeyboardShortcuts, useShortcutEvent } from '../hooks/useKeyboardShortcuts';
+import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 import styles from './Layout.module.css';
 
 interface LayoutProps {
@@ -14,11 +16,25 @@ export default function Layout({ children }: LayoutProps) {
   const { user } = useAuthStore();
   const { households, currentHousehold } = useHouseholdStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
+
+  // Initialize keyboard shortcuts
+  useKeyboardShortcuts();
+
+  // Listen for help shortcut
+  useShortcutEvent('shortcut:help', useCallback(() => {
+    setShowShortcuts(true);
+  }, []));
+
+  // Listen for escape to close sidebar
+  useShortcutEvent('shortcut:escape', useCallback(() => {
+    setSidebarOpen(false);
+  }, []));
 
   return (
     <div className={styles.layout}>
@@ -53,7 +69,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         <nav className={styles.nav}>
-          <Link to="/dashboard" className={styles.navItem}>
+          <Link to="/dashboard" className={styles.navItem} onClick={() => setSidebarOpen(false)}>
             <Home size={20} />
             <span>Dashboard</span>
           </Link>
@@ -78,6 +94,7 @@ export default function Layout({ children }: LayoutProps) {
                     ? styles.navItemActive
                     : ''
                 }`}
+                onClick={() => setSidebarOpen(false)}
               >
                 <span className={styles.householdIcon}>
                   {household.name.charAt(0)}
@@ -89,11 +106,19 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link to="/settings" className={styles.navItem}>
+          <button
+            className={styles.navItem}
+            onClick={() => setShowShortcuts(true)}
+            title="Keyboard Shortcuts"
+          >
+            <Keyboard size={20} />
+            <span>Shortcuts</span>
+          </button>
+          <Link to="/settings" className={styles.navItem} onClick={() => setSidebarOpen(false)}>
             <Settings size={20} />
             <span>Settings</span>
           </Link>
-          <button onClick={handleLogout} className={styles.navItem}>
+          <button onClick={() => { setSidebarOpen(false); handleLogout(); }} className={styles.navItem}>
             <LogOut size={20} />
             <span>Logout</span>
           </button>
@@ -110,6 +135,12 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Content */}
       <main className={styles.main}>{children}</main>
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal
+        isOpen={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+      />
     </div>
   );
 }

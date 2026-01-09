@@ -123,7 +123,7 @@ class ApiClient {
   async updateList(
     id: string,
     householdId: string,
-    data: { title?: string; items?: unknown[]; color?: string; icon?: string; pinned?: boolean }
+    data: { title?: string; items?: unknown[]; content?: string; color?: string; icon?: string; pinned?: boolean }
   ) {
     return this.request(`/api/lists/${id}?household_id=${householdId}`, {
       method: 'PATCH',

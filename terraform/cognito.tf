@@ -116,13 +116,13 @@ resource "aws_cognito_user_pool_client" "web" {
   callback_urls = [
     "http://localhost:3000/callback",
     "http://localhost:5173/callback",
-    "https://${aws_s3_bucket.frontend.bucket}.s3.${var.aws_region}.amazonaws.com/callback"
+    "https://${aws_cloudfront_distribution.frontend.domain_name}/callback"
   ]
 
   logout_urls = [
     "http://localhost:3000",
     "http://localhost:5173",
-    "https://${aws_s3_bucket.frontend.bucket}.s3.${var.aws_region}.amazonaws.com"
+    "https://${aws_cloudfront_distribution.frontend.domain_name}"
   ]
 
   # Token validity
@@ -160,7 +160,7 @@ resource "aws_cognito_user_pool_client" "web" {
 # ============================================
 
 resource "aws_cognito_user_pool_domain" "main" {
-  domain       = "${var.project_name}-${local.account_id}"
+  domain       = "${var.project_name}-${var.environment}-${local.account_id}"
   user_pool_id = aws_cognito_user_pool.main.id
 }
 

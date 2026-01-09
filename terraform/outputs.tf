@@ -6,8 +6,13 @@ output "api_gateway_url" {
 }
 
 output "frontend_url" {
-  description = "S3 frontend website URL"
-  value       = "https://${aws_s3_bucket.frontend.bucket}.s3.${var.aws_region}.amazonaws.com"
+  description = "CloudFront frontend URL"
+  value       = "https://${aws_cloudfront_distribution.frontend.domain_name}"
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID"
+  value       = aws_cloudfront_distribution.frontend.id
 }
 
 output "frontend_bucket" {
