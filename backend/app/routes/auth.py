@@ -54,8 +54,10 @@ async def register_user(data: UserCreate, user: dict = Depends(get_current_user)
         name="Personal"
     )
 
-    # Refresh user to include the new household
-    new_user = get_user_by_id(user["user_id"])
+    # Refresh user to include the new household (if available)
+    refreshed_user = get_user_by_id(user["user_id"])
+    if refreshed_user:
+        new_user = refreshed_user
 
     # Check for pending invites
     invites = get_invites_by_email(user["email"])
