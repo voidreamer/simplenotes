@@ -4,21 +4,21 @@
 
 :root {
   /* Theme Variables - These are set by JavaScript based on selected theme */
-  /* Default: Sketchy theme */
-  --color-background: #f0f0f0;
-  --color-surface: #fffef9;
-  --color-surface-hover: #fff8e8;
-  --color-border: #333333;
-  --color-text: #222222;
-  --color-text-muted: #444444;
-  --color-primary: #e6c600;
-  --color-primary-text: #222222;
-  --color-accent: #d41a5c;
+  /* Default: Paper theme */
+  --color-background: #e8e0d0;
+  --color-surface: #fffef8;
+  --color-surface-hover: #fff9eb;
+  --color-border: #8a8070;
+  --color-text: #2c2c2c;
+  --color-text-muted: #4a4a4a;
+  --color-primary: #e6a800;
+  --color-primary-text: #2c2c2c;
+  --color-accent: #e56e4a;
   --color-shadow: rgba(0,0,0,0.15);
-  --font-heading: 'Comic Neue', 'Comic Sans MS', cursive;
-  --font-body: 'Comic Neue', 'Comic Sans MS', cursive;
-  --border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-  --border-width: 2px;
+  --font-heading: 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Georgia', 'Times New Roman', serif;
+  --border-radius: 4px;
+  --border-width: 1px;
 
   /* Legacy variables for compatibility */
   --color-bg-primary: var(--color-background);
