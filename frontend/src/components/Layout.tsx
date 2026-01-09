@@ -53,7 +53,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         <nav className={styles.nav}>
-          <Link to="/dashboard" className={styles.navItem}>
+          <Link to="/dashboard" className={styles.navItem} onClick={() => setSidebarOpen(false)}>
             <Home size={20} />
             <span>Dashboard</span>
           </Link>
@@ -78,6 +78,7 @@ export default function Layout({ children }: LayoutProps) {
                     ? styles.navItemActive
                     : ''
                 }`}
+                onClick={() => setSidebarOpen(false)}
               >
                 <span className={styles.householdIcon}>
                   {household.name.charAt(0)}
@@ -89,11 +90,11 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link to="/settings" className={styles.navItem}>
+          <Link to="/settings" className={styles.navItem} onClick={() => setSidebarOpen(false)}>
             <Settings size={20} />
             <span>Settings</span>
           </Link>
-          <button onClick={handleLogout} className={styles.navItem}>
+          <button onClick={() => { setSidebarOpen(false); handleLogout(); }} className={styles.navItem}>
             <LogOut size={20} />
             <span>Logout</span>
           </button>

@@ -115,7 +115,6 @@ export default function DashboardPage() {
           <h1 className={styles.greeting}>
             Welcome back, <span className={styles.gradient}>{user?.name?.split(' ')[0] || 'there'}</span>
           </h1>
-          <p className={styles.subtitle}>Here's what's happening with your lists</p>
         </div>
       </header>
 
