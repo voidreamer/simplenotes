@@ -103,8 +103,8 @@ export const themes: Record<ThemeName, {
       shadow: '#ff6b4a',
     },
     fonts: {
-      heading: "'Courier New', 'Monaco', monospace",
-      body: "'Courier New', 'Monaco', monospace",
+      heading: "'Courier Prime', 'Courier New', monospace",
+      body: "'Courier Prime', 'Courier New', monospace",
     },
     borderRadius: '0px',
     borderWidth: '2px',
@@ -125,8 +125,8 @@ export const themes: Record<ThemeName, {
       shadow: 'rgba(0,0,0,0.15)',
     },
     fonts: {
-      heading: "'Comic Sans MS', 'Chalkboard', cursive",
-      body: "'Comic Sans MS', 'Chalkboard', cursive",
+      heading: "'Comic Neue', 'Comic Sans MS', cursive",
+      body: "'Comic Neue', 'Comic Sans MS', cursive",
     },
     borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
     borderWidth: '2px',
@@ -147,8 +147,8 @@ export const themes: Record<ThemeName, {
       shadow: 'rgba(255,215,0,0.2)',
     },
     fonts: {
-      heading: "'Comic Sans MS', 'Chalkboard', cursive",
-      body: "'Comic Sans MS', 'Chalkboard', cursive",
+      heading: "'Comic Neue', 'Comic Sans MS', cursive",
+      body: "'Comic Neue', 'Comic Sans MS', cursive",
     },
     borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
     borderWidth: '2px',
@@ -191,8 +191,8 @@ export const themes: Record<ThemeName, {
       shadow: 'rgba(0,255,0,0.15)',
     },
     fonts: {
-      heading: "'Courier New', 'Monaco', monospace",
-      body: "'Courier New', 'Monaco', monospace",
+      heading: "'Courier Prime', 'Courier New', monospace",
+      body: "'Courier Prime', 'Courier New', monospace",
     },
     borderRadius: '0px',
     borderWidth: '1px',
