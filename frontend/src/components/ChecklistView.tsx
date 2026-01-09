@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Plus, Trash2, Check } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Plus, Trash2, Check, GripVertical } from 'lucide-react';
 import { List, ListItem } from '../stores/store';
 import { api } from '../utils/api';
+import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import styles from './ChecklistView.module.css';
 
 interface ChecklistViewProps {
@@ -60,6 +61,24 @@ export default function ChecklistView({
   const checkedItems = list.items.filter((i) => i.checked);
   const uncheckedItems = list.items.filter((i) => !i.checked);
 
+  // Drag and drop for unchecked items
+  const handleReorder = useCallback(async (newItems: ListItem[]) => {
+    // Combine reordered unchecked items with checked items
+    const reorderedList: List = {
+      ...list,
+      items: [...newItems, ...checkedItems],
+    };
+    onUpdate(reorderedList);
+
+    // TODO: Persist order to backend when API supports it
+  }, [list, checkedItems, onUpdate]);
+
+  const { getDragHandleProps, getItemClassName } = useDragAndDrop({
+    items: uncheckedItems,
+    onReorder: handleReorder,
+    idKey: 'id',
+  });
+
   return (
     <div className={styles.checklist}>
       {/* Progress */}
@@ -93,8 +112,15 @@ export default function ChecklistView({
 
       {/* Items */}
       <div className={styles.itemsList}>
-        {uncheckedItems.map((item) => (
-          <div key={item.id} className={styles.item}>
+        {uncheckedItems.map((item, index) => (
+          <div
+            key={item.id}
+            className={getItemClassName(index, styles.item)}
+            {...getDragHandleProps(index)}
+          >
+            <div className={styles.dragHandle}>
+              <GripVertical size={16} />
+            </div>
             <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
             <span className={styles.itemText}>{item.text}</span>
             <button className={styles.deleteButton} onClick={() => handleDelete(item.id)}>

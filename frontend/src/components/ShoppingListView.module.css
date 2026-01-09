@@ -236,6 +236,26 @@
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--border-radius);
   transition: all var(--transition-fast);
+  cursor: grab;
+}
+
+.item:active {
+  cursor: grabbing;
+}
+
+/* Drag and drop states */
+.item:global(.dragging) {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+.item:global(.dragOver) {
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+}
+
+[data-theme="brutalist"] .item:global(.dragOver) {
+  box-shadow: 0 0 0 2px var(--color-primary);
 }
 
 [data-theme="brutalist"] .item {
@@ -262,6 +282,27 @@
 
 .checkbox:hover {
   border-color: var(--color-primary);
+}
+
+/* Drag Handle */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  cursor: grab;
+  padding: var(--spacing-xs);
+  margin-left: calc(-1 * var(--spacing-sm));
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+
+.item:hover .dragHandle {
+  opacity: 1;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
 }
 
 .checkboxChecked {

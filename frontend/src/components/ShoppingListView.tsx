@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Plus, Trash2, Check, Minus, ShoppingCart } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Plus, Trash2, Check, Minus, ShoppingCart, GripVertical } from 'lucide-react';
 import { List, ListItem } from '../stores/store';
 import { api } from '../utils/api';
+import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import styles from './ShoppingListView.module.css';
 
 interface ShoppingListViewProps {
@@ -68,7 +69,22 @@ export default function ShoppingListView({
   const checkedItems = list.items.filter((i) => i.checked);
   const uncheckedItems = list.items.filter((i) => !i.checked);
 
-  // Group by category
+  // Drag and drop for unchecked items
+  const handleReorder = useCallback(async (newItems: ListItem[]) => {
+    const reorderedList: List = {
+      ...list,
+      items: [...newItems, ...checkedItems],
+    };
+    onUpdate(reorderedList);
+  }, [list, checkedItems, onUpdate]);
+
+  const { getDragHandleProps, getItemClassName } = useDragAndDrop({
+    items: uncheckedItems,
+    onReorder: handleReorder,
+    idKey: 'id',
+  });
+
+  // Group by category (for display only, drag works on flat list)
   const categorizedItems = uncheckedItems.reduce((acc, item) => {
     const category = item.category || 'Other';
     if (!acc[category]) acc[category] = [];
@@ -157,27 +173,40 @@ export default function ShoppingListView({
 
       {/* Items by category */}
       <div className={styles.itemsList}>
-        {categories.map((category) => (
-          <div key={category} className={styles.category}>
-            {categories.length > 1 && <h3 className={styles.categoryHeader}>{category}</h3>}
-            {categorizedItems[category].map((item) => (
-              <div key={item.id} className={styles.item}>
-                <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
-                <div className={styles.itemContent}>
-                  <span className={styles.itemText}>{item.text}</span>
-                  {(item.quantity && item.quantity > 1) || item.unit ? (
-                    <span className={styles.itemMeta}>
-                      {item.quantity || 1} {item.unit}
-                    </span>
-                  ) : null}
-                </div>
-                <button className={styles.deleteButton} onClick={() => handleDelete(item.id)}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-        ))}
+        {(() => {
+          let flatIndex = 0;
+          return categories.map((category) => (
+            <div key={category} className={styles.category}>
+              {categories.length > 1 && <h3 className={styles.categoryHeader}>{category}</h3>}
+              {categorizedItems[category].map((item) => {
+                const currentIndex = flatIndex++;
+                return (
+                  <div
+                    key={item.id}
+                    className={getItemClassName(currentIndex, styles.item)}
+                    {...getDragHandleProps(currentIndex)}
+                  >
+                    <div className={styles.dragHandle}>
+                      <GripVertical size={16} />
+                    </div>
+                    <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
+                    <div className={styles.itemContent}>
+                      <span className={styles.itemText}>{item.text}</span>
+                      {(item.quantity && item.quantity > 1) || item.unit ? (
+                        <span className={styles.itemMeta}>
+                          {item.quantity || 1} {item.unit}
+                        </span>
+                      ) : null}
+                    </div>
+                    <button className={styles.deleteButton} onClick={() => handleDelete(item.id)}>
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ));
+        })()}
 
         {/* In Cart */}
         {checkedItems.length > 0 && (
