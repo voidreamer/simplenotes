@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Settings, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut } from 'lucide-react';
+import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, Mail } from 'lucide-react';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
@@ -9,9 +9,9 @@ import styles from './HouseholdPage.module.css';
 type ListType = 'note' | 'checklist' | 'shopping';
 
 const listTypeConfig = {
-  shopping: { icon: ShoppingCart, color: '#f59e0b', label: 'Shopping List' },
-  checklist: { icon: CheckCircle2, color: '#10b981', label: 'Checklist' },
-  note: { icon: FileText, color: '#6366f1', label: 'Note' },
+  shopping: { icon: ShoppingCart, label: 'Shopping List', description: 'Track items to buy', colorClass: 'colorShopping' },
+  checklist: { icon: CheckCircle2, label: 'Checklist', description: 'Tasks and to-dos', colorClass: 'colorChecklist' },
+  note: { icon: FileText, label: 'Note', description: 'Quick notes', colorClass: 'colorNote' },
 };
 
 export default function HouseholdPage() {
@@ -25,6 +25,7 @@ export default function HouseholdPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [newListType, setNewListType] = useState<ListType>('shopping');
   const [inviteEmail, setInviteEmail] = useState('');
@@ -45,6 +46,7 @@ export default function HouseholdPage() {
     setShowCreateModal(false);
     setShowInviteModal(false);
     setShowDeleteModal(false);
+    setShowOptionsMenu(false);
   }, []));
 
   useEffect(() => {
@@ -90,6 +92,11 @@ export default function HouseholdPage() {
     }
   };
 
+  const handleQuickCreate = (type: ListType) => {
+    setNewListType(type);
+    setShowCreateModal(true);
+  };
+
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteEmail.trim() || !householdId) return;
@@ -127,6 +134,27 @@ export default function HouseholdPage() {
     }
   };
 
+  // Generate consistent color for member based on name
+  const getMemberColor = (name: string) => {
+    const colors = [
+      'linear-gradient(135deg, #f59e0b, #d97706)',
+      'linear-gradient(135deg, #6366f1, #4f46e5)',
+      'linear-gradient(135deg, #10b981, #059669)',
+      'linear-gradient(135deg, #ec4899, #db2777)',
+      'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+      'linear-gradient(135deg, #14b8a6, #0d9488)',
+    ];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
+  // Get household icon color
+  const getHouseholdColor = (name: string) => {
+    const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -139,14 +167,17 @@ export default function HouseholdPage() {
     <div className={styles.page}>
       {/* Header */}
       <header className={styles.header}>
-        <button onClick={() => navigate('/dashboard')} className={styles.backButton}>
-          <ArrowLeft size={20} />
-        </button>
-        <div className={styles.headerInfo}>
-          <div className={styles.householdIcon}>
+        <div className={styles.headerLeft}>
+          <button onClick={() => navigate('/dashboard')} className={styles.backButton}>
+            <ArrowLeft size={20} />
+          </button>
+          <div
+            className={styles.householdIcon}
+            style={{ backgroundColor: getHouseholdColor(currentHousehold?.name || 'H') }}
+          >
             {currentHousehold?.name?.charAt(0) || 'H'}
           </div>
-          <div>
+          <div className={styles.headerInfo}>
             <h1 className={styles.title}>{currentHousehold?.name}</h1>
             <p className={styles.memberCount}>
               {currentHousehold?.members?.length || 1} member{(currentHousehold?.members?.length || 1) !== 1 ? 's' : ''}
@@ -161,95 +192,128 @@ export default function HouseholdPage() {
             </button>
           )}
           {!isPersonal && (
-            <button onClick={() => setShowDeleteModal(true)} className={styles.deleteButton}>
-              {isOwner ? <Trash2 size={18} /> : <LogOut size={18} />}
-            </button>
+            <div className={styles.optionsWrapper}>
+              <button
+                onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                className={styles.optionsButton}
+              >
+                <MoreVertical size={20} />
+              </button>
+              {showOptionsMenu && (
+                <div className={styles.optionsMenu}>
+                  <button
+                    onClick={() => {
+                      setShowOptionsMenu(false);
+                      setShowDeleteModal(true);
+                    }}
+                    className={styles.optionsMenuItem}
+                  >
+                    {isOwner ? <Trash2 size={16} /> : <LogOut size={16} />}
+                    {isOwner ? 'Delete Household' : 'Leave Household'}
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </header>
 
-      {/* Quick Actions */}
-      <div className={styles.quickActions}>
-        {Object.entries(listTypeConfig).map(([type, config]) => {
-          const Icon = config.icon;
-          return (
-            <button
-              key={type}
-              className={styles.quickAction}
-              onClick={() => {
-                setNewListType(type as ListType);
-                setShowCreateModal(true);
-              }}
-              style={{ '--accent-color': config.color } as React.CSSProperties}
-            >
-              <Icon size={24} />
-              <span>New {config.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Quick Create */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionLabel}>Quick Create</h2>
+        <div className={styles.quickActions}>
+          {Object.entries(listTypeConfig).map(([type, config]) => {
+            const Icon = config.icon;
+            return (
+              <button
+                key={type}
+                className={styles.quickAction}
+                onClick={() => handleQuickCreate(type as ListType)}
+              >
+                <div className={`${styles.quickActionIcon} ${styles[config.colorClass]}`}>
+                  <Icon size={20} />
+                </div>
+                <div className={styles.quickActionText}>
+                  <p className={styles.quickActionTitle}>{config.label}</p>
+                  <p className={styles.quickActionDesc}>{config.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Lists */}
-      <section className={styles.listsSection}>
+      <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2>Lists</h2>
-          <button onClick={() => setShowCreateModal(true)} className={styles.addButton}>
-            <Plus size={18} />
-          </button>
+          <h2 className={styles.sectionTitle}>Lists</h2>
+          {householdLists.length > 0 && (
+            <button onClick={() => setShowCreateModal(true)} className={styles.viewAllButton}>
+              View all
+            </button>
+          )}
         </div>
 
-        {householdLists.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>No lists yet. Create one to get started!</p>
-          </div>
-        ) : (
-          <div className={styles.listGrid}>
-            {householdLists.map((list) => {
-              const config = listTypeConfig[list.type as ListType] || listTypeConfig.note;
-              const Icon = config.icon;
-              const checkedCount = list.items.filter(i => i.checked).length;
-              const totalCount = list.items.length;
+        <div className={styles.listGrid}>
+          {householdLists.map((list) => {
+            const config = listTypeConfig[list.type as ListType] || listTypeConfig.note;
+            const Icon = config.icon;
+            const checkedCount = list.items.filter(i => i.checked).length;
+            const totalCount = list.items.length;
+            const progress = totalCount > 0 ? (checkedCount / totalCount) * 100 : 0;
 
-              return (
-                <button
-                  key={list.list_id}
-                  className={styles.listCard}
-                  onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
-                >
-                  <div className={styles.listCardHeader}>
-                    <div className={styles.listIcon} style={{ background: `${config.color}20`, color: config.color }}>
-                      <Icon size={20} />
-                    </div>
-                    {list.pinned && <span className={styles.pinnedBadge}>Pinned</span>}
+            return (
+              <button
+                key={list.list_id}
+                className={styles.listCard}
+                onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
+              >
+                <div className={styles.listCardHeader}>
+                  <div className={`${styles.listIcon} ${styles[config.colorClass]}`}>
+                    <Icon size={24} />
                   </div>
-                  <h3 className={styles.listTitle}>{list.title}</h3>
-                  <p className={styles.listMeta}>
-                    {totalCount} item{totalCount !== 1 ? 's' : ''}
-                    {totalCount > 0 && ` • ${checkedCount} done`}
-                  </p>
-                  {totalCount > 0 && (
-                    <div className={styles.progressBar}>
-                      <div
-                        className={styles.progressFill}
-                        style={{ width: `${(checkedCount / totalCount) * 100}%`, background: config.color }}
-                      />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
+                </div>
+                <h3 className={styles.listTitle}>{list.title}</h3>
+                <p className={styles.listMeta}>{totalCount} item{totalCount !== 1 ? 's' : ''}</p>
+                <div className={styles.progressBar}>
+                  <div
+                    className={`${styles.progressFill} ${styles[config.colorClass]}`}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </button>
+            );
+          })}
+
+          {/* Add new list card */}
+          <button
+            className={styles.addListCard}
+            onClick={() => setShowCreateModal(true)}
+          >
+            <div className={styles.addListIcon}>
+              <Plus size={24} />
+            </div>
+            <p className={styles.addListText}>Add new list</p>
+          </button>
+        </div>
       </section>
 
       {/* Members */}
       {currentHousehold?.members && currentHousehold.members.length > 0 && (
-        <section className={styles.membersSection}>
-          <h2>Members</h2>
+        <section className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Members</h2>
+            <span className={styles.memberCountLabel}>
+              {currentHousehold.members.length} member{currentHousehold.members.length !== 1 ? 's' : ''}
+            </span>
+          </div>
           <div className={styles.membersList}>
             {(currentHousehold.members as any[]).map((member: any) => (
               <div key={member.user_id || member} className={styles.memberCard}>
-                <div className={styles.memberAvatar}>
+                <div
+                  className={styles.memberAvatar}
+                  style={{ background: getMemberColor(typeof member === 'object' ? member.name : 'U') }}
+                >
                   {typeof member === 'object' ? member.name?.charAt(0) : 'U'}
                 </div>
                 <div className={styles.memberInfo}>
@@ -257,6 +321,7 @@ export default function HouseholdPage() {
                     {typeof member === 'object' ? member.name : 'Member'}
                   </p>
                   <p className={styles.memberEmail}>
+                    <Mail size={12} />
                     {typeof member === 'object' ? member.email : ''}
                   </p>
                 </div>
@@ -270,7 +335,7 @@ export default function HouseholdPage() {
       {showCreateModal && (
         <div className={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2>Create New List</h2>
+            <h2 className={styles.modalTitle}>Create New List</h2>
             <form onSubmit={handleCreateList}>
               <div className={styles.typeSelector}>
                 {Object.entries(listTypeConfig).map(([type, config]) => {
@@ -279,9 +344,8 @@ export default function HouseholdPage() {
                     <button
                       key={type}
                       type="button"
-                      className={`${styles.typeOption} ${newListType === type ? styles.typeOptionActive : ''}`}
+                      className={`${styles.typeOption} ${newListType === type ? styles.typeOptionActive : ''} ${styles[config.colorClass]}`}
                       onClick={() => setNewListType(type as ListType)}
-                      style={{ '--type-color': config.color } as React.CSSProperties}
                     >
                       <Icon size={24} />
                       <span>{config.label}</span>
@@ -314,7 +378,7 @@ export default function HouseholdPage() {
       {showInviteModal && (
         <div className={styles.modalOverlay} onClick={() => setShowInviteModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2>Invite to Household</h2>
+            <h2 className={styles.modalTitle}>Invite to Household</h2>
             <p className={styles.modalSubtitle}>
               Enter the email address of the person you want to invite
             </p>
@@ -344,7 +408,7 @@ export default function HouseholdPage() {
       {showDeleteModal && (
         <div className={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2>{isOwner ? 'Delete Household' : 'Leave Household'}</h2>
+            <h2 className={styles.modalTitle}>{isOwner ? 'Delete Household' : 'Leave Household'}</h2>
             <p className={styles.modalSubtitle}>
               {isOwner
                 ? 'This will permanently delete this household and all its lists. This action cannot be undone.'
@@ -365,6 +429,11 @@ export default function HouseholdPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Click outside to close options menu */}
+      {showOptionsMenu && (
+        <div className={styles.optionsBackdrop} onClick={() => setShowOptionsMenu(false)} />
       )}
     </div>
   );
