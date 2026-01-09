@@ -11,7 +11,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'brutalist',
+      theme: 'sketchy',
       setTheme: (theme) => set({ theme }),
     }),
     {
