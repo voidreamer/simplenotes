@@ -117,10 +117,6 @@ export default function DashboardPage() {
           </h1>
           <p className={styles.subtitle}>Here's what's happening with your lists</p>
         </div>
-        <button onClick={() => setShowCreateModal(true)} className={styles.createButton}>
-          <Plus size={20} />
-          New Household
-        </button>
       </header>
 
       {/* Quick Stats */}

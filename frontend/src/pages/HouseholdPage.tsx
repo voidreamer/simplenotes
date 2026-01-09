@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Settings, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical } from 'lucide-react';
-import { useHouseholdStore, useListsStore, Household, List } from '../stores/store';
+import { Plus, Settings, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut } from 'lucide-react';
+import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import styles from './HouseholdPage.module.css';
 
@@ -16,19 +16,24 @@ const listTypeConfig = {
 export default function HouseholdPage() {
   const { householdId } = useParams();
   const navigate = useNavigate();
-  const { currentHousehold, setCurrentHousehold } = useHouseholdStore();
+  const { user } = useAuthStore();
+  const { currentHousehold, setCurrentHousehold, removeHousehold } = useHouseholdStore();
   const { lists, setLists, addList } = useListsStore();
 
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [newListType, setNewListType] = useState<ListType>('shopping');
   const [inviteEmail, setInviteEmail] = useState('');
   const [creating, setCreating] = useState(false);
   const [inviting, setInviting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const householdLists = lists.filter(l => l.household_id === householdId);
+  const isOwner = currentHousehold?.owner_id === user?.user_id;
+  const isPersonal = currentHousehold?.name === 'Personal' && (currentHousehold?.members?.length || 1) === 1;
 
   useEffect(() => {
     const loadHousehold = async () => {
@@ -90,6 +95,26 @@ export default function HouseholdPage() {
     }
   };
 
+  const handleDeleteHousehold = async () => {
+    if (!householdId) return;
+
+    setDeleting(true);
+    try {
+      if (isOwner) {
+        await api.deleteHousehold(householdId);
+      } else {
+        await api.leaveHousehold(householdId);
+      }
+      removeHousehold(householdId);
+      navigate('/dashboard');
+    } catch (error: any) {
+      alert(error.message || 'Failed to delete/leave household');
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -117,10 +142,17 @@ export default function HouseholdPage() {
           </div>
         </div>
         <div className={styles.headerActions}>
-          <button onClick={() => setShowInviteModal(true)} className={styles.inviteButton}>
-            <UserPlus size={18} />
-            <span>Invite</span>
-          </button>
+          {!isPersonal && (
+            <button onClick={() => setShowInviteModal(true)} className={styles.inviteButton}>
+              <UserPlus size={18} />
+              <span>Invite</span>
+            </button>
+          )}
+          {!isPersonal && (
+            <button onClick={() => setShowDeleteModal(true)} className={styles.deleteButton}>
+              {isOwner ? <Trash2 size={18} /> : <LogOut size={18} />}
+            </button>
+          )}
         </div>
       </header>
 
@@ -292,6 +324,33 @@ export default function HouseholdPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete/Leave Household Modal */}
+      {showDeleteModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2>{isOwner ? 'Delete Household' : 'Leave Household'}</h2>
+            <p className={styles.modalSubtitle}>
+              {isOwner
+                ? 'This will permanently delete this household and all its lists. This action cannot be undone.'
+                : 'You will no longer have access to this household and its lists.'}
+            </p>
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => setShowDeleteModal(false)} className={styles.cancelButton}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteHousehold}
+                disabled={deleting}
+                className={styles.dangerButton}
+              >
+                {deleting ? 'Processing...' : isOwner ? 'Delete Household' : 'Leave Household'}
+              </button>
+            </div>
           </div>
         </div>
       )}
