@@ -85,7 +85,12 @@ def update_user(user_id: str, updates: Dict) -> Optional[Dict]:
         return None
 
 def add_household_to_user(user_id: str, household_id: str) -> bool:
-    """Add household ID to user's households list"""
+    """Add household ID to user's households list (prevents duplicates)"""
+    # First check if user already has this household
+    user = get_user_by_id(user_id)
+    if user and household_id in user.get("households", []):
+        return True  # Already a member, no need to add
+
     table = get_table(settings.USERS_TABLE)
     try:
         table.update_item(
@@ -147,7 +152,12 @@ def get_user_households(user_id: str) -> List[Dict]:
     return households
 
 def add_member_to_household(household_id: str, user_id: str) -> bool:
-    """Add a member to household"""
+    """Add a member to household (prevents duplicates)"""
+    # First check if user is already a member
+    household = get_household(household_id)
+    if household and user_id in household.get("members", []):
+        return True  # Already a member, no need to add
+
     table = get_table(settings.HOUSEHOLDS_TABLE)
     try:
         table.update_item(

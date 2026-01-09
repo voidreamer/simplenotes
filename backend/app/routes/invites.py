@@ -59,6 +59,12 @@ async def create_new_invite(data: InviteCreate, user: dict = Depends(get_current
     if existing_user and existing_user["user_id"] in household.get("members", []):
         raise HTTPException(status_code=400, detail="User is already a member of this household")
 
+    # Check if there's already a pending invite for this email and household
+    existing_invites = get_invites_by_email(data.email)
+    for inv in existing_invites:
+        if inv["household_id"] == data.household_id and inv.get("status") == "pending":
+            raise HTTPException(status_code=400, detail="An invite has already been sent to this email")
+
     # Create invite
     invite = create_invite(data.household_id, data.email, user["user_id"])
 
