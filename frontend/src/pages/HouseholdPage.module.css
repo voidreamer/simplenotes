@@ -13,7 +13,7 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--border-color);
+  border: 3px solid var(--color-border);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -30,12 +30,16 @@
 }
 
 .backButton {
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   padding: var(--spacing-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   cursor: pointer;
+}
+
+[data-theme="brutalist"] .backButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .headerInfo {
@@ -48,24 +52,28 @@
 .householdIcon {
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-md);
-  background: var(--gradient-primary);
+  border-radius: var(--border-radius);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
   font-weight: 700;
-  color: white;
+  color: var(--color-primary-text);
+  border: var(--border-width) solid var(--color-border);
 }
 
 .title {
   font-size: 1.5rem;
   font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .memberCount {
   color: var(--color-text-muted);
   font-size: 0.875rem;
+  font-family: var(--font-body);
 }
 
 .headerActions {
@@ -78,18 +86,46 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text);
   font-weight: 600;
+  font-family: var(--font-body);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .inviteButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
 .inviteButton:hover {
-  background: rgba(22, 33, 62, 0.8);
-  border-color: var(--border-color-hover);
+  background: var(--color-surface-hover);
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .deleteButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ef4444;
 }
 
 /* Quick Actions */
@@ -106,20 +142,29 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-lg);
-  background: var(--gradient-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  color: var(--accent-color);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-accent);
   font-weight: 600;
   font-size: 0.875rem;
+  font-family: var(--font-body);
   cursor: pointer;
   transition: all var(--transition-normal);
 }
 
+[data-theme="brutalist"] .quickAction {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .quickAction:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-shadow);
+}
+
 .quickAction:hover {
   transform: translateY(-2px);
-  border-color: var(--accent-color);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-color: var(--color-accent);
 }
 
 /* Lists Section */
@@ -137,6 +182,8 @@
 .sectionHeader h2 {
   font-size: 1.125rem;
   font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .addButton {
@@ -145,20 +192,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text-muted);
   cursor: pointer;
+}
+
+[data-theme="brutalist"] .addButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .emptyState {
   text-align: center;
   padding: var(--spacing-2xl);
-  background: var(--color-bg-glass);
-  border: 1px dashed var(--border-color);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: var(--border-width) dashed var(--color-border);
+  border-radius: var(--border-radius);
   color: var(--color-text-muted);
+  font-family: var(--font-body);
+}
+
+[data-theme="brutalist"] .emptyState {
+  box-shadow: 4px 4px 0 var(--color-shadow);
 }
 
 .listGrid {
@@ -169,18 +225,26 @@
 
 .listCard {
   padding: var(--spacing-lg);
-  background: var(--gradient-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-normal);
   text-align: left;
 }
 
+[data-theme="brutalist"] .listCard {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .listCard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-shadow);
+}
+
 .listCard:hover {
   transform: translateY(-2px);
-  border-color: var(--border-color-hover);
-  box-shadow: var(--shadow-md);
+  background: var(--color-surface-hover);
 }
 
 .listCardHeader {
@@ -193,43 +257,49 @@
 .listIcon {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-md);
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
   justify-content: center;
+  border: var(--border-width) solid var(--color-border);
 }
 
 .pinnedBadge {
   font-size: 0.7rem;
   font-weight: 600;
+  font-family: var(--font-body);
   padding: 2px 8px;
   background: rgba(102, 126, 234, 0.2);
-  color: var(--color-primary-light);
-  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  border-radius: 999px;
 }
 
 .listTitle {
   font-size: 1rem;
   font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--color-text);
   margin-bottom: var(--spacing-xs);
 }
 
 .listMeta {
   font-size: 0.8rem;
+  font-family: var(--font-body);
   color: var(--color-text-muted);
   margin-bottom: var(--spacing-sm);
 }
 
 .progressBar {
   height: 4px;
-  background: var(--color-bg-glass);
-  border-radius: var(--radius-full);
+  background: var(--color-background);
+  border-radius: var(--border-radius);
   overflow: hidden;
+  border: 1px solid var(--color-border);
 }
 
 .progressFill {
   height: 100%;
-  border-radius: var(--radius-full);
+  border-radius: var(--border-radius);
   transition: width var(--transition-normal);
 }
 
@@ -241,6 +311,8 @@
 .membersSection h2 {
   font-size: 1.125rem;
   font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--color-text);
   margin-bottom: var(--spacing-md);
 }
 
@@ -255,30 +327,38 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+}
+
+[data-theme="brutalist"] .memberCard {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .memberAvatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: white;
+  color: var(--color-primary-text);
+  border: var(--border-width) solid var(--color-border);
 }
 
 .memberName {
   font-weight: 600;
   font-size: 0.9rem;
+  font-family: var(--font-body);
+  color: var(--color-text);
 }
 
 .memberEmail {
   font-size: 0.8rem;
+  font-family: var(--font-body);
   color: var(--color-text-muted);
 }
 
@@ -295,21 +375,28 @@
 }
 
 .modal {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   padding: var(--spacing-xl);
   width: 100%;
   max-width: 440px;
 }
 
+[data-theme="brutalist"] .modal {
+  box-shadow: 8px 8px 0 var(--color-shadow);
+}
+
 .modal h2 {
   font-size: 1.25rem;
+  font-family: var(--font-heading);
+  color: var(--color-text);
   margin-bottom: var(--spacing-sm);
 }
 
 .modalSubtitle {
   color: var(--color-text-muted);
+  font-family: var(--font-body);
   margin-bottom: var(--spacing-lg);
   font-size: 0.9rem;
 }
@@ -327,12 +414,13 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background: var(--color-bg-glass);
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text-muted);
   font-size: 0.75rem;
   font-weight: 600;
+  font-family: var(--font-body);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -351,14 +439,18 @@
 .modalInput {
   width: 100%;
   padding: var(--spacing-md);
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--color-text-primary);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   outline: none;
   margin-bottom: var(--spacing-lg);
+}
+
+[data-theme="brutalist"] .modalInput {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .modalInput:focus {
@@ -374,24 +466,74 @@
 .cancelButton {
   padding: var(--spacing-md) var(--spacing-lg);
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   font-weight: 600;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
+}
+
+[data-theme="brutalist"] .cancelButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+.cancelButton:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .submitButton {
   padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--gradient-primary);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
-  border: none;
-  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
 }
 
+[data-theme="brutalist"] .submitButton {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .submitButton:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
 .submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dangerButton {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: #ef4444;
+  color: white;
+  font-weight: 600;
+  font-family: var(--font-body);
+  border: var(--border-width) solid #dc2626;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .dangerButton {
+  box-shadow: 4px 4px 0 #991b1b;
+}
+
+[data-theme="brutalist"] .dangerButton:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #991b1b;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.dangerButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

@@ -18,11 +18,11 @@ terraform {
   # Remote backend for state management
   # State is stored per workspace (staging/prod)
   backend "s3" {
-    bucket       = "simplenotes-terraform-state-523874366849"
-    key          = "terraform.tfstate"
-    region       = "ca-central-1"
-    encrypt      = true
-    use_lockfile = true
+    bucket         = "simplenotes-terraform-state-523874366849"
+    key            = "terraform.tfstate"
+    region         = "ca-central-1"
+    encrypt        = true
+    dynamodb_table = "simplenotes-terraform-locks"
   }
 }
 
@@ -201,30 +201,13 @@ resource "aws_s3_bucket_website_configuration" "frontend" {
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_policy" "frontend" {
-  bucket = aws_s3_bucket.frontend.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.frontend.arn}/*"
-      }
-    ]
-  })
-
-  depends_on = [aws_s3_bucket_public_access_block.frontend]
-}
+# Note: S3 bucket policy is now managed in cloudfront.tf
 
 # File attachments bucket
 resource "aws_s3_bucket" "attachments" {

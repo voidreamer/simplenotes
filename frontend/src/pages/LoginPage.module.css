@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-lg);
+  background: var(--color-background);
 }
 
 .container {
@@ -26,10 +27,8 @@
   gap: var(--spacing-sm);
   font-size: 1.75rem;
   font-weight: 800;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
   margin-bottom: var(--spacing-2xl);
 }
 
@@ -40,20 +39,19 @@
 .brandTitle {
   font-size: 2.5rem;
   font-weight: 800;
+  font-family: var(--font-heading);
   line-height: 1.2;
   margin-bottom: var(--spacing-lg);
+  color: var(--color-text);
 }
 
 .gradient {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-primary);
 }
 
 .brandSubtitle {
   font-size: 1.125rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   margin-bottom: var(--spacing-xl);
 }
 
@@ -67,14 +65,14 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
 .featureCheck {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--gradient-success);
+  background: var(--color-success);
   color: white;
   display: flex;
   align-items: center;
@@ -90,31 +88,36 @@
 }
 
 .formCard {
-  background: var(--gradient-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   padding: var(--spacing-xl);
   width: 100%;
   max-width: 400px;
-  backdrop-filter: blur(20px);
+}
+
+[data-theme="brutalist"] .formCard {
+  box-shadow: 8px 8px 0 var(--color-shadow);
 }
 
 .formTitle {
   font-size: 1.5rem;
   font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-text);
   margin-bottom: var(--spacing-xs);
 }
 
 .formSubtitle {
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   margin-bottom: var(--spacing-lg);
 }
 
 .error {
   padding: var(--spacing-md);
   background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: var(--radius-md);
+  border: var(--border-width) solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius);
   color: var(--color-error);
   font-size: 0.875rem;
   margin-bottom: var(--spacing-md);
@@ -130,14 +133,24 @@
   background: white;
   color: #333;
   font-weight: 600;
-  border: none;
-  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .googleButton {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
 .googleButton:hover {
   background: #f5f5f5;
+}
+
+[data-theme="brutalist"] .googleButton:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .googleButton:disabled {
@@ -159,7 +172,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--border-color);
+  background: var(--color-border);
 }
 
 .form {
@@ -177,7 +190,7 @@
 .label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
 .inputWrapper {
@@ -196,19 +209,22 @@
   width: 100%;
   padding: var(--spacing-md);
   padding-left: 44px;
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--color-text-primary);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   outline: none;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .input {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
 .input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 .input::placeholder {
@@ -221,20 +237,29 @@
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background: var(--gradient-primary);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   font-size: 1rem;
-  border: none;
-  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-normal);
   margin-top: var(--spacing-sm);
 }
 
-.submitButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+[data-theme="brutalist"] .submitButton {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .submitButton:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
+.submitButton:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
 .submitButton:disabled {
@@ -261,14 +286,14 @@
 .toggleMode {
   text-align: center;
   margin-top: var(--spacing-lg);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   font-size: 0.875rem;
 }
 
 .linkButton {
   background: none;
   border: none;
-  color: var(--color-primary-light);
+  color: var(--color-primary);
   font-weight: 600;
   cursor: pointer;
   font-size: inherit;
@@ -285,11 +310,11 @@
 
 .confirmMessage p {
   margin-bottom: var(--spacing-md);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
 .confirmMessage strong {
-  color: var(--color-text-primary);
+  color: var(--color-text);
 }
 
 .demoSection {
@@ -299,18 +324,22 @@
 .demoButton {
   width: 100%;
   padding: var(--spacing-md);
-  background: var(--color-bg-glass);
-  color: var(--color-text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   font-weight: 600;
+  font-family: var(--font-body);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .demoButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
 .demoButton:hover {
-  background: rgba(22, 33, 62, 0.8);
-  border-color: var(--border-color-hover);
+  background: var(--color-surface-hover);
 }
 
 .demoNote {

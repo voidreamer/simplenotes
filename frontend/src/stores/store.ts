@@ -37,6 +37,7 @@ export interface List {
   title: string;
   type: 'note' | 'checklist' | 'shopping';
   items: ListItem[];
+  content: string;  // Rich text content for notes
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -146,35 +147,45 @@ export const useListsStore = create<ListsState>((set) => ({
     })),
   setLoading: (isLoading) => set({ isLoading }),
   toggleItem: (listId, itemId) =>
-    set((state) => ({
-      lists: state.lists.map((l) => {
-        if (l.list_id === listId) {
-          return {
-            ...l,
-            items: l.items.map((item) =>
-              item.id === itemId ? { ...item, checked: !item.checked } : item
-            ),
-          };
-        }
-        return l;
-      }),
-    })),
+    set((state) => {
+      const updateItems = (items: ListItem[]) =>
+        items.map((item) =>
+          item.id === itemId ? { ...item, checked: !item.checked } : item
+        );
+
+      return {
+        lists: state.lists.map((l) =>
+          l.list_id === listId ? { ...l, items: updateItems(l.items) } : l
+        ),
+        currentList:
+          state.currentList?.list_id === listId
+            ? { ...state.currentList, items: updateItems(state.currentList.items) }
+            : state.currentList,
+      };
+    }),
   addItem: (listId, item) =>
     set((state) => ({
-      lists: state.lists.map((l) => {
-        if (l.list_id === listId) {
-          return { ...l, items: [...l.items, item] };
-        }
-        return l;
-      }),
+      lists: state.lists.map((l) =>
+        l.list_id === listId ? { ...l, items: [...l.items, item] } : l
+      ),
+      currentList:
+        state.currentList?.list_id === listId
+          ? { ...state.currentList, items: [...state.currentList.items, item] }
+          : state.currentList,
     })),
   removeItem: (listId, itemId) =>
-    set((state) => ({
-      lists: state.lists.map((l) => {
-        if (l.list_id === listId) {
-          return { ...l, items: l.items.filter((i) => i.id !== itemId) };
-        }
-        return l;
-      }),
-    })),
+    set((state) => {
+      const filterItems = (items: ListItem[]) =>
+        items.filter((i) => i.id !== itemId);
+
+      return {
+        lists: state.lists.map((l) =>
+          l.list_id === listId ? { ...l, items: filterItems(l.items) } : l
+        ),
+        currentList:
+          state.currentList?.list_id === listId
+            ? { ...state.currentList, items: filterItems(state.currentList.items) }
+            : state.currentList,
+      };
+    }),
 }));

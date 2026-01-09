@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary);
+  background: var(--color-background);
 }
 
 .content {
@@ -17,10 +17,8 @@
 .logoText {
   font-size: 2rem;
   font-weight: 800;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
 }
 
 .spinner {
@@ -34,7 +32,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   animation: bounce 1.4s ease-in-out infinite both;
 }
 

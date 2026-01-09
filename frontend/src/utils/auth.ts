@@ -42,6 +42,15 @@ export function configureAuth() {
 // Auth functions
 export async function loginWithGoogle() {
   try {
+    // Check if already signed in, sign out first to avoid conflicts
+    try {
+      const session = await fetchAuthSession();
+      if (session.tokens?.accessToken) {
+        await signOut();
+      }
+    } catch {
+      // Not signed in, proceed with login
+    }
     await signInWithRedirect({ provider: 'Google' });
   } catch (error) {
     console.error('Google login error:', error);
@@ -108,8 +117,9 @@ export async function logout() {
 export async function checkAuthSession() {
   try {
     const session = await fetchAuthSession();
-    if (session.tokens?.accessToken) {
-      useAuthStore.getState().setAccessToken(session.tokens.accessToken.toString());
+    if (session.tokens?.idToken) {
+      // Use ID token for API calls - it contains user claims like email
+      useAuthStore.getState().setAccessToken(session.tokens.idToken.toString());
       await syncUserSession();
       return true;
     }
@@ -123,11 +133,12 @@ export async function checkAuthSession() {
 export async function syncUserSession() {
   try {
     const session = await fetchAuthSession();
-    if (!session.tokens?.accessToken) {
-      throw new Error('No access token');
+    if (!session.tokens?.idToken) {
+      throw new Error('No ID token');
     }
 
-    const token = session.tokens.accessToken.toString();
+    // Use ID token for API calls - it contains user claims like email
+    const token = session.tokens.idToken.toString();
     useAuthStore.getState().setAccessToken(token);
 
     // Get current Cognito user

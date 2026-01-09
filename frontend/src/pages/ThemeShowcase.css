@@ -1,0 +1,806 @@
+/* Theme Showcase Page */
+.theme-showcase {
+  min-height: 100vh;
+  background: #1a1a2e;
+  padding: 2rem;
+}
+
+.theme-showcase__header {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #fff;
+}
+
+.theme-showcase__header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.theme-showcase__header p {
+  color: #888;
+}
+
+.theme-showcase__back {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.theme-showcase__back:hover {
+  color: #fff;
+}
+
+.theme-showcase__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.theme-showcase__section {
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.theme-showcase__section:hover {
+  transform: translateY(-4px);
+}
+
+.theme-showcase__info {
+  margin-bottom: 1.5rem;
+}
+
+.theme-showcase__info h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.theme-showcase__info p {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+/* ========================================
+   PAPER / STATIONERY THEME
+   ======================================== */
+.theme-section--paper {
+  background: #f5f0e6;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.theme-section--paper .theme-showcase__info h2,
+.theme-section--paper .theme-showcase__info p {
+  color: #3d3a35;
+}
+
+.note-card--paper {
+  background: #fffef8;
+  border: none;
+  border-radius: 2px;
+  padding: 1.25rem;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.08),
+    0 4px 12px rgba(0,0,0,0.05);
+  position: relative;
+  font-family: 'Georgia', serif;
+}
+
+.note-card--paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ffd54f;
+}
+
+.note-card--paper .note-card__title {
+  color: #2c2c2c;
+  font-weight: normal;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #e8e4da;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.note-card--paper .note-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-card--paper .note-card__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  color: #4a4a4a;
+  border-bottom: 1px dashed #e8e4da;
+}
+
+.note-card--paper .note-card__checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #bbb;
+  border-radius: 2px;
+}
+
+.note-card--paper .note-card__button {
+  margin-top: 1rem;
+  background: none;
+  border: 1px solid #ccc;
+  color: #666;
+  padding: 0.5rem 1rem;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ========================================
+   NEO-BRUTALIST THEME
+   ======================================== */
+.theme-section--brutalist {
+  background: #fff;
+  border: 4px solid #000;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.theme-section--brutalist .theme-showcase__info h2,
+.theme-section--brutalist .theme-showcase__info p {
+  color: #000;
+}
+
+.note-card--brutalist {
+  background: #fff;
+  border: 3px solid #000;
+  padding: 1.25rem;
+  box-shadow: 6px 6px 0 #000;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.note-card--brutalist .note-card__title {
+  color: #000;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid #ff3366;
+}
+
+.note-card--brutalist .note-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-card--brutalist .note-card__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #000;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+}
+
+.note-card--brutalist .note-card__checkbox {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #000;
+  background: #ffeb3b;
+}
+
+.note-card--brutalist .note-card__button {
+  margin-top: 1rem;
+  background: #ff3366;
+  border: 3px solid #000;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  transition: all 0.1s;
+}
+
+.note-card--brutalist .note-card__button:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* ========================================
+   RISOGRAPH THEME
+   ======================================== */
+.theme-section--risograph {
+  background: #f7f3eb;
+  border: 2px solid #1a1a1a;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-section--risograph::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, #ff6b4a20 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, #2d5bff20 0%, transparent 50%);
+}
+
+.theme-section--risograph .theme-showcase__info h2,
+.theme-section--risograph .theme-showcase__info p {
+  color: #1a1a1a;
+  position: relative;
+}
+
+.note-card--risograph {
+  background: #fffef5;
+  border: 2px solid #1a1a1a;
+  padding: 1.25rem;
+  position: relative;
+  font-family: 'Courier New', monospace;
+}
+
+.note-card--risograph::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: -4px;
+  bottom: -4px;
+  background: #ff6b4a;
+  z-index: -1;
+  mix-blend-mode: multiply;
+}
+
+.note-card--risograph .note-card__title {
+  color: #2d5bff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.note-card--risograph .note-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-card--risograph .note-card__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  color: #1a1a1a;
+}
+
+.note-card--risograph .note-card__checkbox {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ff6b4a;
+  border-radius: 50%;
+}
+
+.note-card--risograph .note-card__button {
+  margin-top: 1rem;
+  background: #2d5bff;
+  border: 2px solid #1a1a1a;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+/* ========================================
+   SKETCHY / HAND-DRAWN THEME
+   ======================================== */
+.theme-section--sketchy {
+  background: #fefefe;
+  border: 3px solid #333;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  position: relative;
+}
+
+.theme-section--sketchy .theme-showcase__info h2,
+.theme-section--sketchy .theme-showcase__info p {
+  color: #333;
+  font-family: 'Comic Sans MS', 'Chalkboard', cursive;
+}
+
+.note-card--sketchy {
+  background: #fffef9;
+  border: 2px solid #333;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  padding: 1.25rem;
+  font-family: 'Comic Sans MS', 'Chalkboard', cursive;
+  position: relative;
+}
+
+.note-card--sketchy::before {
+  content: '📌';
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  font-size: 1.5rem;
+}
+
+.note-card--sketchy .note-card__title {
+  color: #e91e63;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 4px;
+}
+
+.note-card--sketchy .note-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-card--sketchy .note-card__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  color: #333;
+}
+
+.note-card--sketchy .note-card__checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  position: relative;
+}
+
+.note-card--sketchy .note-card__checkbox::after {
+  content: '~';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  color: #333;
+}
+
+.note-card--sketchy .note-card__button {
+  margin-top: 1rem;
+  background: #ffeb3b;
+  border: 2px solid #333;
+  color: #333;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  cursor: pointer;
+}
+
+/* ========================================
+   MONOCHROME + ACCENT THEME
+   ======================================== */
+.theme-section--mono {
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+}
+
+.theme-section--mono .theme-showcase__info h2 {
+  color: #1a1a1a;
+}
+
+.theme-section--mono .theme-showcase__info p {
+  color: #666;
+}
+
+.note-card--mono {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  padding: 1.25rem;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.note-card--mono .note-card__title {
+  color: #1a1a1a;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.note-card--mono .note-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-card--mono .note-card__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  color: #333;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.note-card--mono .note-card__checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #1a1a1a;
+  border-radius: 3px;
+}
+
+.note-card--mono .note-card__button {
+  margin-top: 1rem;
+  background: #ff4f00;
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.note-card--mono .note-card__button:hover {
+  background: #e64500;
+}
+
+/* ========================================
+   RETRO TERMINAL THEME
+   ======================================== */
+.theme-section--terminal {
+  background: #0a0a0a;
+  border: 1px solid #333;
+}
+
+.theme-section--terminal .theme-showcase__info h2 {
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}
+
+.theme-section--terminal .theme-showcase__info p {
+  color: #00aa00;
+  font-family: 'Courier New', monospace;
+}
+
+.note-card--terminal {
+  background: #0d0d0d;
+  border: 1px solid #00ff00;
+  padding: 1.25rem;
+  font-family: 'Courier New', 'Monaco', monospace;
+  position: relative;
+}
+
+.note-card--terminal::before {
+  content: '> SHOPPING_LIST.TXT';
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  background: #0d0d0d;
+  padding: 0 0.5rem;
+  color: #00ff00;
+  font-size: 0.7rem;
+}
+
+.note-card--terminal .note-card__title {
+  color: #00ff00;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed #00ff0044;
+}
+
+.note-card--terminal .note-card__title::before {
+  content: '# ';
+  opacity: 0.5;
+}
+
+.note-card--terminal .note-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-card--terminal .note-card__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+  color: #00dd00;
+}
+
+.note-card--terminal .note-card__item::before {
+  content: '>';
+  color: #00ff0066;
+}
+
+.note-card--terminal .note-card__checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #00ff00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #00ff00;
+}
+
+.note-card--terminal .note-card__checkbox::after {
+  content: '[ ]';
+  font-size: 0.7rem;
+}
+
+.note-card--terminal .note-card__button {
+  margin-top: 1rem;
+  background: transparent;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.note-card--terminal .note-card__button::before {
+  content: '> ';
+}
+
+.note-card--terminal .note-card__button:hover {
+  background: #00ff0022;
+}
+
+/* ========================================
+   FULLVIEW OVERLAY
+   ======================================== */
+.theme-showcase__fullview {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  padding: 2rem;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.theme-showcase__close {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1001;
+  font-size: 1rem;
+}
+
+.theme-fullview__content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 4rem;
+}
+
+.theme-fullview__header {
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.theme-fullview__header h1 {
+  font-size: 1.5rem;
+}
+
+.theme-fullview__header nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.theme-fullview__header nav span {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.theme-fullview__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.theme-fullview__input {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.theme-fullview__input input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+}
+
+.theme-fullview__input button {
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+}
+
+/* Fullview theme-specific backgrounds */
+.theme-fullview--paper {
+  background: #e8e0d0;
+}
+
+.header--paper {
+  background: #fffef8;
+  border-bottom: 2px solid #d4cfc0;
+  color: #3d3a35;
+}
+
+.input--paper input {
+  background: #fffef8;
+  border: 1px solid #ccc;
+  font-family: Georgia, serif;
+}
+
+.input--paper button {
+  background: #ffd54f;
+  border: 1px solid #ccc;
+  font-family: Georgia, serif;
+}
+
+.theme-fullview--brutalist {
+  background: #ffeb3b;
+}
+
+.header--brutalist {
+  background: #fff;
+  border: 4px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  color: #000;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.input--brutalist input {
+  background: #fff;
+  border: 3px solid #000;
+  font-family: Arial, sans-serif;
+}
+
+.input--brutalist button {
+  background: #ff3366;
+  border: 3px solid #000;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.theme-fullview--risograph {
+  background: #f7f3eb;
+  background-image:
+    radial-gradient(circle at 30% 70%, #ff6b4a30 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, #2d5bff30 0%, transparent 50%);
+}
+
+.header--risograph {
+  background: #fffef5;
+  border: 2px solid #1a1a1a;
+  color: #1a1a1a;
+  font-family: 'Courier New', monospace;
+}
+
+.input--risograph input {
+  background: #fffef5;
+  border: 2px solid #1a1a1a;
+  font-family: 'Courier New', monospace;
+}
+
+.input--risograph button {
+  background: #2d5bff;
+  border: 2px solid #1a1a1a;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+}
+
+.theme-fullview--sketchy {
+  background: #f0f0f0;
+}
+
+.header--sketchy {
+  background: #fffef9;
+  border: 3px solid #333;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  color: #333;
+  font-family: 'Comic Sans MS', cursive;
+}
+
+.input--sketchy input {
+  background: #fffef9;
+  border: 2px solid #333;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  font-family: 'Comic Sans MS', cursive;
+}
+
+.input--sketchy button {
+  background: #ffeb3b;
+  border: 2px solid #333;
+  color: #333;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  font-family: 'Comic Sans MS', cursive;
+}
+
+.theme-fullview--mono {
+  background: #f5f5f5;
+}
+
+.header--mono {
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+}
+
+.input--mono input {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  font-family: 'Inter', sans-serif;
+}
+
+.input--mono button {
+  background: #ff4f00;
+  border: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+.theme-fullview--terminal {
+  background: #0a0a0a;
+}
+
+.header--terminal {
+  background: #0d0d0d;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}
+
+.header--terminal nav span {
+  color: #00ff00;
+}
+
+.input--terminal input {
+  background: #0d0d0d;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}
+
+.input--terminal input::placeholder {
+  color: #00ff0066;
+}
+
+.input--terminal button {
+  background: transparent;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}

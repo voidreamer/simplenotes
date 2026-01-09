@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/store';
+import { useThemeStore, applyTheme } from './stores/themeStore';
 import { configureAuth, checkAuthSession } from './utils/auth';
 
 // Pages
@@ -12,6 +13,8 @@ import HouseholdPage from './pages/HouseholdPage';
 import ListPage from './pages/ListPage';
 import InvitePage from './pages/InvitePage';
 import SettingsPage from './pages/SettingsPage';
+import ThemeShowcase from './pages/ThemeShowcase';
+import InfraLearn from './pages/InfraLearn';
 
 // Components
 import Layout from './components/Layout';
@@ -36,6 +39,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   const { isLoading, setLoading } = useAuthStore();
+  const { theme } = useThemeStore();
+
+  // Apply theme on mount and when it changes
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     // Check for existing auth session
@@ -61,6 +70,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/callback" element={<CallbackPage />} />
         <Route path="/invite/:inviteId" element={<InvitePage />} />
+        <Route path="/themes" element={<ThemeShowcase />} />
+        <Route path="/learn" element={<InfraLearn />} />
 
         {/* Protected routes */}
         <Route
