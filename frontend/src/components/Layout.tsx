@@ -3,6 +3,7 @@ import { Home, Settings, LogOut, Menu, X, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore, useHouseholdStore } from '../stores/store';
 import { logout } from '../utils/auth';
+import ThemeSwitcher from './ThemeSwitcher';
 import styles from './Layout.module.css';
 
 interface LayoutProps {
@@ -34,6 +35,7 @@ export default function Layout({ children }: LayoutProps) {
           SimpleNotes
         </Link>
         <div className={styles.headerRight}>
+          <ThemeSwitcher />
           {user?.picture ? (
             <img src={user.picture} alt={user.name} className={styles.avatar} />
           ) : (

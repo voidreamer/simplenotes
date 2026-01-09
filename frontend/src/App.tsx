@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/store';
+import { useThemeStore, applyTheme } from './stores/themeStore';
 import { configureAuth, checkAuthSession } from './utils/auth';
 
 // Pages
@@ -38,6 +39,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   const { isLoading, setLoading } = useAuthStore();
+  const { theme } = useThemeStore();
+
+  // Apply theme on mount and when it changes
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     // Check for existing auth session

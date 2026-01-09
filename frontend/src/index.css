@@ -1,53 +1,34 @@
 /* SimpleNotes - Global Styles
-   Premium dark theme with glassmorphism and smooth animations
+   Themeable design system
 */
 
 :root {
-  /* Color Palette - Rich Dark Theme */
-  --color-bg-primary: #0f0f23;
-  --color-bg-secondary: #1a1a2e;
-  --color-bg-tertiary: #16213e;
-  --color-bg-card: rgba(26, 26, 46, 0.8);
-  --color-bg-glass: rgba(22, 33, 62, 0.6);
+  /* Theme Variables - These are set by JavaScript based on selected theme */
+  --color-background: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-surface-hover: #fafafa;
+  --color-border: #000000;
+  --color-text: #000000;
+  --color-text-muted: #555555;
+  --color-primary: #ff3366;
+  --color-primary-text: #ffffff;
+  --color-accent: #ffeb3b;
+  --color-shadow: #000000;
+  --font-heading: 'Arial Black', 'Helvetica Bold', sans-serif;
+  --font-body: 'Arial', 'Helvetica', sans-serif;
+  --border-radius: 0px;
+  --border-width: 3px;
 
-  /* Accent Colors */
-  --color-primary: #667eea;
-  --color-primary-light: #818cf8;
-  --color-primary-dark: #4f46e5;
-  --color-secondary: #764ba2;
-  --color-accent: #f093fb;
-
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  --gradient-warning: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
-  --gradient-card: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.9) 100%);
-
-  /* Text Colors */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --color-text-accent: #a5b4fc;
-
-  /* Status Colors */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-
-  /* List Type Colors */
-  --color-note: #6366f1;
-  --color-checklist: #10b981;
-  --color-shopping: #f59e0b;
-
-  /* Borders & Shadows */
-  --border-color: rgba(148, 163, 184, 0.1);
-  --border-color-hover: rgba(148, 163, 184, 0.2);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.3);
+  /* Legacy variables for compatibility */
+  --color-bg-primary: var(--color-background);
+  --color-bg-secondary: var(--color-surface);
+  --color-bg-tertiary: var(--color-surface-hover);
+  --color-bg-card: var(--color-surface);
+  --color-bg-glass: var(--color-surface);
+  --color-text-primary: var(--color-text);
+  --color-text-secondary: var(--color-text-muted);
+  --border-color: var(--color-border);
+  --border-color-hover: var(--color-border);
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -70,7 +51,7 @@
   --transition-slow: 400ms ease;
 
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family: var(--font-body);
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -79,6 +60,17 @@
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 2rem;
   --font-size-4xl: 2.5rem;
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* List Type Colors */
+  --color-note: #6366f1;
+  --color-checklist: #10b981;
+  --color-shopping: #f59e0b;
 }
 
 /* Reset & Base */
@@ -98,15 +90,15 @@ html {
 
 body {
   font-family: var(--font-family);
-  background: var(--color-bg-primary);
-  color: var(--color-text-primary);
+  background: var(--color-background);
+  color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Background Pattern */
-body::before {
+/* Background Pattern - only for terminal theme */
+[data-theme="terminal"] body::before {
   content: '';
   position: fixed;
   top: 0;
@@ -114,9 +106,13 @@ body::before {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(ellipse at 20% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 40% 60%, rgba(240, 147, 251, 0.05) 0%, transparent 50%);
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 0, 0.03) 0px,
+      rgba(0, 255, 0, 0.03) 1px,
+      transparent 1px,
+      transparent 2px
+    );
   pointer-events: none;
   z-index: -1;
 }
@@ -129,9 +125,10 @@ body::before {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.3;
-  color: var(--color-text-primary);
+  color: var(--color-text);
 }
 
 h1 { font-size: var(--font-size-4xl); }
@@ -142,11 +139,11 @@ h5 { font-size: var(--font-size-lg); }
 h6 { font-size: var(--font-size-md); }
 
 p {
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
 a {
-  color: var(--color-primary-light);
+  color: var(--color-primary);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
@@ -162,25 +159,33 @@ a:hover {
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: var(--font-size-md);
   font-weight: 600;
-  border: none;
-  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-normal);
   white-space: nowrap;
 }
 
 .btn-primary {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-md), 0 0 20px rgba(102, 126, 234, 0.3);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  border-color: var(--color-border);
+}
+
+[data-theme="brutalist"] .btn-primary {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .btn-primary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(102, 126, 234, 0.4);
+  opacity: 0.9;
 }
 
 .btn-primary:active {
@@ -188,25 +193,28 @@ a:hover {
 }
 
 .btn-secondary {
-  background: var(--color-bg-glass);
-  color: var(--color-text-primary);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+}
+
+[data-theme="brutalist"] .btn-secondary {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .btn-secondary:hover {
-  background: rgba(22, 33, 62, 0.8);
-  border-color: var(--border-color-hover);
+  background: var(--color-surface-hover);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
+  border: none;
 }
 
 .btn-ghost:hover {
-  background: var(--color-bg-glass);
-  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .btn-icon {
@@ -228,23 +236,28 @@ a:hover {
 
 /* Cards */
 .card {
-  background: var(--gradient-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   padding: var(--spacing-lg);
-  backdrop-filter: blur(20px);
   transition: all var(--transition-normal);
 }
 
+[data-theme="brutalist"] .card {
+  box-shadow: 6px 6px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--color-shadow);
+}
+
 .card:hover {
-  border-color: var(--border-color-hover);
-  box-shadow: var(--shadow-md);
+  border-color: var(--color-border);
 }
 
 .card-glass {
-  background: var(--color-bg-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--color-surface);
 }
 
 /* Inputs */
@@ -257,25 +270,32 @@ a:hover {
 .input-label {
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
 .input {
   width: 100%;
   padding: var(--spacing-md);
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: var(--font-size-md);
-  color: var(--color-text-primary);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   outline: none;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .input {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .input:focus {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
 .input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 .input::placeholder {
@@ -293,8 +313,8 @@ a:hover {
 .checkbox {
   width: 22px;
   height: 22px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   background: transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -304,8 +324,8 @@ a:hover {
 }
 
 .checkbox.checked {
-  background: var(--gradient-success);
-  border-color: transparent;
+  background: var(--color-success);
+  border-color: var(--color-success);
 }
 
 .checkbox.checked svg {
@@ -318,15 +338,18 @@ a:hover {
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background: var(--color-bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .list-item {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
 .list-item:hover {
-  background: rgba(22, 33, 62, 0.8);
-  border-color: var(--border-color-hover);
+  background: var(--color-surface-hover);
 }
 
 .list-item.checked {
@@ -433,11 +456,11 @@ a:hover {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
+  background: var(--color-background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-bg-tertiary);
+  background: var(--color-border);
   border-radius: var(--radius-full);
 }
 

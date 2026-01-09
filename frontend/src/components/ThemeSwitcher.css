@@ -1,0 +1,112 @@
+/* Theme Switcher Component */
+.theme-switcher {
+  position: relative;
+}
+
+.theme-switcher__button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.theme-switcher__button:hover {
+  background: var(--color-surface-hover);
+}
+
+[data-theme="brutalist"] .theme-switcher__button {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .theme-switcher__button:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
+.theme-switcher__icon {
+  font-size: 1rem;
+}
+
+.theme-switcher__label {
+  font-weight: 600;
+}
+
+.theme-switcher__menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  min-width: 180px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+[data-theme="brutalist"] .theme-switcher__menu {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="paper"] .theme-switcher__menu,
+[data-theme="mono"] .theme-switcher__menu {
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+.theme-switcher__header {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-body);
+}
+
+.theme-switcher__option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.theme-switcher__option:hover {
+  background: var(--color-surface-hover);
+}
+
+.theme-switcher__option.active {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.theme-option__icon {
+  font-size: 1rem;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.theme-option__name {
+  flex: 1;
+}
+
+.theme-option__check {
+  font-weight: bold;
+}
