@@ -220,6 +220,7 @@ def create_list(household_id: str, user_id: str, title: str, list_type: str = "n
         "title": title,
         "type": list_type,  # note, checklist, shopping
         "items": [],
+        "content": "",  # Rich text content for notes
         "created_by": user_id,
         "created_at": now,
         "updated_at": now,

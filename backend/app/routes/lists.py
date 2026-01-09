@@ -36,6 +36,7 @@ class ListUpdate(BaseModel):
     """List update request"""
     title: Optional[str] = None
     items: Optional[List[Any]] = None
+    content: Optional[str] = None  # For note type
     color: Optional[str] = None
     icon: Optional[str] = None
     pinned: Optional[bool] = None
@@ -47,6 +48,7 @@ class ListResponse(BaseModel):
     title: str
     type: str
     items: List[Any]
+    content: str = ""  # For note type
     created_by: str
     created_at: str
     updated_at: str
@@ -137,6 +139,8 @@ async def update_list_details(
         updates["title"] = data.title
     if data.items is not None:
         updates["items"] = data.items
+    if data.content is not None:
+        updates["content"] = data.content
     if data.color is not None:
         updates["color"] = data.color
     if data.icon is not None:
