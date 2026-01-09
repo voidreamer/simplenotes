@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Settings, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut } from 'lucide-react';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
+import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
 import styles from './HouseholdPage.module.css';
 
 type ListType = 'note' | 'checklist' | 'shopping';
@@ -34,6 +35,17 @@ export default function HouseholdPage() {
   const householdLists = lists.filter(l => l.household_id === householdId);
   const isOwner = currentHousehold?.owner_id === user?.user_id;
   const isPersonal = currentHousehold?.name === 'Personal' && (currentHousehold?.members?.length || 1) === 1;
+
+  // Keyboard shortcuts
+  useShortcutEvent('shortcut:new', useCallback(() => {
+    setShowCreateModal(true);
+  }, []));
+
+  useShortcutEvent('shortcut:escape', useCallback(() => {
+    setShowCreateModal(false);
+    setShowInviteModal(false);
+    setShowDeleteModal(false);
+  }, []));
 
   useEffect(() => {
     const loadHousehold = async () => {

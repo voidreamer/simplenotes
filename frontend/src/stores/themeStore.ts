@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeName = 'brutalist' | 'paper' | 'risograph' | 'sketchy' | 'mono' | 'terminal';
+export type ThemeName = 'brutalist' | 'paper' | 'risograph' | 'sketchy' | 'sketchyDark' | 'mono' | 'terminal';
 
 interface ThemeState {
   theme: ThemeName;
@@ -123,6 +123,28 @@ export const themes: Record<ThemeName, {
       primaryText: '#222222',
       accent: '#d41a5c',
       shadow: 'rgba(0,0,0,0.15)',
+    },
+    fonts: {
+      heading: "'Comic Sans MS', 'Chalkboard', cursive",
+      body: "'Comic Sans MS', 'Chalkboard', cursive",
+    },
+    borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
+    borderWidth: '2px',
+  },
+  sketchyDark: {
+    name: 'Sketchy Dark',
+    icon: '🌙',
+    colors: {
+      background: '#1a1a2e',
+      surface: '#252540',
+      surfaceHover: '#2d2d4a',
+      border: '#e0e0e0',
+      text: '#f0f0f0',
+      textMuted: '#b0b0b0',
+      primary: '#ffd700',
+      primaryText: '#1a1a2e',
+      accent: '#ff6b9d',
+      shadow: 'rgba(255,215,0,0.2)',
     },
     fonts: {
       heading: "'Comic Sans MS', 'Chalkboard', cursive",
