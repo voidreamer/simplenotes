@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Home as HomeIcon, ShoppingCart, CheckCircle2, FileText, Users, Sparkles, User } from 'lucide-react';
+import { Plus, ShoppingCart, CheckCircle2, FileText, Users, User } from 'lucide-react';
 import { useAuthStore, useHouseholdStore, useListsStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import styles from './DashboardPage.module.css';
@@ -10,7 +10,7 @@ export default function DashboardPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
   const { households, setHouseholds, setCurrentHousehold } = useHouseholdStore();
-  const { lists, setLists, setLoading: setListsLoading } = useListsStore();
+  const { lists, setLists } = useListsStore();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState('');
@@ -75,28 +75,39 @@ export default function DashboardPage() {
     }
   };
 
-  const getListColor = (type: string) => {
+  const getListColorClass = (type: string) => {
     switch (type) {
       case 'shopping':
-        return '#f59e0b';
+        return styles.colorShopping;
       case 'checklist':
-        return '#10b981';
+        return styles.colorChecklist;
       default:
-        return '#6366f1';
+        return styles.colorNote;
     }
   };
 
   const recentLists = lists
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 6);
+    .slice(0, 5);
 
   // Separate personal and shared households
-  const personalHouseholds = households.filter(
+  const personalHousehold = households.find(
     (h) => h.name === 'Personal' && (h.members?.length || 1) === 1
   );
   const sharedHouseholds = households.filter(
     (h) => h.name !== 'Personal' || (h.members?.length || 1) > 1
   );
+
+  const personalLists = personalHousehold
+    ? lists.filter(l => l.household_id === personalHousehold.household_id)
+    : [];
+
+  // Generate consistent color for household based on name
+  const getHouseholdColor = (name: string) => {
+    const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
 
   if (loading) {
     return (
@@ -109,153 +120,126 @@ export default function DashboardPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
+      {/* Welcome Header */}
       <header className={styles.header}>
-        <div>
-          <h1 className={styles.greeting}>
-            Welcome back, <span className={styles.gradient}>{user?.name?.split(' ')[0] || 'there'}</span>
-          </h1>
-        </div>
+        <h1 className={styles.greeting}>
+          Welcome back, <span className={styles.userName}>{user?.name?.split(' ')[0] || 'there'}</span>
+        </h1>
       </header>
 
-      {/* Personal Lists */}
-      {personalHouseholds.length > 0 && (
+      {/* Personal Section */}
+      {personalHousehold && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <User size={20} />
-              Personal
-            </h2>
+            <h2 className={styles.sectionTitle}>Personal</h2>
+            <span className={styles.listCount}>{personalLists.length} list{personalLists.length !== 1 ? 's' : ''}</span>
           </div>
-          <div className={styles.householdGrid}>
-            {personalHouseholds.map((household) => (
-              <button
-                key={household.household_id}
-                className={`${styles.householdCard} ${styles.personalCard}`}
-                onClick={() => {
-                  setCurrentHousehold(household);
-                  navigate(`/household/${household.household_id}`);
-                }}
-              >
-                <div className={styles.householdIcon} style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-                  <User size={20} />
-                </div>
-                <div className={styles.householdInfo}>
-                  <h3>My Lists</h3>
-                  <p>
-                    {lists.filter(l => l.household_id === household.household_id).length} list
-                    {lists.filter(l => l.household_id === household.household_id).length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
+
+          {personalLists.length === 0 ? (
+            <button
+              className={styles.emptyButton}
+              onClick={() => {
+                setCurrentHousehold(personalHousehold);
+                navigate(`/household/${personalHousehold.household_id}`);
+              }}
+            >
+              <Plus size={18} />
+              Create your first list
+            </button>
+          ) : (
+            <button
+              className={styles.personalCard}
+              onClick={() => {
+                setCurrentHousehold(personalHousehold);
+                navigate(`/household/${personalHousehold.household_id}`);
+              }}
+            >
+              <div className={styles.personalIcon}>
+                <User size={20} />
+              </div>
+              <div className={styles.cardInfo}>
+                <h3>My Lists</h3>
+                <p>{personalLists.length} list{personalLists.length !== 1 ? 's' : ''}</p>
+              </div>
+            </button>
+          )}
         </section>
       )}
 
-      {/* Shared Households */}
+      {/* Shared Households Section */}
       <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>
-            <Users size={20} />
-            Shared Households
-          </h2>
-        </div>
+        <h2 className={styles.sectionTitle}>Shared Households</h2>
 
-        {sharedHouseholds.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>
-              <Sparkles size={48} />
-            </div>
-            <h3>Create a shared household</h3>
-            <p>Households let you share lists with family members</p>
-            <button onClick={() => setShowCreateModal(true)} className={styles.emptyButton}>
-              <Plus size={20} />
-              Create Household
-            </button>
-          </div>
-        ) : (
-          <div className={styles.householdGrid}>
-            {sharedHouseholds.map((household) => (
-              <button
-                key={household.household_id}
-                className={styles.householdCard}
-                onClick={() => {
-                  setCurrentHousehold(household);
-                  navigate(`/household/${household.household_id}`);
-                }}
-              >
-                <div className={styles.householdIcon}>
-                  {household.name.charAt(0)}
-                </div>
-                <div className={styles.householdInfo}>
-                  <h3>{household.name}</h3>
-                  <p>
-                    <Users size={14} />
-                    {household.members?.length || 1} member{(household.members?.length || 1) !== 1 ? 's' : ''}
-                  </p>
-                </div>
-              </button>
-            ))}
+        <div className={styles.householdList}>
+          {sharedHouseholds.map((household) => (
             <button
-              className={`${styles.householdCard} ${styles.addCard}`}
-              onClick={() => setShowCreateModal(true)}
+              key={household.household_id}
+              className={styles.householdCard}
+              onClick={() => {
+                setCurrentHousehold(household);
+                navigate(`/household/${household.household_id}`);
+              }}
             >
-              <div className={styles.householdIcon}>
-                <Plus size={20} />
+              <div
+                className={styles.householdIcon}
+                style={{ backgroundColor: getHouseholdColor(household.name) }}
+              >
+                {household.name.charAt(0).toUpperCase()}
               </div>
-              <div className={styles.householdInfo}>
-                <h3>Add Household</h3>
-                <p>Create a new shared space</p>
+              <div className={styles.cardInfo}>
+                <h3>{household.name}</h3>
+                <p>{household.members?.length || 1} member{(household.members?.length || 1) !== 1 ? 's' : ''}</p>
               </div>
             </button>
-          </div>
-        )}
+          ))}
+
+          <button
+            className={styles.addHouseholdButton}
+            onClick={() => setShowCreateModal(true)}
+          >
+            <Plus size={18} />
+            Add Household
+          </button>
+        </div>
       </section>
 
-      {/* Recent Lists */}
+      {/* Recent Lists Section */}
       {recentLists.length > 0 && (
         <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Recent Lists</h2>
-          </div>
+          <h2 className={styles.sectionTitle}>Recent Lists</h2>
 
-          <div className={styles.listGrid}>
+          <div className={styles.recentList}>
             {recentLists.map((list) => {
               const Icon = getListIcon(list.type);
-              const color = getListColor(list.type);
+              const colorClass = getListColorClass(list.type);
               const checkedCount = list.items.filter(i => i.checked).length;
               const totalCount = list.items.length;
+              const progress = totalCount > 0 ? (checkedCount / totalCount) * 100 : 0;
 
               return (
                 <button
                   key={list.list_id}
-                  className={styles.listCard}
+                  className={styles.recentCard}
                   onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
                 >
-                  <div className={styles.listHeader}>
-                    <div className={styles.listIcon} style={{ background: `${color}20`, color }}>
-                      <Icon size={20} />
+                  <div className={styles.recentHeader}>
+                    <div className={`${styles.recentIcon} ${colorClass}`}>
+                      <Icon size={18} />
                     </div>
-                    <span className={styles.listType}>{list.type}</span>
-                  </div>
-                  <h3 className={styles.listTitle}>{list.title}</h3>
-                  {totalCount > 0 && (
-                    <div className={styles.listProgress}>
-                      <div className={styles.progressBar}>
-                        <div
-                          className={styles.progressFill}
-                          style={{
-                            width: `${(checkedCount / totalCount) * 100}%`,
-                            background: color,
-                          }}
-                        />
+                    <div className={styles.recentInfo}>
+                      <div className={styles.recentTitleRow}>
+                        <h3>{list.title}</h3>
+                        <span className={styles.listBadge}>{list.type.toUpperCase()}</span>
                       </div>
-                      <span className={styles.progressText}>
-                        {checkedCount}/{totalCount}
-                      </span>
+                      <p>{checkedCount} of {totalCount} items</p>
                     </div>
-                  )}
+                  </div>
+                  <div className={styles.progressBar}>
+                    <div
+                      className={`${styles.progressFill} ${colorClass}`}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
                 </button>
               );
             })}
