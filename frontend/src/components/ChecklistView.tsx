@@ -84,14 +84,14 @@ export default function ChecklistView({
       {/* Progress */}
       {list.items.length > 0 && (
         <div className={styles.progress}>
-          <div className={styles.progressBar}>
+          <div className={`${styles.progressBar} ${checkedItems.length === list.items.length ? styles.progressComplete : ''}`}>
             <div
               className={styles.progressFill}
               style={{ width: `${(checkedItems.length / list.items.length) * 100}%` }}
             />
           </div>
           <span className={styles.progressText}>
-            {Math.round((checkedItems.length / list.items.length) * 100)}% complete
+            {checkedItems.length === list.items.length ? 'Complete!' : `${Math.round((checkedItems.length / list.items.length) * 100)}%`}
           </span>
         </div>
       )}
