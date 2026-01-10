@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, Mail } from 'lucide-react';
+import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, Mail, ArrowUpDown } from 'lucide-react';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
@@ -34,8 +34,27 @@ export default function HouseholdPage() {
   const [creating, setCreating] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [sortBy, setSortBy] = useState<'updated' | 'created' | 'name' | 'type'>('updated');
+  const [showSortMenu, setShowSortMenu] = useState(false);
 
   const householdLists = lists.filter(l => l.household_id === householdId);
+
+  // Sort lists based on selected option
+  const sortedLists = [...householdLists].sort((a, b) => {
+    switch (sortBy) {
+      case 'updated':
+        return new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime();
+      case 'created':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'name':
+        return a.title.localeCompare(b.title);
+      case 'type':
+        return a.type.localeCompare(b.type);
+      default:
+        return 0;
+    }
+  });
+
   const isOwner = currentHousehold?.owner_id === user?.user_id;
   const isPersonal = currentHousehold?.name === 'Personal' && (currentHousehold?.members?.length || 1) === 1;
 
@@ -49,6 +68,7 @@ export default function HouseholdPage() {
     setShowInviteModal(false);
     setShowDeleteModal(false);
     setShowOptionsMenu(false);
+    setShowSortMenu(false);
     setActiveQuickCreate(null);
     setQuickCreateTitle('');
   }, []));
@@ -167,6 +187,24 @@ export default function HouseholdPage() {
       setDeleting(false);
       setShowDeleteModal(false);
     }
+  };
+
+  // Format relative date for display
+  const formatRelativeDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
   // Generate consistent color for member based on name
@@ -306,14 +344,48 @@ export default function HouseholdPage() {
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Lists</h2>
           {householdLists.length > 0 && (
-            <button onClick={() => setShowCreateModal(true)} className={styles.viewAllButton}>
-              View all
-            </button>
+            <div className={styles.sortWrapper}>
+              <button
+                className={styles.sortButton}
+                onClick={() => setShowSortMenu(!showSortMenu)}
+              >
+                <ArrowUpDown size={14} />
+                <span>{sortBy === 'updated' ? 'Recent' : sortBy === 'created' ? 'Created' : sortBy === 'name' ? 'Name' : 'Type'}</span>
+              </button>
+              {showSortMenu && (
+                <div className={styles.sortMenu}>
+                  <button
+                    className={`${styles.sortOption} ${sortBy === 'updated' ? styles.sortOptionActive : ''}`}
+                    onClick={() => { setSortBy('updated'); setShowSortMenu(false); }}
+                  >
+                    Recently updated
+                  </button>
+                  <button
+                    className={`${styles.sortOption} ${sortBy === 'created' ? styles.sortOptionActive : ''}`}
+                    onClick={() => { setSortBy('created'); setShowSortMenu(false); }}
+                  >
+                    Date created
+                  </button>
+                  <button
+                    className={`${styles.sortOption} ${sortBy === 'name' ? styles.sortOptionActive : ''}`}
+                    onClick={() => { setSortBy('name'); setShowSortMenu(false); }}
+                  >
+                    Name (A-Z)
+                  </button>
+                  <button
+                    className={`${styles.sortOption} ${sortBy === 'type' ? styles.sortOptionActive : ''}`}
+                    onClick={() => { setSortBy('type'); setShowSortMenu(false); }}
+                  >
+                    Type
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
         <div className={styles.listGrid}>
-          {householdLists.map((list) => {
+          {sortedLists.map((list) => {
             const config = listTypeConfig[list.type as ListType] || listTypeConfig.note;
             const checkedCount = list.items.filter(i => i.checked).length;
             const totalCount = list.items.length;
@@ -338,7 +410,14 @@ export default function HouseholdPage() {
                 className={`${styles.listCard} ${styles[config.colorClass + 'Border']}`}
                 onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
               >
-                <h3 className={styles.listTitle}>{list.title}</h3>
+                <div className={styles.listHeader}>
+                  <h3 className={styles.listTitle}>{list.title}</h3>
+                  {(list.updated_at || list.created_at) && (
+                    <span className={styles.listDate}>
+                      {formatRelativeDate(list.updated_at || list.created_at)}
+                    </span>
+                  )}
+                </div>
                 <p className={styles.listPreview}>{getPreview()}</p>
                 {list.type !== 'note' && totalCount > 0 && (
                   <div className={styles.listFooter}>
@@ -499,9 +578,12 @@ export default function HouseholdPage() {
         </div>
       )}
 
-      {/* Click outside to close options menu */}
+      {/* Click outside to close menus */}
       {showOptionsMenu && (
         <div className={styles.optionsBackdrop} onClick={() => setShowOptionsMenu(false)} />
+      )}
+      {showSortMenu && (
+        <div className={styles.optionsBackdrop} onClick={() => setShowSortMenu(false)} />
       )}
     </div>
   );
