@@ -101,6 +101,24 @@ export default function ListPage() {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      // Today - show time
+      return `Today at ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -127,12 +145,20 @@ export default function ListPage() {
         </button>
         <div className={styles.headerInfo}>
           <h1 className={styles.title}>{currentList.title}</h1>
-          <p className={styles.meta}>
+          <div className={styles.meta}>
             <span className={styles.typeLabel}>
               {getTypeIcon()}
               {getTypeLabel()}
             </span>
-          </p>
+            <span className={styles.separator}>·</span>
+            <span className={styles.date}>
+              {currentList.updated_at
+                ? `Updated ${formatDate(currentList.updated_at)}`
+                : currentList.created_at
+                  ? `Created ${formatDate(currentList.created_at)}`
+                  : ''}
+            </span>
+          </div>
         </div>
         <div className={styles.headerActions}>
           <button
