@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Plus, Trash2, Check, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Check, GripVertical, Pencil } from 'lucide-react';
 import { List, ListItem } from '../stores/store';
 import { api } from '../utils/api';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
@@ -20,6 +20,8 @@ export default function ChecklistView({
 }: ChecklistViewProps) {
   const [newItemText, setNewItemText] = useState('');
   const [adding, setAdding] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +57,48 @@ export default function ChecklistView({
       await api.deleteListItem(list.list_id, list.household_id, itemId);
     } catch (error) {
       console.error('Failed to delete item:', error);
+    }
+  };
+
+  const handleStartEdit = (item: ListItem) => {
+    setEditingItemId(item.id);
+    setEditingText(item.text);
+  };
+
+  const handleSaveEdit = async (itemId: string) => {
+    if (!editingText.trim()) {
+      setEditingItemId(null);
+      return;
+    }
+
+    // Find the original item to check if text changed
+    const originalItem = list.items.find(i => i.id === itemId);
+    if (originalItem && editingText.trim() === originalItem.text) {
+      setEditingItemId(null);
+      return;
+    }
+
+    try {
+      const result = await api.updateListItem(
+        list.list_id,
+        list.household_id,
+        itemId,
+        { text: editingText.trim() }
+      ) as List;
+      onUpdate(result);
+    } catch (error) {
+      console.error('Failed to update item:', error);
+    } finally {
+      setEditingItemId(null);
+    }
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent, itemId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveEdit(itemId);
+    } else if (e.key === 'Escape') {
+      setEditingItemId(null);
     }
   };
 
@@ -122,10 +166,40 @@ export default function ChecklistView({
               <GripVertical size={16} />
             </div>
             <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
-            <span className={styles.itemText}>{item.text}</span>
-            <button className={styles.deleteButton} onClick={() => handleDelete(item.id)}>
-              <Trash2 size={16} />
-            </button>
+            {editingItemId === item.id ? (
+              <input
+                type="text"
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+                onKeyDown={(e) => handleEditKeyDown(e, item.id)}
+                onBlur={() => handleSaveEdit(item.id)}
+                className={styles.itemInput}
+                autoFocus
+              />
+            ) : (
+              <span
+                className={styles.itemText}
+                onDoubleClick={() => handleStartEdit(item)}
+              >
+                {item.text}
+              </span>
+            )}
+            <div className={styles.itemActions}>
+              <button
+                className={styles.editButton}
+                onClick={() => handleStartEdit(item)}
+                title="Edit"
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                className={styles.deleteButton}
+                onClick={() => handleDelete(item.id)}
+                title="Delete"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
         ))}
 
@@ -141,10 +215,40 @@ export default function ChecklistView({
                 >
                   <Check size={14} />
                 </button>
-                <span className={styles.itemText}>{item.text}</span>
-                <button className={styles.deleteButton} onClick={() => handleDelete(item.id)}>
-                  <Trash2 size={16} />
-                </button>
+                {editingItemId === item.id ? (
+                  <input
+                    type="text"
+                    value={editingText}
+                    onChange={(e) => setEditingText(e.target.value)}
+                    onKeyDown={(e) => handleEditKeyDown(e, item.id)}
+                    onBlur={() => handleSaveEdit(item.id)}
+                    className={styles.itemInput}
+                    autoFocus
+                  />
+                ) : (
+                  <span
+                    className={styles.itemText}
+                    onDoubleClick={() => handleStartEdit(item)}
+                  >
+                    {item.text}
+                  </span>
+                )}
+                <div className={styles.itemActions}>
+                  <button
+                    className={styles.editButton}
+                    onClick={() => handleStartEdit(item)}
+                    title="Edit"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(item.id)}
+                    title="Delete"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

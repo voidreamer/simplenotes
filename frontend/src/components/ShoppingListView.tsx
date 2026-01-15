@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Plus, Trash2, Check, Minus, ShoppingCart, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Check, Minus, ShoppingCart, GripVertical, Pencil } from 'lucide-react';
 import { List, ListItem } from '../stores/store';
 import { api } from '../utils/api';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
@@ -23,6 +23,8 @@ export default function ShoppingListView({
   const [newItemUnit, setNewItemUnit] = useState('');
   const [adding, setAdding] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState({ text: '', quantity: 1, unit: '' });
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +66,44 @@ export default function ShoppingListView({
     } catch (error) {
       console.error('Failed to delete item:', error);
     }
+  };
+
+  const handleStartEdit = (item: ListItem) => {
+    setEditingItemId(item.id);
+    setEditingData({
+      text: item.text,
+      quantity: item.quantity || 1,
+      unit: item.unit || '',
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingData.text.trim() || !editingItemId) {
+      setEditingItemId(null);
+      return;
+    }
+
+    try {
+      const result = await api.updateListItem(
+        list.list_id,
+        list.household_id,
+        editingItemId,
+        {
+          text: editingData.text.trim(),
+          quantity: editingData.quantity,
+          unit: editingData.unit.trim(),
+        }
+      ) as List;
+      onUpdate(result);
+    } catch (error) {
+      console.error('Failed to update item:', error);
+    } finally {
+      setEditingItemId(null);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
   };
 
   const checkedItems = list.items.filter((i) => i.checked);
@@ -180,27 +220,101 @@ export default function ShoppingListView({
               {categories.length > 1 && <h3 className={styles.categoryHeader}>{category}</h3>}
               {categorizedItems[category].map((item) => {
                 const currentIndex = flatIndex++;
+                const isEditing = editingItemId === item.id;
                 return (
                   <div
                     key={item.id}
                     className={getItemClassName(currentIndex, styles.item)}
-                    {...getDragHandleProps(currentIndex)}
+                    {...(isEditing ? {} : getDragHandleProps(currentIndex))}
                   >
-                    <div className={styles.dragHandle}>
-                      <GripVertical size={16} />
-                    </div>
-                    <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
-                    <div className={styles.itemContent}>
-                      <span className={styles.itemText}>{item.text}</span>
-                      {(item.quantity && item.quantity > 1) || item.unit ? (
-                        <span className={styles.itemMeta}>
-                          {item.quantity || 1} {item.unit}
-                        </span>
-                      ) : null}
-                    </div>
-                    <button className={styles.deleteButton} onClick={() => handleDelete(item.id)}>
-                      <Trash2 size={16} />
-                    </button>
+                    {isEditing ? (
+                      <div className={styles.editForm}>
+                        <input
+                          type="text"
+                          value={editingData.text}
+                          onChange={(e) => setEditingData({ ...editingData, text: e.target.value })}
+                          className={styles.editInput}
+                          autoFocus
+                          placeholder="Item name..."
+                        />
+                        <div className={styles.editRow}>
+                          <div className={styles.quantityControl}>
+                            <button
+                              type="button"
+                              className={styles.quantityButton}
+                              onClick={() => setEditingData({ ...editingData, quantity: Math.max(1, editingData.quantity - 1) })}
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <input
+                              type="number"
+                              value={editingData.quantity}
+                              onChange={(e) => setEditingData({ ...editingData, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                              className={styles.quantityInput}
+                              min="1"
+                            />
+                            <button
+                              type="button"
+                              className={styles.quantityButton}
+                              onClick={() => setEditingData({ ...editingData, quantity: editingData.quantity + 1 })}
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            value={editingData.unit}
+                            onChange={(e) => setEditingData({ ...editingData, unit: e.target.value })}
+                            placeholder="Unit"
+                            className={styles.editUnitInput}
+                          />
+                        </div>
+                        <div className={styles.editActions}>
+                          <button type="button" className={styles.cancelButton} onClick={handleCancelEdit}>
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.submitButton}
+                            onClick={handleSaveEdit}
+                            disabled={!editingData.text.trim()}
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className={styles.dragHandle}>
+                          <GripVertical size={16} />
+                        </div>
+                        <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
+                        <div className={styles.itemContent} onDoubleClick={() => handleStartEdit(item)}>
+                          <span className={styles.itemText}>{item.text}</span>
+                          {(item.quantity && item.quantity > 1) || item.unit ? (
+                            <span className={styles.itemMeta}>
+                              {item.quantity || 1} {item.unit}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className={styles.itemActions}>
+                          <button
+                            className={styles.editButton}
+                            onClick={() => handleStartEdit(item)}
+                            title="Edit"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            className={styles.deleteButton}
+                            onClick={() => handleDelete(item.id)}
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
               })}
@@ -215,22 +329,98 @@ export default function ShoppingListView({
               <Check size={16} />
               In Cart ({checkedItems.length})
             </h3>
-            {checkedItems.map((item) => (
-              <div key={item.id} className={`${styles.item} ${styles.itemChecked}`}>
-                <button
-                  className={`${styles.checkbox} ${styles.checkboxChecked}`}
-                  onClick={() => handleToggle(item.id)}
-                >
-                  <Check size={14} />
-                </button>
-                <div className={styles.itemContent}>
-                  <span className={styles.itemText}>{item.text}</span>
+            {checkedItems.map((item) => {
+              const isEditing = editingItemId === item.id;
+              return (
+                <div key={item.id} className={`${styles.item} ${styles.itemChecked}`}>
+                  {isEditing ? (
+                    <div className={styles.editForm}>
+                      <input
+                        type="text"
+                        value={editingData.text}
+                        onChange={(e) => setEditingData({ ...editingData, text: e.target.value })}
+                        className={styles.editInput}
+                        autoFocus
+                        placeholder="Item name..."
+                      />
+                      <div className={styles.editRow}>
+                        <div className={styles.quantityControl}>
+                          <button
+                            type="button"
+                            className={styles.quantityButton}
+                            onClick={() => setEditingData({ ...editingData, quantity: Math.max(1, editingData.quantity - 1) })}
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <input
+                            type="number"
+                            value={editingData.quantity}
+                            onChange={(e) => setEditingData({ ...editingData, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                            className={styles.quantityInput}
+                            min="1"
+                          />
+                          <button
+                            type="button"
+                            className={styles.quantityButton}
+                            onClick={() => setEditingData({ ...editingData, quantity: editingData.quantity + 1 })}
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={editingData.unit}
+                          onChange={(e) => setEditingData({ ...editingData, unit: e.target.value })}
+                          placeholder="Unit"
+                          className={styles.editUnitInput}
+                        />
+                      </div>
+                      <div className={styles.editActions}>
+                        <button type="button" className={styles.cancelButton} onClick={handleCancelEdit}>
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.submitButton}
+                          onClick={handleSaveEdit}
+                          disabled={!editingData.text.trim()}
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        className={`${styles.checkbox} ${styles.checkboxChecked}`}
+                        onClick={() => handleToggle(item.id)}
+                      >
+                        <Check size={14} />
+                      </button>
+                      <div className={styles.itemContent} onDoubleClick={() => handleStartEdit(item)}>
+                        <span className={styles.itemText}>{item.text}</span>
+                      </div>
+                      <div className={styles.itemActions}>
+                        <button
+                          className={styles.editButton}
+                          onClick={() => handleStartEdit(item)}
+                          title="Edit"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          className={styles.deleteButton}
+                          onClick={() => handleDelete(item.id)}
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <button className={styles.deleteButton} onClick={() => handleDelete(item.id)}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
