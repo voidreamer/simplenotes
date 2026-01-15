@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, Mail, ArrowUpDown } from 'lucide-react';
+import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, Mail, ArrowUpDown, Pencil } from 'lucide-react';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
@@ -36,6 +36,8 @@ export default function HouseholdPage() {
   const [deleting, setDeleting] = useState(false);
   const [sortBy, setSortBy] = useState<'updated' | 'created' | 'name' | 'type'>('updated');
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState('');
 
   const householdLists = lists.filter(l => l.household_id === householdId);
 
@@ -71,6 +73,7 @@ export default function HouseholdPage() {
     setShowSortMenu(false);
     setActiveQuickCreate(null);
     setQuickCreateTitle('');
+    setEditingName(false);
   }, []));
 
   useEffect(() => {
@@ -189,6 +192,44 @@ export default function HouseholdPage() {
     }
   };
 
+  const handleStartEditName = () => {
+    if (!isOwner || isPersonal) return;
+    setEditingName(true);
+    setNameValue(currentHousehold?.name || '');
+  };
+
+  const handleSaveName = async () => {
+    if (!nameValue.trim() || !householdId || !currentHousehold) {
+      setEditingName(false);
+      return;
+    }
+
+    if (nameValue.trim() === currentHousehold.name) {
+      setEditingName(false);
+      return;
+    }
+
+    try {
+      const updated = await api.updateHousehold(householdId, {
+        name: nameValue.trim(),
+      }) as Household;
+      setCurrentHousehold(updated);
+    } catch (error) {
+      console.error('Failed to update household name:', error);
+    } finally {
+      setEditingName(false);
+    }
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      setEditingName(false);
+    }
+  };
+
   // Format relative date for display
   const formatRelativeDate = (dateString: string) => {
     if (!dateString) return '';
@@ -251,7 +292,25 @@ export default function HouseholdPage() {
             {currentHousehold?.name?.charAt(0) || 'H'}
           </div>
           <div className={styles.headerInfo}>
-            <h1 className={styles.title}>{currentHousehold?.name}</h1>
+            {editingName ? (
+              <input
+                type="text"
+                value={nameValue}
+                onChange={(e) => setNameValue(e.target.value)}
+                onKeyDown={handleNameKeyDown}
+                onBlur={handleSaveName}
+                className={styles.nameInput}
+                autoFocus
+              />
+            ) : (
+              <h1
+                className={`${styles.title} ${isOwner && !isPersonal ? styles.titleEditable : ''}`}
+                onClick={handleStartEditName}
+              >
+                {currentHousehold?.name}
+                {isOwner && !isPersonal && <Pencil size={14} className={styles.editIcon} />}
+              </h1>
+            )}
             <p className={styles.memberCount}>
               {currentHousehold?.members?.length || 1} member{(currentHousehold?.members?.length || 1) !== 1 ? 's' : ''}
             </p>

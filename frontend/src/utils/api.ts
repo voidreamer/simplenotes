@@ -162,6 +162,18 @@ class ApiClient {
     );
   }
 
+  async updateListItem(
+    listId: string,
+    householdId: string,
+    itemId: string,
+    data: { text?: string; quantity?: number; unit?: string; category?: string; note?: string }
+  ) {
+    return this.request(
+      `/api/lists/${listId}/items/${itemId}?household_id=${householdId}`,
+      { method: 'PATCH', body: JSON.stringify(data) }
+    );
+  }
+
   // Invites
   async createInvite(householdId: string, email: string) {
     return this.request('/api/invites/', {

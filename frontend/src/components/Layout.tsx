@@ -1,10 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Settings, LogOut, Menu, X, Plus, Keyboard } from 'lucide-react';
+import { Home, Settings, LogOut, Menu, X, Plus, Keyboard, Moon, Sun } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { useAuthStore, useHouseholdStore } from '../stores/store';
+import { useThemeStore, ThemeName } from '../stores/themeStore';
 import { logout } from '../utils/auth';
 import { useKeyboardShortcuts, useShortcutEvent } from '../hooks/useKeyboardShortcuts';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
+import OfflineIndicator from './OfflineIndicator';
 import styles from './Layout.module.css';
 
 interface LayoutProps {
@@ -15,8 +17,23 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { households, currentHousehold } = useHouseholdStore();
+  const { theme, setTheme } = useThemeStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+
+  // Dark themes list
+  const darkThemes: ThemeName[] = ['sketchyDark', 'terminal'];
+  const isDarkMode = darkThemes.includes(theme);
+
+  const toggleDarkMode = () => {
+    if (isDarkMode) {
+      // Switch to last light theme or default to 'paper'
+      setTheme('paper');
+    } else {
+      // Switch to dark theme
+      setTheme('sketchyDark');
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -38,6 +55,9 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className={styles.layout}>
+      {/* Offline/Online Status Indicator */}
+      <OfflineIndicator />
+
       {/* Mobile Header */}
       <header className={styles.mobileHeader}>
         <button
@@ -50,6 +70,13 @@ export default function Layout({ children }: LayoutProps) {
           SimpleNotes
         </Link>
         <div className={styles.headerRight}>
+          <button
+            className={styles.themeToggle}
+            onClick={toggleDarkMode}
+            title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
           {user?.picture ? (
             <img src={user.picture} alt={user.name} className={styles.avatar} />
           ) : (
@@ -106,6 +133,14 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
 
         <div className={styles.sidebarFooter}>
+          <button
+            className={styles.navItem}
+            onClick={toggleDarkMode}
+            title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
           <button
             className={styles.navItem}
             onClick={() => setShowShortcuts(true)}
