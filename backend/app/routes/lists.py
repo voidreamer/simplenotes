@@ -242,6 +242,59 @@ async def toggle_item(
 
     return {"message": "Item toggled", "items": updated.get("items", [])}
 
+class ItemUpdate(BaseModel):
+    """Item update request"""
+    text: Optional[str] = None
+    quantity: Optional[int] = None
+    unit: Optional[str] = None
+    category: Optional[str] = None
+    note: Optional[str] = None
+
+@router.patch("/{list_id}/items/{item_id}", response_model=ListResponse)
+async def update_item(
+    list_id: str,
+    household_id: str,
+    item_id: str,
+    data: ItemUpdate,
+    user: dict = Depends(get_current_user)
+):
+    """Update item in list"""
+    list_item = get_list(list_id, household_id)
+    if not list_item:
+        raise HTTPException(status_code=404, detail="List not found")
+
+    # Verify membership
+    household = get_household(household_id)
+    if not household or user["user_id"] not in household.get("members", []):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # Find and update item
+    items = list_item.get("items", [])
+    item_found = False
+    for item in items:
+        if item.get("id") == item_id:
+            item_found = True
+            if data.text is not None:
+                item["text"] = data.text
+            if data.quantity is not None:
+                item["quantity"] = data.quantity
+            if data.unit is not None:
+                item["unit"] = data.unit
+            if data.category is not None:
+                item["category"] = data.category
+            if data.note is not None:
+                item["note"] = data.note
+            break
+
+    if not item_found:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    updated = update_list(list_id, household_id, {"items": items})
+    if not updated:
+        raise HTTPException(status_code=500, detail="Failed to update item")
+
+    return ListResponse(**updated)
+
 @router.delete("/{list_id}/items/{item_id}")
 async def delete_item(
     list_id: str,
