@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trash2, Pin, FileText, CheckSquare, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Trash2, Pin, FileText, CheckSquare, ShoppingCart, Pencil } from 'lucide-react';
 import { useListsStore, List } from '../stores/store';
 import { api } from '../utils/api';
 import NoteEditor from '../components/NoteEditor';
@@ -16,6 +16,8 @@ export default function ListPage() {
 
   const { currentList, setCurrentList, toggleItem, removeItem, updateList } = useListsStore();
   const [loading, setLoading] = useState(true);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleValue, setTitleValue] = useState('');
 
   useEffect(() => {
     const loadList = async () => {
@@ -72,6 +74,44 @@ export default function ListPage() {
       navigate(`/household/${householdId}`);
     } catch (error) {
       console.error('Failed to delete list:', error);
+    }
+  };
+
+  const handleStartEditTitle = () => {
+    setEditingTitle(true);
+    setTitleValue(currentList?.title || '');
+  };
+
+  const handleSaveTitle = async () => {
+    if (!titleValue.trim() || !listId || !householdId || !currentList) {
+      setEditingTitle(false);
+      return;
+    }
+
+    if (titleValue.trim() === currentList.title) {
+      setEditingTitle(false);
+      return;
+    }
+
+    try {
+      const updated = await api.updateList(listId, householdId, {
+        title: titleValue.trim(),
+      }) as List;
+      setCurrentList(updated);
+      updateList(listId, householdId, updated);
+    } catch (error) {
+      console.error('Failed to update title:', error);
+    } finally {
+      setEditingTitle(false);
+    }
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveTitle();
+    } else if (e.key === 'Escape') {
+      setEditingTitle(false);
     }
   };
 
@@ -144,7 +184,22 @@ export default function ListPage() {
           <ArrowLeft size={20} />
         </button>
         <div className={styles.headerInfo}>
-          <h1 className={styles.title}>{currentList.title}</h1>
+          {editingTitle ? (
+            <input
+              type="text"
+              value={titleValue}
+              onChange={(e) => setTitleValue(e.target.value)}
+              onKeyDown={handleTitleKeyDown}
+              onBlur={handleSaveTitle}
+              className={styles.titleInput}
+              autoFocus
+            />
+          ) : (
+            <h1 className={styles.titleEditable} onClick={handleStartEditTitle}>
+              {currentList.title}
+              <Pencil size={16} className={styles.editIcon} />
+            </h1>
+          )}
           <div className={styles.meta}>
             <span className={styles.typeLabel}>
               {getTypeIcon()}

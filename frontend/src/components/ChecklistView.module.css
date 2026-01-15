@@ -263,20 +263,63 @@
 .itemText {
   flex: 1;
   color: var(--color-text);
+  cursor: text;
+}
+
+.itemText:hover {
+  background: var(--color-surface-hover);
+  border-radius: var(--border-radius);
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.itemInput {
+  flex: 1;
+  padding: 4px 8px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--border-radius);
+  outline: none;
+}
+
+.itemActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.item:hover .itemActions {
+  opacity: 1;
+}
+
+.editButton {
+  background: none;
+  border: none;
+  padding: var(--spacing-xs);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.editButton:hover {
+  color: var(--color-primary);
 }
 
 .deleteButton {
-  opacity: 0;
   background: none;
   border: none;
   padding: var(--spacing-xs);
   color: var(--color-error);
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
-.item:hover .deleteButton {
-  opacity: 1;
+.deleteButton:hover {
+  color: #dc2626;
 }
 
 /* Checked Items */
@@ -318,7 +361,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .deleteButton {
+  .itemActions {
     opacity: 1;
   }
 }

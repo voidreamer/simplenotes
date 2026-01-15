@@ -83,6 +83,15 @@
   padding: 0;
 }
 
+/* Ensure form elements inherit fonts from theme */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
