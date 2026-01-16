@@ -52,7 +52,6 @@
   --transition-slow: 400ms ease;
 
   /* Typography */
-  --font-family: var(--font-body);
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -99,7 +98,7 @@ html {
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   background: var(--color-background);
   color: var(--color-text);
   line-height: 1.6;
