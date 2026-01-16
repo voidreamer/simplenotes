@@ -22,7 +22,7 @@ export default function Layout({ children }: LayoutProps) {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   // Dark themes list
-  const darkThemes: ThemeName[] = ['sketchyDark', 'terminal'];
+  const darkThemes: ThemeName[] = ['terminal'];
   const isDarkMode = darkThemes.includes(theme);
 
   const toggleDarkMode = () => {
@@ -31,7 +31,7 @@ export default function Layout({ children }: LayoutProps) {
       setTheme('paper');
     } else {
       // Switch to dark theme
-      setTheme('sketchyDark');
+      setTheme('terminal');
     }
   };
 
