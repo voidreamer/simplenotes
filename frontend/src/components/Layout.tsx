@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Home, Settings, LogOut, Menu, X, Plus, Keyboard, Moon, Sun } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { useAuthStore, useHouseholdStore } from '../stores/store';
-import { useThemeStore, ThemeName } from '../stores/themeStore';
+import { useThemeStore, lightThemes, darkThemes } from '../stores/themeStore';
 import { logout } from '../utils/auth';
 import { useKeyboardShortcuts, useShortcutEvent } from '../hooks/useKeyboardShortcuts';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
@@ -17,21 +17,21 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { households, currentHousehold } = useHouseholdStore();
-  const { theme, setTheme } = useThemeStore();
+  const { theme, setTheme, previousLightTheme, setPreviousLightTheme } = useThemeStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
-  // Dark themes list
-  const darkThemes: ThemeName[] = ['terminal'];
+  // Check if current theme is dark
   const isDarkMode = darkThemes.includes(theme);
 
   const toggleDarkMode = () => {
     if (isDarkMode) {
-      // Switch to last light theme or default to 'paper'
-      setTheme('paper');
+      // Switch back to previous light theme
+      setTheme(previousLightTheme);
     } else {
-      // Switch to dark theme
-      setTheme('terminal');
+      // Save current light theme and switch to dark
+      setPreviousLightTheme(theme);
+      setTheme('dark');
     }
   };
 
