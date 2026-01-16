@@ -221,19 +221,12 @@ export default function ChecklistView({
                 ) : (
                   <span
                     className={styles.itemText}
-                    onDoubleClick={() => handleStartEdit(item)}
+                    onClick={() => handleStartEdit(item)}
                   >
                     {item.text}
                   </span>
                 )}
                 <div className={styles.itemActions}>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => handleStartEdit(item)}
-                    title="Edit"
-                  >
-                    <Pencil size={14} />
-                  </button>
                   <button
                     className={styles.deleteButton}
                     onClick={() => handleDelete(item.id)}

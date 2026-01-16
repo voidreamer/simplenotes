@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Plus, Trash2, Check, Minus, ShoppingCart, GripVertical, Pencil } from 'lucide-react';
+import { Plus, Trash2, Check, Minus, ShoppingCart, GripVertical } from 'lucide-react';
 import { List, ListItem } from '../stores/store';
 import { api } from '../utils/api';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
@@ -289,7 +289,7 @@ export default function ShoppingListView({
                           <GripVertical size={16} />
                         </div>
                         <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
-                        <div className={styles.itemContent} onDoubleClick={() => handleStartEdit(item)}>
+                        <div className={styles.itemContent} onClick={() => handleStartEdit(item)}>
                           <span className={styles.itemText}>{item.text}</span>
                           {(item.quantity && item.quantity > 1) || item.unit ? (
                             <span className={styles.itemMeta}>
@@ -298,13 +298,6 @@ export default function ShoppingListView({
                           ) : null}
                         </div>
                         <div className={styles.itemActions}>
-                          <button
-                            className={styles.editButton}
-                            onClick={() => handleStartEdit(item)}
-                            title="Edit"
-                          >
-                            <Pencil size={14} />
-                          </button>
                           <button
                             className={styles.deleteButton}
                             onClick={() => handleDelete(item.id)}
@@ -397,17 +390,10 @@ export default function ShoppingListView({
                       >
                         <Check size={14} />
                       </button>
-                      <div className={styles.itemContent} onDoubleClick={() => handleStartEdit(item)}>
+                      <div className={styles.itemContent} onClick={() => handleStartEdit(item)}>
                         <span className={styles.itemText}>{item.text}</span>
                       </div>
                       <div className={styles.itemActions}>
-                        <button
-                          className={styles.editButton}
-                          onClick={() => handleStartEdit(item)}
-                          title="Edit"
-                        >
-                          <Pencil size={14} />
-                        </button>
                         <button
                           className={styles.deleteButton}
                           onClick={() => handleDelete(item.id)}
