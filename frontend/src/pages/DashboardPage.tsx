@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, ShoppingCart, CheckCircle2, FileText, Users, User } from 'lucide-react';
+import { Plus, ShoppingCart, CheckCircle2, FileText } from 'lucide-react';
 import { useAuthStore, useHouseholdStore, useListsStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import styles from './DashboardPage.module.css';
@@ -90,18 +90,6 @@ export default function DashboardPage() {
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
     .slice(0, 5);
 
-  // Separate personal and shared households
-  const personalHousehold = households.find(
-    (h) => h.name === 'Personal' && (h.members?.length || 1) === 1
-  );
-  const sharedHouseholds = households.filter(
-    (h) => h.name !== 'Personal' || (h.members?.length || 1) > 1
-  );
-
-  const personalLists = personalHousehold
-    ? lists.filter(l => l.household_id === personalHousehold.household_id)
-    : [];
-
   // Generate consistent color for household based on name
   const getHouseholdColor = (name: string) => {
     const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
@@ -127,71 +115,35 @@ export default function DashboardPage() {
         </h1>
       </header>
 
-      {/* Personal Section */}
-      {personalHousehold && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Personal</h2>
-            <span className={styles.listCount}>{personalLists.length} list{personalLists.length !== 1 ? 's' : ''}</span>
-          </div>
-
-          {personalLists.length === 0 ? (
-            <button
-              className={styles.emptyButton}
-              onClick={() => {
-                setCurrentHousehold(personalHousehold);
-                navigate(`/household/${personalHousehold.household_id}`);
-              }}
-            >
-              <Plus size={18} />
-              Create your first list
-            </button>
-          ) : (
-            <button
-              className={styles.personalCard}
-              onClick={() => {
-                setCurrentHousehold(personalHousehold);
-                navigate(`/household/${personalHousehold.household_id}`);
-              }}
-            >
-              <div className={styles.personalIcon}>
-                <User size={20} />
-              </div>
-              <div className={styles.cardInfo}>
-                <h3>My Lists</h3>
-                <p>{personalLists.length} list{personalLists.length !== 1 ? 's' : ''}</p>
-              </div>
-            </button>
-          )}
-        </section>
-      )}
-
-      {/* Shared Households Section */}
+      {/* Households Section */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Shared Households</h2>
+        <h2 className={styles.sectionTitle}>Your Households</h2>
 
         <div className={styles.householdList}>
-          {sharedHouseholds.map((household) => (
-            <button
-              key={household.household_id}
-              className={styles.householdCard}
-              onClick={() => {
-                setCurrentHousehold(household);
-                navigate(`/household/${household.household_id}`);
-              }}
-            >
-              <div
-                className={styles.householdIcon}
-                style={{ backgroundColor: getHouseholdColor(household.name) }}
+          {households.map((household) => {
+            const householdLists = lists.filter(l => l.household_id === household.household_id);
+            return (
+              <button
+                key={household.household_id}
+                className={styles.householdCard}
+                onClick={() => {
+                  setCurrentHousehold(household);
+                  navigate(`/household/${household.household_id}`);
+                }}
               >
-                {household.name.charAt(0).toUpperCase()}
-              </div>
-              <div className={styles.cardInfo}>
-                <h3>{household.name}</h3>
-                <p>{household.members?.length || 1} member{(household.members?.length || 1) !== 1 ? 's' : ''}</p>
-              </div>
-            </button>
-          ))}
+                <div
+                  className={styles.householdIcon}
+                  style={{ backgroundColor: getHouseholdColor(household.name) }}
+                >
+                  {household.name.charAt(0).toUpperCase()}
+                </div>
+                <div className={styles.cardInfo}>
+                  <h3>{household.name}</h3>
+                  <p>{householdLists.length} list{householdLists.length !== 1 ? 's' : ''} · {household.members?.length || 1} member{(household.members?.length || 1) !== 1 ? 's' : ''}</p>
+                </div>
+              </button>
+            );
+          })}
 
           <button
             className={styles.addHouseholdButton}
@@ -227,10 +179,7 @@ export default function DashboardPage() {
                       <Icon size={18} />
                     </div>
                     <div className={styles.recentInfo}>
-                      <div className={styles.recentTitleRow}>
-                        <h3>{list.title}</h3>
-                        <span className={styles.listBadge}>{list.type.toUpperCase()}</span>
-                      </div>
+                      <h3>{list.title}</h3>
                       <p>{checkedCount} of {totalCount} items</p>
                     </div>
                   </div>
