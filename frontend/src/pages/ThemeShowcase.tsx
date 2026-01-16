@@ -43,24 +43,19 @@ export default function ThemeShowcase() {
       description: 'Bold, raw, unconventional with thick borders'
     },
     {
-      id: 'risograph',
-      name: 'Risograph',
-      description: 'Print-inspired with limited colors and halftones'
-    },
-    {
       id: 'sketchy',
       name: 'Hand-drawn',
       description: 'Organic, wobbly lines, doodle aesthetic'
     },
     {
-      id: 'mono',
-      name: 'Monochrome + Accent',
-      description: 'Clean black/white with bold accent color'
+      id: 'dark',
+      name: 'Dark Mode',
+      description: 'Clean, modern dark theme for low-light use'
     },
     {
       id: 'terminal',
       name: 'Retro Terminal',
-      description: 'Monospace, minimal, typewriter vibes'
+      description: 'Monospace, minimal, hacker vibes'
     }
   ];
 

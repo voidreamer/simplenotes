@@ -1,18 +1,26 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeName = 'brutalist' | 'paper' | 'risograph' | 'sketchy' | 'sketchyDark' | 'mono' | 'terminal';
+export type ThemeName = 'brutalist' | 'paper' | 'sketchy' | 'terminal' | 'dark';
 
 interface ThemeState {
   theme: ThemeName;
+  previousLightTheme: ThemeName;
   setTheme: (theme: ThemeName) => void;
+  setPreviousLightTheme: (theme: ThemeName) => void;
 }
+
+// Light themes (non-dark)
+export const lightThemes: ThemeName[] = ['brutalist', 'paper', 'sketchy'];
+export const darkThemes: ThemeName[] = ['terminal', 'dark'];
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
       theme: 'paper',
+      previousLightTheme: 'paper',
       setTheme: (theme) => set({ theme }),
+      setPreviousLightTheme: (theme) => set({ previousLightTheme: theme }),
     }),
     {
       name: 'theme-storage',
@@ -87,28 +95,6 @@ export const themes: Record<ThemeName, {
     borderRadius: '4px',
     borderWidth: '1px',
   },
-  risograph: {
-    name: 'Risograph',
-    icon: '🎨',
-    colors: {
-      background: '#f7f3eb',
-      surface: '#fffef5',
-      surfaceHover: '#fff9e6',
-      border: '#1a1a1a',
-      text: '#1a1a1a',
-      textMuted: '#404040',
-      primary: '#2d5bff',
-      primaryText: '#ffffff',
-      accent: '#ff6b4a',
-      shadow: '#ff6b4a',
-    },
-    fonts: {
-      heading: "'Courier Prime', 'Courier New', monospace",
-      body: "'Courier Prime', 'Courier New', monospace",
-    },
-    borderRadius: '0px',
-    borderWidth: '2px',
-  },
   sketchy: {
     name: 'Sketchy',
     icon: '✏️',
@@ -131,50 +117,6 @@ export const themes: Record<ThemeName, {
     borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
     borderWidth: '2px',
   },
-  sketchyDark: {
-    name: 'Sketchy Dark',
-    icon: '🌙',
-    colors: {
-      background: '#1a1a2e',
-      surface: '#252540',
-      surfaceHover: '#2d2d4a',
-      border: '#e0e0e0',
-      text: '#f0f0f0',
-      textMuted: '#b0b0b0',
-      primary: '#ffd700',
-      primaryText: '#1a1a2e',
-      accent: '#ff6b9d',
-      shadow: 'rgba(255,215,0,0.2)',
-    },
-    fonts: {
-      heading: "'Comic Neue', 'Comic Sans MS', cursive",
-      body: "'Comic Neue', 'Comic Sans MS', cursive",
-    },
-    borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
-    borderWidth: '2px',
-  },
-  mono: {
-    name: 'Monochrome',
-    icon: '⬛',
-    colors: {
-      background: '#f5f5f5',
-      surface: '#ffffff',
-      surfaceHover: '#fafafa',
-      border: '#d0d0d0',
-      text: '#1a1a1a',
-      textMuted: '#505050',
-      primary: '#ff4f00',
-      primaryText: '#ffffff',
-      accent: '#ff4f00',
-      shadow: 'rgba(0,0,0,0.08)',
-    },
-    fonts: {
-      heading: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      body: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-    },
-    borderRadius: '8px',
-    borderWidth: '1px',
-  },
   terminal: {
     name: 'Terminal',
     icon: '💻',
@@ -195,6 +137,28 @@ export const themes: Record<ThemeName, {
       body: "'Courier Prime', 'Courier New', monospace",
     },
     borderRadius: '0px',
+    borderWidth: '1px',
+  },
+  dark: {
+    name: 'Dark',
+    icon: '🌙',
+    colors: {
+      background: '#121212',
+      surface: '#1e1e1e',
+      surfaceHover: '#2a2a2a',
+      border: '#3a3a3a',
+      text: '#e4e4e4',
+      textMuted: '#a0a0a0',
+      primary: '#6b8afd',
+      primaryText: '#ffffff',
+      accent: '#ff6b9d',
+      shadow: 'rgba(0,0,0,0.4)',
+    },
+    fonts: {
+      heading: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      body: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    },
+    borderRadius: '8px',
     borderWidth: '1px',
   },
 };
