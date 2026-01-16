@@ -14,6 +14,9 @@ interface ThemeState {
 export const lightThemes: ThemeName[] = ['brutalist', 'paper', 'sketchy'];
 export const darkThemes: ThemeName[] = ['terminal', 'dark'];
 
+// Valid theme names for migration
+const validThemeNames = ['brutalist', 'paper', 'sketchy', 'terminal', 'dark'];
+
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
@@ -24,6 +27,17 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: 'theme-storage',
+      // Migrate old theme values to valid ones
+      migrate: (persistedState: any) => {
+        if (persistedState && !validThemeNames.includes(persistedState.theme)) {
+          persistedState.theme = 'paper';
+        }
+        if (persistedState && !validThemeNames.includes(persistedState.previousLightTheme)) {
+          persistedState.previousLightTheme = 'paper';
+        }
+        return persistedState;
+      },
+      version: 1,
     }
   )
 );
@@ -165,7 +179,9 @@ export const themes: Record<ThemeName, {
 
 // Apply theme to CSS variables
 export function applyTheme(themeName: ThemeName) {
-  const theme = themes[themeName];
+  // Fallback to 'paper' if theme doesn't exist (handles old localStorage values)
+  const theme = themes[themeName] || themes.paper;
+  const validThemeName = themes[themeName] ? themeName : 'paper';
   const root = document.documentElement;
 
   root.style.setProperty('--color-background', theme.colors.background);
@@ -184,5 +200,5 @@ export function applyTheme(themeName: ThemeName) {
   root.style.setProperty('--border-width', theme.borderWidth);
 
   // Set data attribute for theme-specific CSS
-  root.setAttribute('data-theme', themeName);
+  root.setAttribute('data-theme', validThemeName);
 }
