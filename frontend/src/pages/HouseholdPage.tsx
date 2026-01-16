@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, Mail, ArrowUpDown, Pencil } from 'lucide-react';
+import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, ArrowUpDown, Pencil } from 'lucide-react';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
@@ -29,8 +29,6 @@ export default function HouseholdPage() {
   const [newListTitle, setNewListTitle] = useState('');
   const [newListType, setNewListType] = useState<ListType>('shopping');
   const [inviteEmail, setInviteEmail] = useState('');
-  const [activeQuickCreate, setActiveQuickCreate] = useState<ListType | null>(null);
-  const [quickCreateTitle, setQuickCreateTitle] = useState('');
   const [creating, setCreating] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -71,8 +69,6 @@ export default function HouseholdPage() {
     setShowDeleteModal(false);
     setShowOptionsMenu(false);
     setShowSortMenu(false);
-    setActiveQuickCreate(null);
-    setQuickCreateTitle('');
     setEditingName(false);
   }, []));
 
@@ -116,42 +112,6 @@ export default function HouseholdPage() {
       console.error('Failed to create list:', error);
     } finally {
       setCreating(false);
-    }
-  };
-
-  const handleQuickCreate = (type: ListType) => {
-    setActiveQuickCreate(type);
-    setQuickCreateTitle('');
-  };
-
-  const handleInlineCreate = async (type: ListType) => {
-    if (!quickCreateTitle.trim() || !householdId) return;
-
-    setCreating(true);
-    try {
-      const list = await api.createList({
-        household_id: householdId,
-        title: quickCreateTitle.trim(),
-        type: type,
-      }) as List;
-      addList(list);
-      setActiveQuickCreate(null);
-      setQuickCreateTitle('');
-      navigate(`/list/${list.list_id}?household=${householdId}`);
-    } catch (error) {
-      console.error('Failed to create list:', error);
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handleInlineKeyDown = (e: React.KeyboardEvent, type: ListType) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleInlineCreate(type);
-    } else if (e.key === 'Escape') {
-      setActiveQuickCreate(null);
-      setQuickCreateTitle('');
     }
   };
 
@@ -350,54 +310,6 @@ export default function HouseholdPage() {
         </div>
       </header>
 
-      {/* Quick Create */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionLabel}>Quick Create</h2>
-        <div className={styles.quickActions}>
-          {Object.entries(listTypeConfig).map(([type, config]) => {
-            const Icon = config.icon;
-            const isActive = activeQuickCreate === type;
-            return (
-              <div
-                key={type}
-                className={`${styles.quickAction} ${isActive ? styles.quickActionActive : ''}`}
-                onClick={() => !isActive && handleQuickCreate(type as ListType)}
-              >
-                <div className={`${styles.quickActionIcon} ${styles[config.colorClass]}`}>
-                  <Icon size={20} />
-                </div>
-                {isActive ? (
-                  <div className={styles.quickActionInput}>
-                    <input
-                      type="text"
-                      value={quickCreateTitle}
-                      onChange={(e) => setQuickCreateTitle(e.target.value)}
-                      onKeyDown={(e) => handleInlineKeyDown(e, type as ListType)}
-                      onBlur={() => {
-                        if (!quickCreateTitle.trim()) {
-                          setActiveQuickCreate(null);
-                          setQuickCreateTitle('');
-                        }
-                      }}
-                      placeholder={`${config.label} name...`}
-                      className={styles.inlineInput}
-                      autoFocus
-                      disabled={creating}
-                    />
-                    <span className={styles.inputHint}>Press Enter to create</span>
-                  </div>
-                ) : (
-                  <div className={styles.quickActionText}>
-                    <p className={styles.quickActionTitle}>{config.label}</p>
-                    <p className={styles.quickActionDesc}>{config.description}</p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
       {/* Lists */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
@@ -463,6 +375,8 @@ export default function HouseholdPage() {
               }
             };
 
+            const Icon = config.icon;
+
             return (
               <button
                 key={list.list_id}
@@ -470,7 +384,12 @@ export default function HouseholdPage() {
                 onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
               >
                 <div className={styles.listHeader}>
-                  <h3 className={styles.listTitle}>{list.title}</h3>
+                  <div className={styles.listTitleRow}>
+                    <span className={`${styles.listIcon} ${styles[config.colorClass]}`}>
+                      <Icon size={14} />
+                    </span>
+                    <h3 className={styles.listTitle}>{list.title}</h3>
+                  </div>
                   {(list.updated_at || list.created_at) && (
                     <span className={styles.listDate}>
                       {formatRelativeDate(list.updated_at || list.created_at)}
@@ -504,35 +423,26 @@ export default function HouseholdPage() {
         </div>
       </section>
 
-      {/* Members */}
+      {/* Members - Compact Row */}
       {currentHousehold?.members && currentHousehold.members.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Members</h2>
-            <span className={styles.memberCountLabel}>
-              {currentHousehold.members.length} member{currentHousehold.members.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-          <div className={styles.membersList}>
-            {(currentHousehold.members as any[]).map((member: any) => (
-              <div key={member.user_id || member} className={styles.memberCard}>
-                <div
-                  className={styles.memberAvatar}
-                  style={{ background: getMemberColor(typeof member === 'object' ? member.name : 'U') }}
-                >
-                  {typeof member === 'object' ? member.name?.charAt(0) : 'U'}
-                </div>
-                <div className={styles.memberInfo}>
-                  <p className={styles.memberName}>
-                    {typeof member === 'object' ? member.name : 'Member'}
-                  </p>
-                  <p className={styles.memberEmail}>
-                    <Mail size={12} />
-                    {typeof member === 'object' ? member.email : ''}
-                  </p>
-                </div>
+        <section className={styles.membersSection}>
+          <span className={styles.membersLabel}>Members</span>
+          <div className={styles.membersRow}>
+            {(currentHousehold.members as any[]).slice(0, 5).map((member: any) => (
+              <div
+                key={member.user_id || member}
+                className={styles.memberAvatarSmall}
+                style={{ background: getMemberColor(typeof member === 'object' ? member.name : 'U') }}
+                title={typeof member === 'object' ? member.name : 'Member'}
+              >
+                {typeof member === 'object' ? member.name?.charAt(0) : 'U'}
               </div>
             ))}
+            {currentHousehold.members.length > 5 && (
+              <div className={styles.memberAvatarMore}>
+                +{currentHousehold.members.length - 5}
+              </div>
+            )}
           </div>
         </section>
       )}
