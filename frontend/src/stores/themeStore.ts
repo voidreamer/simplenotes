@@ -1,18 +1,26 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeName = 'brutalist' | 'paper' | 'sketchy' | 'terminal';
+export type ThemeName = 'brutalist' | 'paper' | 'sketchy' | 'terminal' | 'dark';
 
 interface ThemeState {
   theme: ThemeName;
+  previousLightTheme: ThemeName;
   setTheme: (theme: ThemeName) => void;
+  setPreviousLightTheme: (theme: ThemeName) => void;
 }
+
+// Light themes (non-dark)
+export const lightThemes: ThemeName[] = ['brutalist', 'paper', 'sketchy'];
+export const darkThemes: ThemeName[] = ['terminal', 'dark'];
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
       theme: 'paper',
+      previousLightTheme: 'paper',
       setTheme: (theme) => set({ theme }),
+      setPreviousLightTheme: (theme) => set({ previousLightTheme: theme }),
     }),
     {
       name: 'theme-storage',
@@ -129,6 +137,28 @@ export const themes: Record<ThemeName, {
       body: "'Courier Prime', 'Courier New', monospace",
     },
     borderRadius: '0px',
+    borderWidth: '1px',
+  },
+  dark: {
+    name: 'Dark',
+    icon: '🌙',
+    colors: {
+      background: '#121212',
+      surface: '#1e1e1e',
+      surfaceHover: '#2a2a2a',
+      border: '#3a3a3a',
+      text: '#e4e4e4',
+      textMuted: '#a0a0a0',
+      primary: '#6b8afd',
+      primaryText: '#ffffff',
+      accent: '#ff6b9d',
+      shadow: 'rgba(0,0,0,0.4)',
+    },
+    fonts: {
+      heading: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      body: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    },
+    borderRadius: '8px',
     borderWidth: '1px',
   },
 };

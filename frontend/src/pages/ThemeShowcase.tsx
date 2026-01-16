@@ -48,9 +48,14 @@ export default function ThemeShowcase() {
       description: 'Organic, wobbly lines, doodle aesthetic'
     },
     {
+      id: 'dark',
+      name: 'Dark Mode',
+      description: 'Clean, modern dark theme for low-light use'
+    },
+    {
       id: 'terminal',
       name: 'Retro Terminal',
-      description: 'Monospace, minimal, typewriter vibes'
+      description: 'Monospace, minimal, hacker vibes'
     }
   ];
 
