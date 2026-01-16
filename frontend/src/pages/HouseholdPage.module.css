@@ -43,12 +43,16 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   color: var(--color-text-muted);
   cursor: pointer;
   transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .backButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .backButton:hover {
@@ -59,14 +63,13 @@
 .householdIcon {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.125rem;
   font-weight: 700;
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .headerInfo {
@@ -144,19 +147,23 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: #6366f1;
-  border: none;
-  border-radius: 8px;
-  color: white;
+  background: var(--color-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-primary-text);
   font-weight: 500;
   font-family: var(--font-body);
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
 }
 
-.inviteButton:hover {
-  background: #4f46e5;
+[data-theme="brutalist"] .inviteButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .inviteButton:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .optionsWrapper {
@@ -169,12 +176,16 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   color: var(--color-text-muted);
   cursor: pointer;
   transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .optionsButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .optionsButton:hover {
@@ -187,12 +198,15 @@
   right: 0;
   margin-top: 4px;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   min-width: 180px;
   z-index: 100;
   overflow: hidden;
+}
+
+[data-theme="brutalist"] .optionsMenu {
+  box-shadow: 4px 4px 0 var(--color-shadow);
 }
 
 .optionsMenuItem {
@@ -254,7 +268,7 @@
 .viewAllButton {
   background: transparent;
   border: none;
-  color: #6366f1;
+  color: var(--color-primary);
   font-size: 0.875rem;
   font-weight: 500;
   font-family: var(--font-body);
@@ -263,7 +277,7 @@
 }
 
 .viewAllButton:hover {
-  color: #4f46e5;
+  opacity: 0.8;
 }
 
 /* Sort Dropdown */
@@ -276,9 +290,9 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-sm);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   color: var(--color-text-muted);
   font-size: 0.75rem;
   font-family: var(--font-body);
@@ -297,12 +311,15 @@
   right: 0;
   margin-top: 4px;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   min-width: 160px;
   z-index: 100;
   overflow: hidden;
+}
+
+[data-theme="brutalist"] .sortMenu {
+  box-shadow: 4px 4px 0 var(--color-shadow);
 }
 
 .sortOption {
@@ -325,7 +342,7 @@
 
 .sortOptionActive {
   color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.08);
+  background: var(--color-surface-hover);
 }
 
 .memberCountLabel {
@@ -347,22 +364,30 @@
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
 }
 
+[data-theme="brutalist"] .quickAction {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .quickAction:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
 .quickAction:hover {
-  border-color: #6366f1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-primary);
 }
 
 .quickActionIcon {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -376,7 +401,6 @@
 
 .quickActionActive {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
 .quickActionInput {
@@ -394,10 +418,14 @@
   font-size: 0.9375rem;
   color: var(--color-text);
   background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   outline: none;
   transition: border-color var(--transition-fast);
+}
+
+[data-theme="brutalist"] .inlineInput {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .inlineInput:focus {
@@ -475,18 +503,26 @@
   flex-direction: column;
   padding: var(--spacing-md);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   border-left-width: 3px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
   min-height: 100px;
 }
 
+[data-theme="brutalist"] .listCard {
+  box-shadow: 4px 4px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .listCard:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
+}
+
 .listCard:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
+  border-color: var(--color-primary);
 }
 
 /* Color border variants */
@@ -559,13 +595,14 @@
   flex: 1;
   height: 4px;
   background: var(--color-background);
-  border-radius: 2px;
+  border-radius: var(--border-radius);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  border-radius: 2px;
+  background: var(--color-primary);
+  border-radius: var(--border-radius);
   transition: width var(--transition-normal);
 }
 
@@ -577,8 +614,8 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
   background: transparent;
-  border: 1px dashed var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) dashed var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
   min-height: 100px;
@@ -588,7 +625,7 @@
 .addListCard:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  background: rgba(99, 102, 241, 0.03);
+  background: var(--color-surface-hover);
 }
 
 .addListIcon {
@@ -616,26 +653,25 @@
   gap: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   transition: all var(--transition-fast);
 }
 
-.memberCard:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+[data-theme="brutalist"] .memberCard {
+  box-shadow: 4px 4px 0 var(--color-shadow);
 }
 
 .memberAvatar {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .memberInfo {
@@ -678,11 +714,15 @@
 
 .modal {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   padding: var(--spacing-xl);
   width: 100%;
   max-width: 440px;
+}
+
+[data-theme="brutalist"] .modal {
+  box-shadow: 6px 6px 0 var(--color-shadow);
 }
 
 .modalTitle {
@@ -714,8 +754,8 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   color: var(--color-text-muted);
   font-size: 0.75rem;
   font-weight: 600;
@@ -756,11 +796,15 @@
   font-size: 1rem;
   color: var(--color-text);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   outline: none;
   margin-bottom: var(--spacing-lg);
   transition: border-color var(--transition-fast);
+}
+
+[data-theme="brutalist"] .modalInput {
+  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .modalInput:focus {
@@ -779,8 +823,8 @@
   color: var(--color-text-muted);
   font-weight: 500;
   font-family: var(--font-body);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -796,10 +840,19 @@
   color: var(--color-primary-text);
   font-weight: 500;
   font-family: var(--font-body);
-  border: none;
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
+}
+
+[data-theme="brutalist"] .submitButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
+[data-theme="brutalist"] .submitButton:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .submitButton:hover {
@@ -813,18 +866,22 @@
 
 .dangerButton {
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: #ef4444;
+  background: var(--color-error);
   color: white;
   font-weight: 500;
   font-family: var(--font-body);
-  border: none;
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
+[data-theme="brutalist"] .dangerButton {
+  box-shadow: 3px 3px 0 var(--color-shadow);
+}
+
 .dangerButton:hover:not(:disabled) {
-  background: #dc2626;
+  opacity: 0.9;
 }
 
 .dangerButton:disabled {
