@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Bell, Shield, LogOut, Palette } from 'lucide-react';
+import { User, Shield, LogOut } from 'lucide-react';
 import { useAuthStore } from '../stores/store';
-import { useThemeStore, themes, ThemeName } from '../stores/themeStore';
 import { logout } from '../utils/auth';
 import { api } from '../utils/api';
 import styles from './SettingsPage.module.css';
@@ -10,7 +9,6 @@ import styles from './SettingsPage.module.css';
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuthStore();
-  const { theme, setTheme } = useThemeStore();
 
   const [name, setName] = useState(user?.name || '');
   const [saving, setSaving] = useState(false);
@@ -81,57 +79,6 @@ export default function SettingsPage() {
           >
             {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Changes'}
           </button>
-        </div>
-      </section>
-
-      {/* Theme Section */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <Palette size={20} />
-          <h2>Appearance</h2>
-        </div>
-        <div className={styles.sectionContent}>
-          <p className={styles.themeDescription}>Choose a theme for your app</p>
-          <div className={styles.themeGrid}>
-            {(Object.keys(themes) as ThemeName[]).map((themeName) => (
-              <button
-                key={themeName}
-                className={`${styles.themeOption} ${theme === themeName ? styles.themeOptionActive : ''}`}
-                onClick={() => setTheme(themeName)}
-              >
-                <span className={styles.themeIcon}>{themes[themeName].icon}</span>
-                <span className={styles.themeName}>{themes[themeName].name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Notifications Section */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <Bell size={20} />
-          <h2>Notifications</h2>
-        </div>
-        <div className={styles.sectionContent}>
-          <div className={styles.toggleRow}>
-            <div>
-              <p className={styles.toggleLabel}>Email Notifications</p>
-              <p className={styles.toggleDescription}>
-                Receive emails when invited to households
-              </p>
-            </div>
-            <input type="checkbox" defaultChecked className={styles.toggle} />
-          </div>
-          <div className={styles.toggleRow}>
-            <div>
-              <p className={styles.toggleLabel}>Push Notifications</p>
-              <p className={styles.toggleDescription}>
-                Get notified when lists are updated
-              </p>
-            </div>
-            <input type="checkbox" className={styles.toggle} />
-          </div>
         </div>
       </section>
 
