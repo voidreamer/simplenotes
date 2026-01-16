@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trash2, Pin, FileText, CheckSquare, ShoppingCart, Pencil } from 'lucide-react';
+import { ArrowLeft, Trash2, FileText, CheckSquare, ShoppingCart, Pencil } from 'lucide-react';
 import { useListsStore, List } from '../stores/store';
 import { api } from '../utils/api';
 import NoteEditor from '../components/NoteEditor';
@@ -51,17 +51,6 @@ export default function ListPage() {
     setCurrentList(updated);
     if (listId && householdId) {
       updateList(listId, householdId, updated);
-    }
-  };
-
-  const handleTogglePin = async () => {
-    if (!listId || !householdId || !currentList) return;
-
-    try {
-      const updated = await api.updateList(listId, householdId, { pinned: !currentList.pinned }) as List;
-      setCurrentList(updated);
-    } catch (error) {
-      console.error('Failed to toggle pin:', error);
     }
   };
 
@@ -128,19 +117,6 @@ export default function ListPage() {
     }
   };
 
-  const getTypeLabel = () => {
-    switch (currentList?.type) {
-      case 'note':
-        return 'Note';
-      case 'checklist':
-        return 'Checklist';
-      case 'shopping':
-        return 'Shopping List';
-      default:
-        return '';
-    }
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -203,7 +179,6 @@ export default function ListPage() {
           <div className={styles.meta}>
             <span className={styles.typeLabel}>
               {getTypeIcon()}
-              {getTypeLabel()}
             </span>
             <span className={styles.separator}>·</span>
             <span className={styles.date}>
@@ -216,13 +191,6 @@ export default function ListPage() {
           </div>
         </div>
         <div className={styles.headerActions}>
-          <button
-            onClick={handleTogglePin}
-            className={`${styles.actionButton} ${currentList.pinned ? styles.pinned : ''}`}
-            title={currentList.pinned ? 'Unpin' : 'Pin'}
-          >
-            <Pin size={18} />
-          </button>
           <button onClick={handleDeleteList} className={styles.actionButton} title="Delete">
             <Trash2 size={18} />
           </button>
