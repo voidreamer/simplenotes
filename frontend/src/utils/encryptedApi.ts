@@ -68,14 +68,15 @@ function isEncryptedList(list: ApiList): list is EncryptedList {
 }
 
 async function getHouseholdKey(householdId: string): Promise<CryptoKey | null> {
-  const { getHouseholdKey, addHouseholdKey, isUnlocked } = useCryptoStore.getState();
+  const state = useCryptoStore.getState();
 
-  if (!isUnlocked) {
+  if (!state.isUnlocked) {
+    console.warn('Encryption not unlocked');
     return null;
   }
 
   // Check if we already have the key in memory
-  let key = getHouseholdKey(householdId);
+  let key = state.getHouseholdKey(householdId);
   if (key) {
     return key;
   }
@@ -84,8 +85,9 @@ async function getHouseholdKey(householdId: string): Promise<CryptoKey | null> {
   try {
     const response = await api.getHouseholdKey(householdId);
     if (response.has_key && response.wrapped_key) {
-      await addHouseholdKey(householdId, response.wrapped_key);
-      return getHouseholdKey(householdId);
+      await state.addHouseholdKey(householdId, response.wrapped_key);
+      // Get fresh state after adding key
+      return useCryptoStore.getState().getHouseholdKey(householdId);
     }
   } catch (error) {
     console.error('Failed to fetch household key:', error);
@@ -390,9 +392,14 @@ class EncryptedApiClient {
     size: number;
     mime_type: string;
   }> {
+    const { isUnlocked } = useCryptoStore.getState();
+    if (!isUnlocked) {
+      throw new Error('Please unlock encryption first');
+    }
+
     const key = await getHouseholdKey(householdId);
     if (!key) {
-      throw new Error('Encryption key not available');
+      throw new Error('Household encryption key not available. Please refresh the page.');
     }
 
     // Encrypt the filename
