@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
-import { Upload, X, AlertCircle } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Upload, X, AlertCircle, Lock } from 'lucide-react';
 import { encryptedApi } from '../utils/encryptedApi';
+import { useCryptoStore } from '../stores/cryptoStore';
 import styles from './AttachmentUploader.module.css';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -29,7 +30,23 @@ export default function AttachmentUploader({
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState<UploadingFile[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [encryptionReady, setEncryptionReady] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const isUnlocked = useCryptoStore((state) => state.isUnlocked);
+
+  // Check if encryption is available for this household
+  useEffect(() => {
+    async function checkEncryption() {
+      if (!isUnlocked) {
+        setEncryptionReady(false);
+        return;
+      }
+      const ready = await encryptedApi.isEncryptionAvailable(householdId);
+      setEncryptionReady(ready);
+    }
+    checkEncryption();
+  }, [householdId, isUnlocked]);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     setError(null);
@@ -121,7 +138,15 @@ export default function AttachmentUploader({
   }, []);
 
   const remainingSlots = MAX_ATTACHMENTS - currentCount;
-  const isDisabled = remainingSlots <= 0;
+  const isMaxed = remainingSlots <= 0;
+  const isDisabled = isMaxed || !encryptionReady;
+
+  const getStatusText = () => {
+    if (!isUnlocked) return 'Unlock encryption to upload files';
+    if (!encryptionReady) return 'Loading encryption...';
+    if (isMaxed) return 'Maximum attachments reached';
+    return `Drop files here or click to upload (${remainingSlots} remaining)`;
+  };
 
   return (
     <div className={styles.container}>
@@ -140,13 +165,9 @@ export default function AttachmentUploader({
           className={styles.input}
           disabled={isDisabled}
         />
-        <Upload size={24} className={styles.icon} />
-        <span className={styles.text}>
-          {isDisabled
-            ? 'Maximum attachments reached'
-            : `Drop files here or click to upload (${remainingSlots} remaining)`}
-        </span>
-        <span className={styles.hint}>Max 10MB per file</span>
+        {!isUnlocked ? <Lock size={24} className={styles.icon} /> : <Upload size={24} className={styles.icon} />}
+        <span className={styles.text}>{getStatusText()}</span>
+        {encryptionReady && <span className={styles.hint}>Max 10MB per file</span>}
       </div>
 
       {error && (
