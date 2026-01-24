@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useCryptoStore } from './cryptoStore';
 
 // Types
 export interface User {
@@ -68,7 +69,11 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       setAccessToken: (accessToken) => set({ accessToken }),
       setLoading: (isLoading) => set({ isLoading }),
-      logout: () => set({ user: null, accessToken: null, isAuthenticated: false }),
+      logout: () => {
+        // Clear crypto store on logout
+        useCryptoStore.getState().reset();
+        set({ user: null, accessToken: null, isAuthenticated: false });
+      },
     }),
     {
       name: 'auth-storage',
