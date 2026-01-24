@@ -27,9 +27,9 @@ app = FastAPI(
     description="Shareable notes, checklists, and shopping lists for households",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json"
+    docs_url="/docs" if settings.ENVIRONMENT == "dev" else None,
+    redoc_url="/redoc" if settings.ENVIRONMENT == "dev" else None,
+    openapi_url="/openapi.json" if settings.ENVIRONMENT == "dev" else None
 )
 
 # CORS Configuration
@@ -48,8 +48,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 # Include routers

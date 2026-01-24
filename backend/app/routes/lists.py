@@ -4,7 +4,7 @@ Notes, checklists, and shopping lists management
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Any
 
 from app.utils.auth import get_current_user
@@ -18,27 +18,27 @@ router = APIRouter()
 
 class ListItem(BaseModel):
     """List item model"""
-    text: str
-    quantity: Optional[int] = 1
-    unit: Optional[str] = ""
-    category: Optional[str] = ""
-    note: Optional[str] = ""
+    text: str = Field(..., max_length=500)
+    quantity: Optional[int] = Field(1, ge=0, le=10000)
+    unit: Optional[str] = Field("", max_length=50)
+    category: Optional[str] = Field("", max_length=100)
+    note: Optional[str] = Field("", max_length=1000)
 
 class ListCreate(BaseModel):
     """List creation request"""
-    household_id: str
-    title: str
-    type: str = "note"  # note, checklist, shopping
-    color: Optional[str] = "#6366f1"
-    icon: Optional[str] = "list"
+    household_id: str = Field(..., max_length=100)
+    title: str = Field(..., max_length=200)
+    type: str = Field("note", pattern="^(note|checklist|shopping)$")
+    color: Optional[str] = Field("#6366f1", max_length=20)
+    icon: Optional[str] = Field("list", max_length=50)
 
 class ListUpdate(BaseModel):
     """List update request"""
-    title: Optional[str] = None
-    items: Optional[List[Any]] = None
-    content: Optional[str] = None  # For note type
-    color: Optional[str] = None
-    icon: Optional[str] = None
+    title: Optional[str] = Field(None, max_length=200)
+    items: Optional[List[Any]] = Field(None, max_length=1000)
+    content: Optional[str] = Field(None, max_length=50000)  # For note type
+    color: Optional[str] = Field(None, max_length=20)
+    icon: Optional[str] = Field(None, max_length=50)
     pinned: Optional[bool] = None
 
 class ListResponse(BaseModel):
@@ -182,16 +182,13 @@ async def add_list_item(
     user: dict = Depends(get_current_user)
 ):
     """Add item to list"""
-    print(f"Adding item to list {list_id} in household {household_id}")
     list_item = get_list(list_id, household_id)
     if not list_item:
-        print(f"List not found: {list_id}")
         raise HTTPException(status_code=404, detail="List not found")
 
     # Verify membership
     household = get_household(household_id)
     if not household or user["user_id"] not in household.get("members", []):
-        print(f"User {user['user_id']} not authorized for household {household_id}")
         raise HTTPException(status_code=403, detail="Not authorized")
 
     item = {
@@ -203,13 +200,10 @@ async def add_list_item(
         "added_by": user["user_id"]
     }
 
-    print(f"Item to add: {item}")
     updated = add_item_to_list(list_id, household_id, item)
     if not updated:
-        print(f"Failed to add item to list {list_id}")
         raise HTTPException(status_code=500, detail="Failed to add item")
 
-    print(f"Updated list: {updated}")
     return ListResponse(**updated)
 
 @router.patch("/{list_id}/items/{item_id}/toggle")
@@ -244,11 +238,11 @@ async def toggle_item(
 
 class ItemUpdate(BaseModel):
     """Item update request"""
-    text: Optional[str] = None
-    quantity: Optional[int] = None
-    unit: Optional[str] = None
-    category: Optional[str] = None
-    note: Optional[str] = None
+    text: Optional[str] = Field(None, max_length=500)
+    quantity: Optional[int] = Field(None, ge=0, le=10000)
+    unit: Optional[str] = Field(None, max_length=50)
+    category: Optional[str] = Field(None, max_length=100)
+    note: Optional[str] = Field(None, max_length=1000)
 
 @router.patch("/{list_id}/items/{item_id}", response_model=ListResponse)
 async def update_item(

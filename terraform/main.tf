@@ -224,7 +224,11 @@ resource "aws_s3_bucket_cors_configuration" "attachments" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "PUT", "POST", "DELETE"]
-    allowed_origins = ["*"]  # Update with your domain in production
+    allowed_origins = [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://${aws_cloudfront_distribution.frontend.domain_name}"
+    ]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
