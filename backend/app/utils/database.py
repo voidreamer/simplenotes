@@ -389,3 +389,65 @@ def delete_invite(invite_id: str) -> bool:
         return True
     except ClientError:
         return False
+
+# ============================================
+# Encryption Key Operations
+# ============================================
+
+def get_user_keys(user_id: str) -> Optional[Dict]:
+    """Get user's encryption keys"""
+    user = get_user_by_id(user_id)
+    if not user:
+        return None
+
+    return {
+        "public_key": user.get("public_key"),
+        "encrypted_private_key": user.get("encrypted_private_key"),
+        "private_key_salt": user.get("private_key_salt"),
+        "encryption_version": user.get("encryption_version", 1)
+    }
+
+def update_user_keys(user_id: str, key_data: Dict) -> bool:
+    """Update user's encryption keys"""
+    table = get_table(settings.USERS_TABLE)
+    try:
+        table.update_item(
+            Key={"user_id": user_id},
+            UpdateExpression="SET public_key = :pk, encrypted_private_key = :epk, private_key_salt = :salt, encryption_version = :ver, updated_at = :now",
+            ExpressionAttributeValues={
+                ":pk": key_data["public_key"],
+                ":epk": key_data["encrypted_private_key"],
+                ":salt": key_data["private_key_salt"],
+                ":ver": key_data.get("encryption_version", 1),
+                ":now": datetime.utcnow().isoformat()
+            }
+        )
+        return True
+    except ClientError as e:
+        print(f"Error updating user keys: {e}")
+        return False
+
+def get_household_wrapped_keys(household_id: str) -> Optional[Dict[str, str]]:
+    """Get household's wrapped encryption keys"""
+    household = get_household(household_id)
+    if not household:
+        return None
+
+    return household.get("wrapped_keys", {})
+
+def update_household_wrapped_keys(household_id: str, wrapped_keys: Dict[str, str]) -> bool:
+    """Update household's wrapped encryption keys"""
+    table = get_table(settings.HOUSEHOLDS_TABLE)
+    try:
+        table.update_item(
+            Key={"household_id": household_id},
+            UpdateExpression="SET wrapped_keys = :wk, updated_at = :now",
+            ExpressionAttributeValues={
+                ":wk": wrapped_keys,
+                ":now": datetime.utcnow().isoformat()
+            }
+        )
+        return True
+    except ClientError as e:
+        print(f"Error updating household wrapped keys: {e}")
+        return False

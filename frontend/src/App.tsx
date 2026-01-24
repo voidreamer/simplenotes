@@ -19,6 +19,7 @@ import InfraLearn from './pages/InfraLearn';
 // Components
 import Layout from './components/Layout';
 import LoadingScreen from './components/LoadingScreen';
+import EncryptionProvider from './components/EncryptionProvider';
 
 // Configure auth on load
 configureAuth();
@@ -34,7 +35,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <EncryptionProvider>
+      {children}
+    </EncryptionProvider>
+  );
 }
 
 function App() {

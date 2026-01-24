@@ -201,6 +201,71 @@ class ApiClient {
       method: 'POST',
     });
   }
+
+  // Encryption Keys
+  async setupUserKeys(data: {
+    public_key: string;
+    encrypted_private_key: string;
+    salt: string;
+    version?: number;
+  }) {
+    return this.request('/api/keys/user', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getUserKeys() {
+    return this.request<{
+      public_key: string;
+      encrypted_private_key: string;
+      salt: string;
+      version: number;
+      has_keys: boolean;
+    }>('/api/keys/user');
+  }
+
+  async getUserKeyStatus() {
+    return this.request<{
+      has_encryption_setup: boolean;
+      public_key: string | null;
+    }>('/api/keys/user/status');
+  }
+
+  async getUserPublicKey(userId: string) {
+    return this.request<{
+      user_id: string;
+      public_key: string;
+    }>(`/api/keys/user/${userId}/public`);
+  }
+
+  async getHouseholdKey(householdId: string) {
+    return this.request<{
+      household_id: string;
+      wrapped_key: string | null;
+      has_key: boolean;
+    }>(`/api/keys/household/${householdId}`);
+  }
+
+  async setHouseholdKeys(householdId: string, wrappedKeys: Record<string, string>) {
+    return this.request(`/api/keys/household/${householdId}`, {
+      method: 'POST',
+      body: JSON.stringify({ wrapped_keys: wrappedKeys }),
+    });
+  }
+
+  async addMemberKey(householdId: string, userId: string, wrappedKey: string) {
+    return this.request(`/api/keys/household/${householdId}/member`, {
+      method: 'POST',
+      body: JSON.stringify({ user_id: userId, wrapped_key: wrappedKey }),
+    });
+  }
+
+  async removeMemberKey(householdId: string, memberId: string) {
+    return this.request(`/api/keys/household/${householdId}/member/${memberId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const api = new ApiClient();
