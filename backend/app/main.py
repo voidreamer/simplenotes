@@ -22,14 +22,16 @@ async def lifespan(app: FastAPI):
     print("SimpleNotes API shutting down")
 
 # Create FastAPI app
+# Only enable API docs in non-production environments
+_enable_docs = settings.ENVIRONMENT in ("dev", "test")
 app = FastAPI(
     title="SimpleNotes API",
     description="Shareable notes, checklists, and shopping lists for households",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs" if settings.ENVIRONMENT == "dev" else None,
-    redoc_url="/redoc" if settings.ENVIRONMENT == "dev" else None,
-    openapi_url="/openapi.json" if settings.ENVIRONMENT == "dev" else None
+    docs_url="/docs" if _enable_docs else None,
+    redoc_url="/redoc" if _enable_docs else None,
+    openapi_url="/openapi.json" if _enable_docs else None
 )
 
 # CORS Configuration
