@@ -53,8 +53,12 @@ resource "aws_cognito_user_pool" "main" {
     email_message        = "Welcome to SimpleNotes! Please click the link below to verify your email: {####}"
   }
 
-  # MFA (optional, disabled for simplicity)
-  mfa_configuration = "OFF"
+  # MFA (optional for users)
+  mfa_configuration = "OPTIONAL"
+
+  software_token_mfa_configuration {
+    enabled = true
+  }
 
   # Lambda triggers (can be added later)
   # lambda_config {
