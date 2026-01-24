@@ -6,19 +6,16 @@
  *
  * This allows users to unlock their encryption with Face ID / Touch ID
  * instead of typing their password every time.
+ *
+ * NOTE: To enable biometrics, install the Capacitor plugin:
+ *   npm install capacitor-native-biometric
+ *   npx cap sync
  */
 
 // Types for the Capacitor plugins (will be available when plugins are installed)
 interface BiometricResult {
   isAvailable: boolean;
   biometryType?: 'touchId' | 'faceId' | 'fingerprintAuthentication' | 'irisAuthentication';
-}
-
-interface SecureStoragePlugin {
-  get(options: { key: string }): Promise<{ value: string }>;
-  set(options: { key: string; value: string }): Promise<void>;
-  remove(options: { key: string }): Promise<void>;
-  keys(): Promise<{ keys: string[] }>;
 }
 
 interface NativeBiometricPlugin {
@@ -29,36 +26,54 @@ interface NativeBiometricPlugin {
   deleteCredentials(options: { server: string }): Promise<void>;
 }
 
+// Capacitor global type
+interface CapacitorGlobal {
+  Plugins?: {
+    NativeBiometric?: NativeBiometricPlugin;
+  };
+  isNativePlatform?: () => boolean;
+}
+
 // Constants
 const CREDENTIAL_SERVER = 'simplenotes-encryption';
 const CREDENTIAL_USERNAME = 'encryption-password';
 
-// Check if we're running in Capacitor
-function isCapacitor(): boolean {
-  return typeof (window as any).Capacitor !== 'undefined';
+// Get Capacitor from window (available at runtime when running as native app)
+function getCapacitor(): CapacitorGlobal | null {
+  if (typeof window !== 'undefined' && 'Capacitor' in window) {
+    return (window as unknown as { Capacitor: CapacitorGlobal }).Capacitor;
+  }
+  return null;
+}
+
+// Check if we're running in Capacitor native app
+function isCapacitorNative(): boolean {
+  const capacitor = getCapacitor();
+  return capacitor?.isNativePlatform?.() ?? false;
 }
 
 // Get the NativeBiometric plugin if available
-async function getNativeBiometric(): Promise<NativeBiometricPlugin | null> {
-  if (!isCapacitor()) {
+function getNativeBiometric(): NativeBiometricPlugin | null {
+  if (!isCapacitorNative()) {
     return null;
   }
 
-  try {
-    // Dynamic import for Capacitor plugin
-    const { NativeBiometric } = await import('capacitor-native-biometric');
-    return NativeBiometric;
-  } catch {
-    console.log('NativeBiometric plugin not available');
+  const capacitor = getCapacitor();
+  const plugin = capacitor?.Plugins?.NativeBiometric;
+
+  if (!plugin) {
+    console.log('NativeBiometric plugin not installed');
     return null;
   }
+
+  return plugin;
 }
 
 /**
  * Check if biometric authentication is available on this device
  */
 export async function isBiometricAvailable(): Promise<{ available: boolean; type?: string }> {
-  const biometric = await getNativeBiometric();
+  const biometric = getNativeBiometric();
 
   if (!biometric) {
     return { available: false };
@@ -98,7 +113,7 @@ export function getBiometricName(type?: string): string {
  * This stores the password securely in the device's keychain/keystore
  */
 export async function savePasswordForBiometric(password: string): Promise<boolean> {
-  const biometric = await getNativeBiometric();
+  const biometric = getNativeBiometric();
 
   if (!biometric) {
     console.log('Biometric not available - password not saved');
@@ -132,7 +147,7 @@ export async function savePasswordForBiometric(password: string): Promise<boolea
  * User will be prompted for Face ID / Touch ID
  */
 export async function getPasswordWithBiometric(): Promise<string | null> {
-  const biometric = await getNativeBiometric();
+  const biometric = getNativeBiometric();
 
   if (!biometric) {
     return null;
@@ -162,7 +177,7 @@ export async function getPasswordWithBiometric(): Promise<string | null> {
  * Check if we have a saved password for biometric unlock
  */
 export async function hasSavedBiometricPassword(): Promise<boolean> {
-  const biometric = await getNativeBiometric();
+  const biometric = getNativeBiometric();
 
   if (!biometric) {
     return false;
@@ -183,7 +198,7 @@ export async function hasSavedBiometricPassword(): Promise<boolean> {
  * Remove the saved biometric password
  */
 export async function removeBiometricPassword(): Promise<boolean> {
-  const biometric = await getNativeBiometric();
+  const biometric = getNativeBiometric();
 
   if (!biometric) {
     return false;
