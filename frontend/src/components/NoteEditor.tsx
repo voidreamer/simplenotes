@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Save } from 'lucide-react';
-import { List } from '../stores/store';
-import { api } from '../utils/api';
+import { List, Attachment } from '../stores/store';
+import { encryptedApi } from '../utils/encryptedApi';
+import AttachmentUploader from './AttachmentUploader';
+import AttachmentList from './AttachmentList';
 import styles from './NoteEditor.module.css';
 
 interface NoteEditorProps {
@@ -14,6 +16,7 @@ export default function NoteEditor({ list, onUpdate }: NoteEditorProps) {
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [attachments, setAttachments] = useState<Attachment[]>(list.attachments || []);
 
   // Sync content when list changes externally
   useEffect(() => {
@@ -21,12 +24,29 @@ export default function NoteEditor({ list, onUpdate }: NoteEditorProps) {
     setHasChanges(false);
   }, [list.list_id, list.content]);
 
+  // Fetch attachments with decrypted filenames
+  const fetchAttachments = useCallback(async () => {
+    try {
+      const decryptedAttachments = await encryptedApi.listAttachments(
+        list.list_id,
+        list.household_id
+      );
+      setAttachments(decryptedAttachments as Attachment[]);
+    } catch (error) {
+      console.error('Failed to fetch attachments:', error);
+    }
+  }, [list.list_id, list.household_id]);
+
+  useEffect(() => {
+    fetchAttachments();
+  }, [fetchAttachments]);
+
   const saveContent = useCallback(async () => {
     if (!hasChanges) return;
 
     setSaving(true);
     try {
-      const updated = await api.updateList(list.list_id, list.household_id, { content }) as List;
+      const updated = await encryptedApi.updateList(list.list_id, list.household_id, { content });
       onUpdate(updated);
       setLastSaved(new Date());
       setHasChanges(false);
@@ -97,6 +117,20 @@ export default function NoteEditor({ list, onUpdate }: NoteEditorProps) {
           {content.length} characters • {content.split(/\s+/).filter(Boolean).length} words
         </span>
       </div>
+
+      <AttachmentList
+        listId={list.list_id}
+        householdId={list.household_id}
+        attachments={attachments}
+        onDelete={fetchAttachments}
+      />
+
+      <AttachmentUploader
+        listId={list.list_id}
+        householdId={list.household_id}
+        currentCount={attachments.length}
+        onUploadComplete={fetchAttachments}
+      />
     </div>
   );
 }

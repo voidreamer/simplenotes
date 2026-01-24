@@ -266,6 +266,65 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Attachments
+  async getAttachmentUploadUrl(
+    listId: string,
+    householdId: string,
+    data: { filename: string; size: number; mime_type: string }
+  ) {
+    return this.request<{
+      upload_url: string;
+      attachment_id: string;
+      s3_key: string;
+    }>(`/api/lists/${listId}/attachments/upload-url?household_id=${householdId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async confirmAttachmentUpload(listId: string, householdId: string, attachmentId: string) {
+    return this.request<{ message: string }>(
+      `/api/lists/${listId}/attachments/${attachmentId}/confirm?household_id=${householdId}`,
+      { method: 'POST' }
+    );
+  }
+
+  async getAttachmentDownloadUrl(listId: string, householdId: string, attachmentId: string) {
+    return this.request<{
+      download_url: string;
+      attachment: {
+        id: string;
+        filename: string;
+        size: number;
+        mime_type: string;
+        s3_key: string;
+        uploaded_by: string;
+        created_at: string;
+        status: string;
+      };
+    }>(`/api/lists/${listId}/attachments/${attachmentId}/url?household_id=${householdId}`);
+  }
+
+  async deleteAttachment(listId: string, householdId: string, attachmentId: string) {
+    return this.request<{ message: string }>(
+      `/api/lists/${listId}/attachments/${attachmentId}?household_id=${householdId}`,
+      { method: 'DELETE' }
+    );
+  }
+
+  async listAttachments(listId: string, householdId: string) {
+    return this.request<Array<{
+      id: string;
+      filename: string;
+      size: number;
+      mime_type: string;
+      s3_key: string;
+      uploaded_by: string;
+      created_at: string;
+      status: string;
+    }>>(`/api/lists/${listId}/attachments?household_id=${householdId}`);
+  }
 }
 
 export const api = new ApiClient();

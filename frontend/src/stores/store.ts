@@ -32,6 +32,17 @@ export interface ListItem {
   created_at?: string;
 }
 
+export interface Attachment {
+  id: string;
+  filename: string;  // Encrypted when stored, decrypted for display
+  size: number;
+  mime_type: string;
+  s3_key?: string;
+  uploaded_by: string;
+  created_at: string;
+  status?: string;
+}
+
 export interface List {
   list_id: string;
   household_id: string;
@@ -39,6 +50,7 @@ export interface List {
   type: 'note' | 'checklist' | 'shopping';
   items: ListItem[];
   content: string;  // Rich text content for notes
+  attachments?: Attachment[];
   created_by: string;
   created_at: string;
   updated_at: string;

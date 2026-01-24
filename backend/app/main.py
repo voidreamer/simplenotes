@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from app.routes import auth, users, households, lists, invites, health, keys
+from app.routes import auth, users, households, lists, invites, health, keys, attachments
 from app.utils.config import settings
 
 @asynccontextmanager
@@ -62,6 +62,7 @@ app.include_router(households.router, prefix="/api/households", tags=["Household
 app.include_router(lists.router, prefix="/api/lists", tags=["Lists"])
 app.include_router(invites.router, prefix="/api/invites", tags=["Invites"])
 app.include_router(keys.router, prefix="/api/keys", tags=["Encryption"])
+app.include_router(attachments.router, prefix="/api/lists", tags=["Attachments"])
 
 # Mangum handler for AWS Lambda
 handler = Mangum(app, lifespan="off")

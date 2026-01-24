@@ -11,6 +11,10 @@ import {
   encryptData,
   decryptData,
   decryptListItem,
+  encryptFile,
+  decryptFile,
+  packEncryptedFile,
+  unpackEncryptedFile,
   EncryptedData,
   EncryptedListItem,
   DecryptedListItem,
@@ -365,6 +369,178 @@ class EncryptedApiClient {
 
   deleteListItem(listId: string, householdId: string, itemId: string) {
     return api.deleteListItem(listId, householdId, itemId);
+  }
+
+  // ============================================
+  // Attachment methods with encryption
+  // ============================================
+
+  /**
+   * Upload an encrypted attachment
+   * Encrypts both the file content and filename before upload
+   */
+  async uploadAttachment(
+    listId: string,
+    householdId: string,
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<{
+    id: string;
+    filename: string;
+    size: number;
+    mime_type: string;
+  }> {
+    const key = await getHouseholdKey(householdId);
+    if (!key) {
+      throw new Error('Encryption key not available');
+    }
+
+    // Encrypt the filename
+    const encryptedFilename = await encryptData(file.name, key);
+    const encryptedFilenameStr = JSON.stringify(encryptedFilename);
+
+    // Read file as ArrayBuffer
+    const fileData = await file.arrayBuffer();
+
+    // Encrypt file content
+    const encryptedFile = await encryptFile(fileData, key);
+    const packedData = packEncryptedFile(encryptedFile);
+
+    // Request upload URL
+    const { upload_url, attachment_id } = await api.getAttachmentUploadUrl(
+      listId,
+      householdId,
+      {
+        filename: encryptedFilenameStr,
+        size: packedData.byteLength,
+        mime_type: file.type || 'application/octet-stream',
+      }
+    );
+
+    // Upload to S3
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      body: packedData,
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload file to storage');
+    }
+
+    if (onProgress) {
+      onProgress(100);
+    }
+
+    // Confirm upload
+    await api.confirmAttachmentUpload(listId, householdId, attachment_id);
+
+    return {
+      id: attachment_id,
+      filename: file.name,
+      size: file.size,
+      mime_type: file.type || 'application/octet-stream',
+    };
+  }
+
+  /**
+   * Download and decrypt an attachment
+   * Returns the decrypted file as a Blob
+   */
+  async downloadAttachment(
+    listId: string,
+    householdId: string,
+    attachmentId: string
+  ): Promise<{ blob: Blob; filename: string; mimeType: string }> {
+    const key = await getHouseholdKey(householdId);
+    if (!key) {
+      throw new Error('Encryption key not available');
+    }
+
+    // Get download URL and metadata
+    const { download_url, attachment } = await api.getAttachmentDownloadUrl(
+      listId,
+      householdId,
+      attachmentId
+    );
+
+    // Download encrypted file from S3
+    const downloadResponse = await fetch(download_url);
+    if (!downloadResponse.ok) {
+      throw new Error('Failed to download file from storage');
+    }
+
+    const encryptedData = await downloadResponse.arrayBuffer();
+
+    // Unpack and decrypt
+    const unpackedData = unpackEncryptedFile(encryptedData);
+    const decryptedData = await decryptFile(unpackedData, key);
+
+    // Decrypt filename
+    let filename = 'attachment';
+    try {
+      const filenameData = JSON.parse(attachment.filename);
+      if (filenameData.ciphertext && filenameData.iv) {
+        filename = await decryptData(filenameData, key);
+      }
+    } catch {
+      filename = attachment.filename;
+    }
+
+    const blob = new Blob([decryptedData], { type: attachment.mime_type });
+
+    return {
+      blob,
+      filename,
+      mimeType: attachment.mime_type,
+    };
+  }
+
+  /**
+   * Delete an attachment
+   */
+  async deleteAttachment(listId: string, householdId: string, attachmentId: string) {
+    return api.deleteAttachment(listId, householdId, attachmentId);
+  }
+
+  /**
+   * List attachments with decrypted filenames
+   */
+  async listAttachments(
+    listId: string,
+    householdId: string
+  ): Promise<Array<{
+    id: string;
+    filename: string;
+    size: number;
+    mime_type: string;
+    uploaded_by: string;
+    created_at: string;
+  }>> {
+    const key = await getHouseholdKey(householdId);
+    const attachments = await api.listAttachments(listId, householdId);
+
+    if (!key) {
+      return attachments;
+    }
+
+    // Decrypt filenames
+    return Promise.all(
+      attachments.map(async (att) => {
+        let filename = att.filename;
+        try {
+          const filenameData = JSON.parse(att.filename);
+          if (filenameData.ciphertext && filenameData.iv) {
+            filename = await decryptData(filenameData, key);
+          }
+        } catch {
+          // Keep original filename if not encrypted
+        }
+        return { ...att, filename };
+      })
+    );
   }
 
   // ============================================
