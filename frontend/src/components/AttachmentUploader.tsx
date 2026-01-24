@@ -33,8 +33,18 @@ export default function AttachmentUploader({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isUnlocked = useCryptoStore((state) => state.isUnlocked);
-  const hasHouseholdKey = useCryptoStore((state) => state.householdKeys.has(householdId));
-  const encryptionReady = isUnlocked && hasHouseholdKey;
+  const householdKeys = useCryptoStore((state) => state.householdKeys);
+  const hasKey = householdKeys.has(householdId);
+  const encryptionReady = isUnlocked && hasKey;
+
+  // Debug logging - remove after fixing
+  console.log('AttachmentUploader debug:', {
+    householdId,
+    isUnlocked,
+    hasKey,
+    keysInStore: Array.from(householdKeys.keys()),
+    encryptionReady,
+  });
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     setError(null);
