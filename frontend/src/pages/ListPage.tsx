@@ -3,6 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, FileText, CheckSquare, ShoppingCart, Pencil } from 'lucide-react';
 import { useListsStore, List } from '../stores/store';
 import { api } from '../utils/api';
+import { encryptedApi } from '../utils/encryptedApi';
 import NoteEditor from '../components/NoteEditor';
 import ChecklistView from '../components/ChecklistView';
 import ShoppingListView from '../components/ShoppingListView';
@@ -24,7 +25,7 @@ export default function ListPage() {
       if (!listId || !householdId) return;
 
       try {
-        const list = await api.getList(listId, householdId) as List;
+        const list = await encryptedApi.getList(listId, householdId);
         setCurrentList(list);
       } catch (error) {
         console.error('Failed to load list:', error);
@@ -83,9 +84,9 @@ export default function ListPage() {
     }
 
     try {
-      const updated = await api.updateList(listId, householdId, {
+      const updated = await encryptedApi.updateList(listId, householdId, {
         title: titleValue.trim(),
-      }) as List;
+      });
       setCurrentList(updated);
       updateList(listId, householdId, updated);
     } catch (error) {
