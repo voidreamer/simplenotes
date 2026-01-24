@@ -3,13 +3,13 @@
  *
  * Wraps protected routes to handle encryption initialization,
  * setup prompt, and unlock flow.
+ * Encryption is optional - the app loads normally while checking encryption status.
  */
 
 import { useEffect, useState } from 'react';
 import { useEncryption } from '../hooks/useEncryption';
 import EncryptionSetup from './EncryptionSetup';
 import UnlockPrompt from './UnlockPrompt';
-import LoadingScreen from './LoadingScreen';
 
 interface EncryptionProviderProps {
   children: React.ReactNode;
@@ -20,25 +20,34 @@ export default function EncryptionProvider({ children }: EncryptionProviderProps
     isInitialized,
     needsSetup,
     needsUnlock,
-    isLoading,
     keyData,
     initializeEncryption,
   } = useEncryption();
 
   const [showSetup, setShowSetup] = useState(false);
   const [setupSkipped, setSetupSkipped] = useState(false);
+  const [encryptionChecked, setEncryptionChecked] = useState(false);
 
-  // Initialize encryption on mount
+  // Initialize encryption on mount (non-blocking)
   useEffect(() => {
-    initializeEncryption();
+    const checkEncryption = async () => {
+      try {
+        await initializeEncryption();
+      } catch {
+        // Encryption check failed - continue without encryption
+      } finally {
+        setEncryptionChecked(true);
+      }
+    };
+    checkEncryption();
   }, [initializeEncryption]);
 
-  // Show setup if needed and not skipped
+  // Show setup if needed and not skipped (only after encryption check completes)
   useEffect(() => {
-    if (needsSetup && !setupSkipped) {
+    if (encryptionChecked && needsSetup && !setupSkipped) {
       setShowSetup(true);
     }
-  }, [needsSetup, setupSkipped]);
+  }, [encryptionChecked, needsSetup, setupSkipped]);
 
   const handleSetupComplete = () => {
     setShowSetup(false);
@@ -53,9 +62,9 @@ export default function EncryptionProvider({ children }: EncryptionProviderProps
     // Encryption unlocked - continue to app
   };
 
-  // Show loading while initializing
-  if (!isInitialized || isLoading) {
-    return <LoadingScreen />;
+  // Wait only for crypto store initialization (synchronous)
+  if (!isInitialized) {
+    return null;
   }
 
   // Show setup wizard if needed
@@ -69,7 +78,7 @@ export default function EncryptionProvider({ children }: EncryptionProviderProps
   }
 
   // Show unlock prompt if needed
-  if (needsUnlock && keyData) {
+  if (encryptionChecked && needsUnlock && keyData) {
     return (
       <UnlockPrompt
         encryptedPrivateKey={keyData.encryptedPrivateKey}
