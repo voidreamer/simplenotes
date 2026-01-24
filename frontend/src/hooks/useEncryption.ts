@@ -5,7 +5,7 @@
  * Handles initialization, setup detection, and unlock flow.
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useCryptoStore } from '../stores/cryptoStore';
 import { useAuthStore } from '../stores/store';
 import { api } from '../utils/api';
@@ -48,6 +48,9 @@ export function useEncryption(): UseEncryptionReturn {
   const [keyData, setKeyData] = useState<EncryptionState['keyData']>(null);
   const [localLoading, setLocalLoading] = useState(false);
 
+  // Use ref to track if we've already initialized (prevents infinite loops)
+  const hasInitialized = useRef(false);
+
   // Initialize crypto store on mount
   useEffect(() => {
     if (!isInitialized) {
@@ -55,12 +58,14 @@ export function useEncryption(): UseEncryptionReturn {
     }
   }, [isInitialized, initialize]);
 
-  // Check encryption status when authenticated
+  // Check encryption status when authenticated - runs only once
   const initializeEncryption = useCallback(async () => {
-    if (!isAuthenticated || localLoading) {
+    // Prevent multiple calls
+    if (!isAuthenticated || hasInitialized.current) {
       return;
     }
 
+    hasInitialized.current = true;
     setLocalLoading(true);
 
     try {
@@ -76,14 +81,14 @@ export function useEncryption(): UseEncryptionReturn {
           publicKey: keys.public_key,
         });
       }
-    } catch (err) {
+    } catch {
       // User may not have keys yet - that's okay
       setHasEncryptionSetup(false);
       setKeyData(null);
     } finally {
       setLocalLoading(false);
     }
-  }, [isAuthenticated, localLoading, setHasEncryptionSetup]);
+  }, [isAuthenticated, setHasEncryptionSetup]);
 
   // Calculate derived states
   const needsSetup = isInitialized && isAuthenticated && !hasEncryptionSetup;
