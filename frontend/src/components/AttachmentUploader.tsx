@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Upload, X, AlertCircle, Lock } from 'lucide-react';
 import { encryptedApi } from '../utils/encryptedApi';
 import { useCryptoStore } from '../stores/cryptoStore';
@@ -30,23 +30,11 @@ export default function AttachmentUploader({
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState<UploadingFile[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [encryptionReady, setEncryptionReady] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isUnlocked = useCryptoStore((state) => state.isUnlocked);
-
-  // Check if encryption is available for this household
-  useEffect(() => {
-    async function checkEncryption() {
-      if (!isUnlocked) {
-        setEncryptionReady(false);
-        return;
-      }
-      const ready = await encryptedApi.isEncryptionAvailable(householdId);
-      setEncryptionReady(ready);
-    }
-    checkEncryption();
-  }, [householdId, isUnlocked]);
+  const hasHouseholdKey = useCryptoStore((state) => state.householdKeys.has(householdId));
+  const encryptionReady = isUnlocked && hasHouseholdKey;
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     setError(null);
@@ -142,8 +130,7 @@ export default function AttachmentUploader({
   const isDisabled = isMaxed || !encryptionReady;
 
   const getStatusText = () => {
-    if (!isUnlocked) return 'Unlock encryption to upload files';
-    if (!encryptionReady) return 'Loading encryption...';
+    if (!encryptionReady) return 'Unlock encryption to upload files';
     if (isMaxed) return 'Maximum attachments reached';
     return `Drop files here or click to upload (${remainingSlots} remaining)`;
   };
@@ -165,7 +152,7 @@ export default function AttachmentUploader({
           className={styles.input}
           disabled={isDisabled}
         />
-        {!isUnlocked ? <Lock size={24} className={styles.icon} /> : <Upload size={24} className={styles.icon} />}
+        {!encryptionReady ? <Lock size={24} className={styles.icon} /> : <Upload size={24} className={styles.icon} />}
         <span className={styles.text}>{getStatusText()}</span>
         {encryptionReady && <span className={styles.hint}>Max 10MB per file</span>}
       </div>
