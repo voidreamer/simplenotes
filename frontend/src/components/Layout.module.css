@@ -236,3 +236,21 @@
     display: block;
   }
 }
+
+/* Encryption Warning in Sidebar */
+.encryptionWarning {
+  color: #f59e0b !important;
+}
+
+.encryptionWarning svg {
+  color: #f59e0b;
+}
+
+/* Modal Overlay for Encryption Setup */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg-primary);
+  overflow-y: auto;
+}
