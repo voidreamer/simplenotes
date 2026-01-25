@@ -19,14 +19,14 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "google_client_id" {
-  description = "Google OAuth Client ID for Cognito"
+variable "supabase_url" {
+  description = "Supabase project URL"
   type        = string
   sensitive   = true
 }
 
-variable "google_client_secret" {
-  description = "Google OAuth Client Secret for Cognito"
+variable "supabase_jwt_secret" {
+  description = "Supabase JWT secret for token verification"
   type        = string
   sensitive   = true
 }

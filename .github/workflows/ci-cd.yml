@@ -54,9 +54,8 @@ jobs:
           HOUSEHOLDS_TABLE: test-households
           LISTS_TABLE: test-lists
           INVITES_TABLE: test-invites
-          COGNITO_USER_POOL_ID: test-pool-id
-          COGNITO_CLIENT_ID: test-client-id
-          COGNITO_REGION: ca-central-1
+          SUPABASE_URL: https://test.supabase.co
+          SUPABASE_JWT_SECRET: test-jwt-secret
         run: |
           pytest tests/ -v --cov=app --cov-report=xml --cov-report=term-missing
 
@@ -158,18 +157,18 @@ jobs:
       - name: Terraform Plan
         working-directory: terraform
         env:
-          TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
-          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
+          TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_environment: staging
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         working-directory: terraform
         env:
-          TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
-          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
+          TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_environment: staging
         run: terraform apply -auto-approve tfplan
 
@@ -187,19 +186,14 @@ jobs:
           echo "frontend_url=$(terraform output -raw frontend_url)" >> $GITHUB_OUTPUT
           echo "cloudfront_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
           echo "api_url=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
-          echo "cognito_client_id=$(terraform output -raw cognito_client_id)" >> $GITHUB_OUTPUT
-          echo "cognito_user_pool_id=$(terraform output -raw cognito_user_pool_id)" >> $GITHUB_OUTPUT
-          echo "cognito_domain=$(terraform output -raw cognito_domain)" >> $GITHUB_OUTPUT
 
       - name: Update frontend config
         run: |
           cat > frontend/dist/config.js << EOF
           window.APP_CONFIG = {
             API_URL: "${{ steps.tf-outputs.outputs.api_url }}",
-            COGNITO_CLIENT_ID: "${{ steps.tf-outputs.outputs.cognito_client_id }}",
-            COGNITO_USER_POOL_ID: "${{ steps.tf-outputs.outputs.cognito_user_pool_id }}",
-            COGNITO_DOMAIN: "${{ steps.tf-outputs.outputs.cognito_domain }}",
-            AWS_REGION: "${{ env.AWS_REGION }}"
+            SUPABASE_URL: "${{ secrets.SUPABASE_URL }}",
+            SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
           };
           EOF
 
@@ -280,18 +274,18 @@ jobs:
       - name: Terraform Plan
         working-directory: terraform
         env:
-          TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
-          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
+          TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_environment: prod
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         working-directory: terraform
         env:
-          TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
-          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+          TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
+          TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_environment: prod
         run: terraform apply -auto-approve tfplan
 
@@ -309,19 +303,14 @@ jobs:
           echo "frontend_url=$(terraform output -raw frontend_url)" >> $GITHUB_OUTPUT
           echo "cloudfront_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
           echo "api_url=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
-          echo "cognito_client_id=$(terraform output -raw cognito_client_id)" >> $GITHUB_OUTPUT
-          echo "cognito_user_pool_id=$(terraform output -raw cognito_user_pool_id)" >> $GITHUB_OUTPUT
-          echo "cognito_domain=$(terraform output -raw cognito_domain)" >> $GITHUB_OUTPUT
 
       - name: Update frontend config
         run: |
           cat > frontend/dist/config.js << EOF
           window.APP_CONFIG = {
             API_URL: "${{ steps.tf-outputs.outputs.api_url }}",
-            COGNITO_CLIENT_ID: "${{ steps.tf-outputs.outputs.cognito_client_id }}",
-            COGNITO_USER_POOL_ID: "${{ steps.tf-outputs.outputs.cognito_user_pool_id }}",
-            COGNITO_DOMAIN: "${{ steps.tf-outputs.outputs.cognito_domain }}",
-            AWS_REGION: "${{ env.AWS_REGION }}"
+            SUPABASE_URL: "${{ secrets.SUPABASE_URL }}",
+            SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
           };
           EOF
 

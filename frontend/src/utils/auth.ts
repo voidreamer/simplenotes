@@ -1,100 +1,59 @@
-import { Amplify } from 'aws-amplify';
-import {
-  signIn,
-  signUp,
-  signOut,
-  confirmSignUp,
-  getCurrentUser,
-  fetchAuthSession,
-  signInWithRedirect,
-} from '@aws-amplify/auth';
+import { supabase } from '../lib/supabase';
 import config from './config';
 import { useAuthStore } from '../stores/store';
 import { api } from './api';
 
-// Check if running in Capacitor native app
 function isCapacitorNative(): boolean {
   return typeof window !== 'undefined' &&
     'Capacitor' in window &&
     (window as any).Capacitor?.isNativePlatform?.() === true;
 }
 
-// Get the appropriate redirect URL for OAuth
 function getRedirectUrl(): string {
   if (isCapacitorNative()) {
-    // For native apps, use the custom URL scheme
     return 'simplenotes://callback';
   }
   return window.location.origin + '/callback';
 }
 
-function getSignOutUrl(): string {
-  if (isCapacitorNative()) {
-    return 'simplenotes://';
-  }
-  return window.location.origin;
+export function configureAuth() {
+  // Supabase is configured via the client creation
+  // This function exists for backward compatibility
 }
 
-// Configure Amplify
-export function configureAuth() {
-  if (!config.cognito.userPoolId || !config.cognito.clientId) {
-    console.warn('Cognito not configured, using mock auth');
-    return;
-  }
+export async function loginWithGoogle() {
+  const redirectTo = getRedirectUrl();
 
-  const redirectSignIn = getRedirectUrl();
-  const redirectSignOut = getSignOutUrl();
-
-  Amplify.configure({
-    Auth: {
-      Cognito: {
-        userPoolId: config.cognito.userPoolId,
-        userPoolClientId: config.cognito.clientId,
-        loginWith: {
-          oauth: {
-            domain: config.cognito.domain.replace('https://', ''),
-            scopes: ['email', 'openid', 'profile'],
-            redirectSignIn: [redirectSignIn],
-            redirectSignOut: [redirectSignOut],
-            responseType: 'code',
-            providers: ['Google'],
-          },
-        },
-      },
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo,
     },
   });
-}
 
-// Auth functions
-export async function loginWithGoogle() {
-  try {
-    // Check if already signed in, sign out first to avoid conflicts
-    try {
-      const session = await fetchAuthSession();
-      if (session.tokens?.accessToken) {
-        await signOut();
-      }
-    } catch {
-      // Not signed in, proceed with login
-    }
-    await signInWithRedirect({ provider: 'Google' });
-  } catch (error) {
+  if (error) {
     console.error('Google login error:', error);
     throw error;
   }
 }
 
 export async function loginWithEmail(email: string, password: string) {
-  try {
-    const result = await signIn({ username: email, password });
-    if (result.isSignedIn) {
-      await syncUserSession();
-    }
-    return result;
-  } catch (error) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
     console.error('Email login error:', error);
     throw error;
   }
+
+  if (data.session) {
+    useAuthStore.getState().setAccessToken(data.session.access_token);
+    await syncUserSession();
+  }
+
+  return data;
 }
 
 export async function registerWithEmail(
@@ -102,73 +61,70 @@ export async function registerWithEmail(
   password: string,
   name: string
 ) {
-  try {
-    const result = await signUp({
-      username: email,
-      password,
-      options: {
-        userAttributes: {
-          email,
-          name,
-        },
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name,
       },
-    });
-    return result;
-  } catch (error) {
+    },
+  });
+
+  if (error) {
     console.error('Registration error:', error);
     throw error;
   }
+
+  return data;
 }
 
-export async function confirmRegistration(email: string, code: string) {
-  try {
-    await confirmSignUp({ username: email, confirmationCode: code });
-    return true;
-  } catch (error) {
-    console.error('Confirmation error:', error);
-    throw error;
-  }
+export async function confirmRegistration(_email: string, _code: string) {
+  // Supabase handles email confirmation via magic link automatically
+  // This function exists for backward compatibility
+  return true;
 }
 
 export async function logout() {
   try {
-    await signOut();
-    useAuthStore.getState().logout();
-  } catch (error) {
-    console.error('Logout error:', error);
-    useAuthStore.getState().logout();
+    const { error } = await supabase.auth.signOut();
+    // Ignore "Auth session missing" error - user is already logged out
+    if (error && !error.message?.includes('Auth session missing')) {
+      throw error;
+    }
+  } catch (error: any) {
+    console.warn('Logout warning:', error.message);
   }
+  // Always clear local state regardless of signOut result
+  useAuthStore.getState().logout();
 }
 
 export async function checkAuthSession() {
   try {
-    const session = await fetchAuthSession();
-    if (session.tokens?.idToken) {
-      // Use ID token for API calls - it contains user claims like email
-      useAuthStore.getState().setAccessToken(session.tokens.idToken.toString());
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session?.access_token) {
+      useAuthStore.getState().setAccessToken(session.access_token);
       await syncUserSession();
       return true;
     }
-  } catch {
-    // Not authenticated
+  } catch (error) {
+    console.error('Session check error:', error);
   }
+
   useAuthStore.getState().setLoading(false);
   return false;
 }
 
 export async function syncUserSession() {
   try {
-    const session = await fetchAuthSession();
-    if (!session.tokens?.idToken) {
-      throw new Error('No ID token');
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error('No access token');
     }
 
-    // Use ID token for API calls - it contains user claims like email
-    const token = session.tokens.idToken.toString();
-    useAuthStore.getState().setAccessToken(token);
-
-    // Get current Cognito user
-    const cognitoUser = await getCurrentUser();
+    useAuthStore.getState().setAccessToken(session.access_token);
 
     // Try to get user from our backend
     try {
@@ -176,8 +132,9 @@ export async function syncUserSession() {
       useAuthStore.getState().setUser(user as any);
     } catch {
       // User not registered in our backend yet, register them
-      const idToken = session.tokens.idToken;
-      const name = idToken?.payload?.name as string || cognitoUser.username;
+      const name = session.user?.user_metadata?.name ||
+                   session.user?.email?.split('@')[0] ||
+                   'User';
 
       const user = await api.register(name, '');
       useAuthStore.getState().setUser(user as any);
@@ -190,7 +147,11 @@ export async function syncUserSession() {
   }
 }
 
-// Demo mode for local development
+export async function getAccessToken(): Promise<string | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token || null;
+}
+
 export function enableDemoMode() {
   const demoUser = {
     user_id: 'demo-user-id',
@@ -202,4 +163,8 @@ export function enableDemoMode() {
   useAuthStore.getState().setUser(demoUser);
   useAuthStore.getState().setAccessToken('demo-token');
   useAuthStore.getState().setLoading(false);
+}
+
+export function isConfigured(): boolean {
+  return !!(config.supabase.url && config.supabase.anonKey);
 }
