@@ -69,6 +69,7 @@ function isEncryptedList(list: ApiList): list is EncryptedList {
 
 async function getHouseholdKey(householdId: string): Promise<CryptoKey | null> {
   const state = useCryptoStore.getState();
+  console.log('getHouseholdKey called:', { householdId, isUnlocked: state.isUnlocked });
 
   if (!state.isUnlocked) {
     console.warn('Encryption not unlocked');
@@ -78,16 +79,21 @@ async function getHouseholdKey(householdId: string): Promise<CryptoKey | null> {
   // Check if we already have the key in memory
   let key = state.getHouseholdKey(householdId);
   if (key) {
+    console.log('Key found in memory');
     return key;
   }
 
   // Try to fetch and unwrap the key from the server
   try {
+    console.log('Fetching key from server...');
     const response = await api.getHouseholdKey(householdId);
+    console.log('Server response:', response);
     if (response.has_key && response.wrapped_key) {
       await state.addHouseholdKey(householdId, response.wrapped_key);
       // Get fresh state after adding key
-      return useCryptoStore.getState().getHouseholdKey(householdId);
+      const newKey = useCryptoStore.getState().getHouseholdKey(householdId);
+      console.log('Key added to store:', !!newKey);
+      return newKey;
     }
   } catch (error) {
     console.error('Failed to fetch household key:', error);
