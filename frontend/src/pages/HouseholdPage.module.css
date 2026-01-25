@@ -599,6 +599,32 @@
   z-index: 1;
 }
 
+.memberClickable {
+  cursor: pointer;
+}
+
+.memberClickable:hover {
+  box-shadow: 0 0 0 2px var(--color-error);
+}
+
+.ownerBadge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memberAvatarSmall {
+  position: relative;
+}
+
 .memberAvatarMore {
   width: 28px;
   height: 28px;
@@ -801,6 +827,60 @@
 .dangerButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Remove Member Modal */
+.removeMemberHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.removeMemberIcon {
+  color: var(--color-error);
+}
+
+.warningBox {
+  background: var(--color-warning-light, #fef3c7);
+  border: 1px solid var(--color-warning, #f59e0b);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+[data-theme="dark"] .warningBox {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.warningHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-warning, #d97706);
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+[data-theme="dark"] .warningHeader {
+  color: #fbbf24;
+}
+
+.warningText {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.warningNote {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  margin: 0;
+  font-style: italic;
 }
 
 /* Responsive */

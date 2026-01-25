@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, ArrowUpDown, Pencil } from 'lucide-react';
+import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, ArrowUpDown, Pencil, UserMinus, Shield, AlertTriangle } from 'lucide-react';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
@@ -36,6 +36,9 @@ export default function HouseholdPage() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState('');
+  const [showRemoveMemberModal, setShowRemoveMemberModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [removingMember, setRemovingMember] = useState(false);
 
   const householdLists = lists.filter(l => l.household_id === householdId);
 
@@ -70,6 +73,8 @@ export default function HouseholdPage() {
     setShowOptionsMenu(false);
     setShowSortMenu(false);
     setEditingName(false);
+    setShowRemoveMemberModal(false);
+    setSelectedMember(null);
   }, []));
 
   useEffect(() => {
@@ -187,6 +192,31 @@ export default function HouseholdPage() {
       handleSaveName();
     } else if (e.key === 'Escape') {
       setEditingName(false);
+    }
+  };
+
+  const handleMemberClick = (member: any) => {
+    if (!isOwner) return;
+    if (member.user_id === user?.user_id) return;
+    setSelectedMember(member);
+    setShowRemoveMemberModal(true);
+  };
+
+  const handleRemoveMember = async () => {
+    if (!householdId || !selectedMember) return;
+
+    setRemovingMember(true);
+    try {
+      await api.removeMember(householdId, selectedMember.user_id);
+      // Refresh household data
+      const household = await api.getHousehold(householdId) as Household;
+      setCurrentHousehold(household);
+      setShowRemoveMemberModal(false);
+      setSelectedMember(null);
+    } catch (error: any) {
+      alert(error.message || 'Failed to remove member');
+    } finally {
+      setRemovingMember(false);
     }
   };
 
@@ -428,16 +458,26 @@ export default function HouseholdPage() {
         <section className={styles.membersSection}>
           <span className={styles.membersLabel}>Members</span>
           <div className={styles.membersRow}>
-            {(currentHousehold.members as any[]).slice(0, 5).map((member: any) => (
-              <div
-                key={member.user_id || member}
-                className={styles.memberAvatarSmall}
-                style={{ background: getMemberColor(typeof member === 'object' ? member.name : 'U') }}
-                title={typeof member === 'object' ? member.name : 'Member'}
-              >
-                {typeof member === 'object' ? member.name?.charAt(0) : 'U'}
-              </div>
-            ))}
+            {(currentHousehold.members as any[]).slice(0, 5).map((member: any) => {
+              const memberId = typeof member === 'object' ? member.user_id : member;
+              const memberName = typeof member === 'object' ? member.name : 'Member';
+              const isCurrentUser = memberId === user?.user_id;
+              const isMemberOwner = memberId === currentHousehold.owner_id;
+              const canRemove = isOwner && !isCurrentUser && !isMemberOwner;
+
+              return (
+                <div
+                  key={memberId}
+                  className={`${styles.memberAvatarSmall} ${canRemove ? styles.memberClickable : ''}`}
+                  style={{ background: getMemberColor(memberName) }}
+                  title={`${memberName}${isMemberOwner ? ' (Owner)' : ''}${canRemove ? ' - Click to manage' : ''}`}
+                  onClick={() => canRemove && handleMemberClick(member)}
+                >
+                  {memberName?.charAt(0) || 'U'}
+                  {isMemberOwner && <span className={styles.ownerBadge}><Shield size={8} /></span>}
+                </div>
+              );
+            })}
             {currentHousehold.members.length > 5 && (
               <div className={styles.memberAvatarMore}>
                 +{currentHousehold.members.length - 5}
@@ -541,6 +581,56 @@ export default function HouseholdPage() {
                 className={styles.dangerButton}
               >
                 {deleting ? 'Processing...' : isOwner ? 'Delete Household' : 'Leave Household'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Member Modal */}
+      {showRemoveMemberModal && selectedMember && (
+        <div className={styles.modalOverlay} onClick={() => { setShowRemoveMemberModal(false); setSelectedMember(null); }}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.removeMemberHeader}>
+              <UserMinus size={24} className={styles.removeMemberIcon} />
+              <h2 className={styles.modalTitle}>Remove Member</h2>
+            </div>
+            <p className={styles.modalSubtitle}>
+              Remove <strong>{selectedMember.name}</strong> from this household?
+            </p>
+
+            <div className={styles.warningBox}>
+              <div className={styles.warningHeader}>
+                <AlertTriangle size={18} />
+                <span>Important: About Encrypted Data</span>
+              </div>
+              <p className={styles.warningText}>
+                This household uses end-to-end encryption. While <strong>{selectedMember.name}</strong> will
+                lose access to future updates, they may retain copies of any data they previously viewed
+                or downloaded. This is a limitation of client-side encryption - once data has been
+                decrypted on their device, we cannot remotely delete it.
+              </p>
+              <p className={styles.warningNote}>
+                If sensitive information was shared, consider creating a new household with fresh
+                encryption keys for maximum security.
+              </p>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={() => { setShowRemoveMemberModal(false); setSelectedMember(null); }}
+                className={styles.cancelButton}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleRemoveMember}
+                disabled={removingMember}
+                className={styles.dangerButton}
+              >
+                {removingMember ? 'Removing...' : 'Remove Member'}
               </button>
             </div>
           </div>

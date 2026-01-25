@@ -98,6 +98,12 @@ class ApiClient {
     });
   }
 
+  async removeMember(householdId: string, memberId: string) {
+    return this.request(`/api/households/${householdId}/members/${memberId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Lists
   async getLists(householdId: string) {
     return this.request(`/api/lists/household/${householdId}`);
