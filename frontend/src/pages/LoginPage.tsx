@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Layers, Shield, Zap } from 'lucide-react';
 import {
   loginWithGoogle,
   loginWithEmail,
@@ -68,28 +68,35 @@ export default function LoginPage() {
         {/* Left side - branding */}
         <div className={styles.branding}>
           <Link to="/" className={styles.logo}>
-            <Sparkles size={32} />
+            <Layers size={32} />
             <span>SimpleNotes</span>
           </Link>
           <h1 className={styles.brandTitle}>
-            Organize your life,{' '}
-            <span className={styles.gradient}>together</span>
+            Simple. Efficient.{' '}
+            <span className={styles.gradient}>Secure.</span>
           </h1>
           <p className={styles.brandSubtitle}>
-            Share shopping lists, checklists, and notes with your household.
+            The minimalist way to organize notes and lists with your household.
+            Your data stays private with end-to-end encryption.
           </p>
           <div className={styles.features}>
             <div className={styles.feature}>
-              <div className={styles.featureCheck}>&#10003;</div>
-              <span>Real-time sync across devices</span>
+              <div className={styles.featureIcon}>
+                <Lock size={16} />
+              </div>
+              <span>End-to-end encrypted</span>
             </div>
             <div className={styles.feature}>
-              <div className={styles.featureCheck}>&#10003;</div>
-              <span>Invite family members easily</span>
+              <div className={styles.featureIcon}>
+                <Shield size={16} />
+              </div>
+              <span>Zero-knowledge architecture</span>
             </div>
             <div className={styles.feature}>
-              <div className={styles.featureCheck}>&#10003;</div>
-              <span>Works offline, syncs when online</span>
+              <div className={styles.featureIcon}>
+                <Zap size={16} />
+              </div>
+              <span>Lightning fast sync</span>
             </div>
           </div>
         </div>
