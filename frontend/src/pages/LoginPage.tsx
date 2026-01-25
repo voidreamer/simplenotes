@@ -6,8 +6,8 @@ import {
   loginWithEmail,
   registerWithEmail,
   enableDemoMode,
+  isConfigured,
 } from '../utils/auth';
-import config from '../utils/config';
 import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
@@ -60,7 +60,7 @@ export default function LoginPage() {
     navigate('/dashboard');
   };
 
-  const isConfigured = config.cognito.userPoolId && config.cognito.clientId;
+  const authConfigured = isConfigured();
 
   return (
     <div className={styles.page}>
@@ -130,7 +130,7 @@ export default function LoginPage() {
             ) : (
               <>
                 {/* Google Login */}
-                {isConfigured && (
+                {authConfigured && (
                   <>
                     <button
                       onClick={handleGoogleLogin}
@@ -255,7 +255,7 @@ export default function LoginPage() {
                 </p>
 
                 {/* Demo mode for development */}
-                {!isConfigured && (
+                {!authConfigured && (
                   <div className={styles.demoSection}>
                     <div className={styles.divider}>
                       <span>or</span>
@@ -264,7 +264,7 @@ export default function LoginPage() {
                       Try Demo Mode
                     </button>
                     <p className={styles.demoNote}>
-                      Cognito not configured. Use demo mode for testing.
+                      Auth not configured. Use demo mode for testing.
                     </p>
                   </div>
                 )}

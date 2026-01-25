@@ -125,17 +125,16 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      ENVIRONMENT           = var.environment
-      USERS_TABLE           = aws_dynamodb_table.users.name
-      HOUSEHOLDS_TABLE      = aws_dynamodb_table.households.name
-      LISTS_TABLE           = aws_dynamodb_table.lists.name
-      INVITES_TABLE         = aws_dynamodb_table.invites.name
-      ATTACHMENTS_BUCKET    = aws_s3_bucket.attachments.id
-      COGNITO_USER_POOL_ID  = aws_cognito_user_pool.main.id
-      COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.web.id
-      COGNITO_REGION        = var.aws_region
-      SES_EMAIL             = var.ses_email
-      FRONTEND_URL          = "https://${aws_cloudfront_distribution.frontend.domain_name}"
+      ENVIRONMENT          = var.environment
+      USERS_TABLE          = aws_dynamodb_table.users.name
+      HOUSEHOLDS_TABLE     = aws_dynamodb_table.households.name
+      LISTS_TABLE          = aws_dynamodb_table.lists.name
+      INVITES_TABLE        = aws_dynamodb_table.invites.name
+      ATTACHMENTS_BUCKET   = aws_s3_bucket.attachments.id
+      SUPABASE_URL         = var.supabase_url
+      SUPABASE_JWT_SECRET  = var.supabase_jwt_secret
+      SES_EMAIL            = var.ses_email
+      FRONTEND_URL         = "https://${aws_cloudfront_distribution.frontend.domain_name}"
     }
   }
 
@@ -193,19 +192,6 @@ resource "aws_apigatewayv2_integration" "lambda" {
   payload_format_version = "2.0"
 }
 
-# JWT Authorizer using Cognito
-resource "aws_apigatewayv2_authorizer" "cognito" {
-  api_id           = aws_apigatewayv2_api.main.id
-  authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Authorization"]
-  name             = "cognito-authorizer"
-
-  jwt_configuration {
-    audience = [aws_cognito_user_pool_client.web.id]
-    issuer   = "https://${aws_cognito_user_pool.main.endpoint}"
-  }
-}
-
 # Default route (catch-all)
 resource "aws_apigatewayv2_route" "default" {
   api_id    = aws_apigatewayv2_api.main.id
@@ -213,13 +199,11 @@ resource "aws_apigatewayv2_route" "default" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
-# Protected API routes
+# API routes (auth handled by Lambda/FastAPI with Supabase JWT)
 resource "aws_apigatewayv2_route" "api" {
-  api_id             = aws_apigatewayv2_api.main.id
-  route_key          = "ANY /api/{proxy+}"
-  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
-  authorization_type = "JWT"
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "ANY /api/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
 # OPTIONS preflight route (no auth required for CORS preflight)

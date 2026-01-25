@@ -330,30 +330,30 @@
 
 /* Color classes */
 .colorShopping {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: var(--color-shopping-light);
+  color: var(--color-shopping);
 }
 
 .colorShopping.progressFill {
-  background: #f59e0b;
+  background: var(--color-shopping);
 }
 
 .colorChecklist {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  background: var(--color-checklist-light);
+  color: var(--color-checklist);
 }
 
 .colorChecklist.progressFill {
-  background: #10b981;
+  background: var(--color-checklist);
 }
 
 .colorNote {
-  background: rgba(99, 102, 241, 0.15);
-  color: #6366f1;
+  background: var(--color-note-light);
+  color: var(--color-note);
 }
 
 .colorNote.progressFill {
-  background: #6366f1;
+  background: var(--color-note);
 }
 
 /* Modal */

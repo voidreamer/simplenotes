@@ -451,3 +451,100 @@ def update_household_wrapped_keys(household_id: str, wrapped_keys: Dict[str, str
     except ClientError as e:
         print(f"Error updating household wrapped keys: {e}")
         return False
+
+
+# ============================================
+# Attachment Operations
+# ============================================
+
+def add_attachment_to_list(list_id: str, household_id: str, attachment: Dict) -> bool:
+    """Add an attachment to a list"""
+    table = get_table(settings.LISTS_TABLE)
+    try:
+        table.update_item(
+            Key={"list_id": list_id, "household_id": household_id},
+            UpdateExpression="SET attachments = list_append(if_not_exists(attachments, :empty), :att), updated_at = :now",
+            ExpressionAttributeValues={
+                ":att": [attachment],
+                ":empty": [],
+                ":now": datetime.utcnow().isoformat()
+            }
+        )
+        return True
+    except ClientError as e:
+        print(f"Error adding attachment to list: {e}")
+        return False
+
+
+def remove_attachment_from_list(list_id: str, household_id: str, attachment_id: str) -> bool:
+    """Remove an attachment from a list"""
+    list_item = get_list(list_id, household_id)
+    if not list_item:
+        return False
+
+    attachments = list_item.get("attachments", [])
+    updated_attachments = [a for a in attachments if a.get("id") != attachment_id]
+
+    if len(updated_attachments) == len(attachments):
+        return True  # Attachment not found, nothing to remove
+
+    table = get_table(settings.LISTS_TABLE)
+    try:
+        table.update_item(
+            Key={"list_id": list_id, "household_id": household_id},
+            UpdateExpression="SET attachments = :att, updated_at = :now",
+            ExpressionAttributeValues={
+                ":att": updated_attachments,
+                ":now": datetime.utcnow().isoformat()
+            }
+        )
+        return True
+    except ClientError as e:
+        print(f"Error removing attachment from list: {e}")
+        return False
+
+
+def get_attachment(list_id: str, household_id: str, attachment_id: str) -> Optional[Dict]:
+    """Get a specific attachment from a list"""
+    list_item = get_list(list_id, household_id)
+    if not list_item:
+        return None
+
+    attachments = list_item.get("attachments", [])
+    for att in attachments:
+        if att.get("id") == attachment_id:
+            return att
+    return None
+
+
+def update_attachment_status(list_id: str, household_id: str, attachment_id: str, status: str) -> bool:
+    """Update an attachment's status"""
+    list_item = get_list(list_id, household_id)
+    if not list_item:
+        return False
+
+    attachments = list_item.get("attachments", [])
+    updated = False
+    for att in attachments:
+        if att.get("id") == attachment_id:
+            att["status"] = status
+            updated = True
+            break
+
+    if not updated:
+        return False
+
+    table = get_table(settings.LISTS_TABLE)
+    try:
+        table.update_item(
+            Key={"list_id": list_id, "household_id": household_id},
+            UpdateExpression="SET attachments = :att, updated_at = :now",
+            ExpressionAttributeValues={
+                ":att": attachments,
+                ":now": datetime.utcnow().isoformat()
+            }
+        )
+        return True
+    except ClientError as e:
+        print(f"Error updating attachment status: {e}")
+        return False

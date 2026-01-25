@@ -1,12 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Settings, LogOut, Menu, X, Plus, Keyboard, Moon, Sun } from 'lucide-react';
+import { Home, Settings, LogOut, Menu, X, Plus, Keyboard, Moon, Sun, Shield } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { useAuthStore, useHouseholdStore } from '../stores/store';
-import { useThemeStore, lightThemes, darkThemes } from '../stores/themeStore';
+import { useThemeStore, darkThemes } from '../stores/themeStore';
+import { useCryptoStore } from '../stores/cryptoStore';
 import { logout } from '../utils/auth';
 import { useKeyboardShortcuts, useShortcutEvent } from '../hooks/useKeyboardShortcuts';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 import OfflineIndicator from './OfflineIndicator';
+import EncryptionBanner from './EncryptionBanner';
+import EncryptionSetup from './EncryptionSetup';
 import styles from './Layout.module.css';
 
 interface LayoutProps {
@@ -18,8 +21,10 @@ export default function Layout({ children }: LayoutProps) {
   const { user } = useAuthStore();
   const { households, currentHousehold } = useHouseholdStore();
   const { theme, setTheme, previousLightTheme, setPreviousLightTheme } = useThemeStore();
+  const { hasEncryptionSetup } = useCryptoStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showEncryptionSetup, setShowEncryptionSetup] = useState(false);
 
   // Check if current theme is dark
   const isDarkMode = darkThemes.includes(theme);
@@ -141,6 +146,16 @@ export default function Layout({ children }: LayoutProps) {
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
+          {!hasEncryptionSetup && (
+            <button
+              className={`${styles.navItem} ${styles.encryptionWarning}`}
+              onClick={() => { setSidebarOpen(false); setShowEncryptionSetup(true); }}
+              title="Set up encryption"
+            >
+              <Shield size={20} />
+              <span>Set Up Encryption</span>
+            </button>
+          )}
           <button
             className={styles.navItem}
             onClick={() => setShowShortcuts(true)}
@@ -169,13 +184,27 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* Main Content */}
-      <main className={styles.main}>{children}</main>
+      <main className={styles.main}>
+        {/* Encryption Warning Banner */}
+        <EncryptionBanner onSetupClick={() => setShowEncryptionSetup(true)} />
+        {children}
+      </main>
 
       {/* Keyboard Shortcuts Modal */}
       <KeyboardShortcutsModal
         isOpen={showShortcuts}
         onClose={() => setShowShortcuts(false)}
       />
+
+      {/* Encryption Setup Modal */}
+      {showEncryptionSetup && (
+        <div className={styles.modalOverlay}>
+          <EncryptionSetup
+            onComplete={() => setShowEncryptionSetup(false)}
+            onSkip={() => setShowEncryptionSetup(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

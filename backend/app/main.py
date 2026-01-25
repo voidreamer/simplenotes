@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from app.routes import auth, users, households, lists, invites, health, keys
+from app.routes import auth, users, households, lists, invites, health, keys, attachments
 from app.utils.config import settings
 
 @asynccontextmanager
@@ -22,14 +22,16 @@ async def lifespan(app: FastAPI):
     print("SimpleNotes API shutting down")
 
 # Create FastAPI app
+# Only enable API docs in non-production environments
+_enable_docs = settings.ENVIRONMENT in ("dev", "test")
 app = FastAPI(
     title="SimpleNotes API",
     description="Shareable notes, checklists, and shopping lists for households",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json"
+    docs_url="/docs" if _enable_docs else None,
+    redoc_url="/redoc" if _enable_docs else None,
+    openapi_url="/openapi.json" if _enable_docs else None
 )
 
 # CORS Configuration
@@ -48,8 +50,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 # Include routers
@@ -60,6 +62,7 @@ app.include_router(households.router, prefix="/api/households", tags=["Household
 app.include_router(lists.router, prefix="/api/lists", tags=["Lists"])
 app.include_router(invites.router, prefix="/api/invites", tags=["Invites"])
 app.include_router(keys.router, prefix="/api/keys", tags=["Encryption"])
+app.include_router(attachments.router, prefix="/api/lists", tags=["Attachments"])
 
 # Mangum handler for AWS Lambda
 handler = Mangum(app, lifespan="off")

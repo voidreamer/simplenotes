@@ -4,7 +4,7 @@ Household invitation management with email notifications
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import List
 
 from app.utils.auth import get_current_user
@@ -19,7 +19,7 @@ router = APIRouter()
 
 class InviteCreate(BaseModel):
     """Invite creation request"""
-    household_id: str
+    household_id: str = Field(..., max_length=100)
     email: EmailStr
 
 class InviteResponse(BaseModel):

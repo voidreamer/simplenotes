@@ -288,7 +288,13 @@ export default function ShoppingListView({
                         <div className={styles.dragHandle}>
                           <GripVertical size={16} />
                         </div>
-                        <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
+                        <button
+                          className={styles.checkbox}
+                          onClick={() => handleToggle(item.id)}
+                          role="checkbox"
+                          aria-checked={false}
+                          aria-label={`Mark "${item.text}" as purchased`}
+                        />
                         <div className={styles.itemContent} onClick={() => handleStartEdit(item)}>
                           <span className={styles.itemText}>{item.text}</span>
                           {(item.quantity && item.quantity > 1) || item.unit ? (
@@ -387,6 +393,9 @@ export default function ShoppingListView({
                       <button
                         className={`${styles.checkbox} ${styles.checkboxChecked}`}
                         onClick={() => handleToggle(item.id)}
+                        role="checkbox"
+                        aria-checked={true}
+                        aria-label={`Remove "${item.text}" from cart`}
                       >
                         <Check size={14} />
                       </button>
