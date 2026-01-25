@@ -12,7 +12,7 @@ export default function CallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Give Amplify a moment to process the OAuth response
+        // Give Supabase a moment to process the OAuth response
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const success = await checkAuthSession();

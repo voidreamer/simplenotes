@@ -25,10 +25,9 @@ class Settings(BaseSettings):
     # S3
     ATTACHMENTS_BUCKET: str = ""
 
-    # Cognito
-    COGNITO_USER_POOL_ID: str = ""
-    COGNITO_CLIENT_ID: str = ""
-    COGNITO_REGION: str = "ca-central-1"
+    # Supabase Auth
+    SUPABASE_URL: str = ""
+    SUPABASE_JWT_SECRET: str = ""
 
     # Email
     SES_EMAIL: str = ""

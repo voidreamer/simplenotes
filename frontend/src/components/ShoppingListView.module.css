@@ -462,7 +462,7 @@
 }
 
 .deleteButton:hover {
-  color: #dc2626;
+  color: color-mix(in srgb, var(--color-error) 80%, #000);
 }
 
 /* Checked Items */

@@ -34,7 +34,7 @@ class UserResponse(BaseModel):
 async def register_user(data: UserCreate, user: dict = Depends(get_current_user)):
     """
     Register a new user or return existing user.
-    Called after Cognito authentication to sync user data.
+    Called after Supabase authentication to sync user data.
     """
     existing = get_user_by_id(user["user_id"])
     if existing:

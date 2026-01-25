@@ -7,10 +7,15 @@
 
 import { api } from './api';
 import { useCryptoStore } from '../stores/cryptoStore';
+import { useAuthStore } from '../stores/store';
 import {
   encryptData,
   decryptData,
   decryptListItem,
+  encryptFile,
+  decryptFile,
+  packEncryptedFile,
+  unpackEncryptedFile,
   EncryptedData,
   EncryptedListItem,
   DecryptedListItem,
@@ -64,14 +69,14 @@ function isEncryptedList(list: ApiList): list is EncryptedList {
 }
 
 async function getHouseholdKey(householdId: string): Promise<CryptoKey | null> {
-  const { getHouseholdKey, addHouseholdKey, isUnlocked } = useCryptoStore.getState();
+  const state = useCryptoStore.getState();
 
-  if (!isUnlocked) {
+  if (!state.isUnlocked) {
     return null;
   }
 
   // Check if we already have the key in memory
-  let key = getHouseholdKey(householdId);
+  let key = state.getHouseholdKey(householdId);
   if (key) {
     return key;
   }
@@ -80,14 +85,40 @@ async function getHouseholdKey(householdId: string): Promise<CryptoKey | null> {
   try {
     const response = await api.getHouseholdKey(householdId);
     if (response.has_key && response.wrapped_key) {
-      await addHouseholdKey(householdId, response.wrapped_key);
-      return getHouseholdKey(householdId);
+      await state.addHouseholdKey(householdId, response.wrapped_key);
+      return useCryptoStore.getState().getHouseholdKey(householdId);
+    }
+
+    // No key exists - try to create one (for household owner)
+    const userId = getCurrentUserId();
+    if (!userId) {
+      return null;
+    }
+
+    const keyResult = await state.createNewHouseholdKey();
+    if (keyResult) {
+      const { householdKey, wrappedKey } = keyResult;
+      // Store the wrapped key on server
+      await api.setHouseholdKeys(householdId, {
+        [userId]: wrappedKey,
+      });
+      // Add to local store
+      const newState = useCryptoStore.getState();
+      const newKeys = new Map(newState.householdKeys);
+      newKeys.set(householdId, householdKey);
+      useCryptoStore.setState({ householdKeys: newKeys });
+      return householdKey;
     }
   } catch (error) {
-    console.error('Failed to fetch household key:', error);
+    console.error('Failed to get/create household key:', error);
   }
 
   return null;
+}
+
+function getCurrentUserId(): string {
+  const user = useAuthStore.getState().user;
+  return user?.user_id || '';
 }
 
 // ============================================
@@ -365,6 +396,183 @@ class EncryptedApiClient {
 
   deleteListItem(listId: string, householdId: string, itemId: string) {
     return api.deleteListItem(listId, householdId, itemId);
+  }
+
+  // ============================================
+  // Attachment methods with encryption
+  // ============================================
+
+  /**
+   * Upload an encrypted attachment
+   * Encrypts both the file content and filename before upload
+   */
+  async uploadAttachment(
+    listId: string,
+    householdId: string,
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<{
+    id: string;
+    filename: string;
+    size: number;
+    mime_type: string;
+  }> {
+    const { isUnlocked } = useCryptoStore.getState();
+    if (!isUnlocked) {
+      throw new Error('Please unlock encryption first');
+    }
+
+    const key = await getHouseholdKey(householdId);
+    if (!key) {
+      throw new Error('Household encryption key not available. Please refresh the page.');
+    }
+
+    // Encrypt the filename
+    const encryptedFilename = await encryptData(file.name, key);
+    const encryptedFilenameStr = JSON.stringify(encryptedFilename);
+
+    // Read file as ArrayBuffer
+    const fileData = await file.arrayBuffer();
+
+    // Encrypt file content
+    const encryptedFile = await encryptFile(fileData, key);
+    const packedData = packEncryptedFile(encryptedFile);
+
+    // Request upload URL
+    const { upload_url, attachment_id } = await api.getAttachmentUploadUrl(
+      listId,
+      householdId,
+      {
+        filename: encryptedFilenameStr,
+        size: packedData.byteLength,
+        mime_type: file.type || 'application/octet-stream',
+      }
+    );
+
+    // Upload to S3
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      body: packedData,
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload file to storage');
+    }
+
+    if (onProgress) {
+      onProgress(100);
+    }
+
+    // Confirm upload
+    await api.confirmAttachmentUpload(listId, householdId, attachment_id);
+
+    return {
+      id: attachment_id,
+      filename: file.name,
+      size: file.size,
+      mime_type: file.type || 'application/octet-stream',
+    };
+  }
+
+  /**
+   * Download and decrypt an attachment
+   * Returns the decrypted file as a Blob
+   */
+  async downloadAttachment(
+    listId: string,
+    householdId: string,
+    attachmentId: string
+  ): Promise<{ blob: Blob; filename: string; mimeType: string }> {
+    const key = await getHouseholdKey(householdId);
+    if (!key) {
+      throw new Error('Encryption key not available');
+    }
+
+    // Get download URL and metadata
+    const { download_url, attachment } = await api.getAttachmentDownloadUrl(
+      listId,
+      householdId,
+      attachmentId
+    );
+
+    // Download encrypted file from S3
+    const downloadResponse = await fetch(download_url);
+    if (!downloadResponse.ok) {
+      throw new Error('Failed to download file from storage');
+    }
+
+    const encryptedData = await downloadResponse.arrayBuffer();
+
+    // Unpack and decrypt
+    const unpackedData = unpackEncryptedFile(encryptedData);
+    const decryptedData = await decryptFile(unpackedData, key);
+
+    // Decrypt filename
+    let filename = 'attachment';
+    try {
+      const filenameData = JSON.parse(attachment.filename);
+      if (filenameData.ciphertext && filenameData.iv) {
+        filename = await decryptData(filenameData, key);
+      }
+    } catch {
+      filename = attachment.filename;
+    }
+
+    const blob = new Blob([decryptedData], { type: attachment.mime_type });
+
+    return {
+      blob,
+      filename,
+      mimeType: attachment.mime_type,
+    };
+  }
+
+  /**
+   * Delete an attachment
+   */
+  async deleteAttachment(listId: string, householdId: string, attachmentId: string) {
+    return api.deleteAttachment(listId, householdId, attachmentId);
+  }
+
+  /**
+   * List attachments with decrypted filenames
+   */
+  async listAttachments(
+    listId: string,
+    householdId: string
+  ): Promise<Array<{
+    id: string;
+    filename: string;
+    size: number;
+    mime_type: string;
+    uploaded_by: string;
+    created_at: string;
+  }>> {
+    const key = await getHouseholdKey(householdId);
+    const attachments = await api.listAttachments(listId, householdId);
+
+    if (!key) {
+      return attachments;
+    }
+
+    // Decrypt filenames
+    return Promise.all(
+      attachments.map(async (att) => {
+        let filename = att.filename;
+        try {
+          const filenameData = JSON.parse(att.filename);
+          if (filenameData.ciphertext && filenameData.iv) {
+            filename = await decryptData(filenameData, key);
+          }
+        } catch {
+          // Keep original filename if not encrypted
+        }
+        return { ...att, filename };
+      })
+    );
   }
 
   // ============================================

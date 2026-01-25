@@ -57,8 +57,15 @@ export default function EncryptionSetup({ onComplete, onSkip }: EncryptionSetupP
         version: keyData.version,
       });
 
+      // Verify the keys were saved correctly
+      const status = await api.getUserKeyStatus();
+      if (!status.has_encryption_setup) {
+        throw new Error('Keys were not saved properly. Please try again.');
+      }
+
       setStep('complete');
     } catch (err) {
+      console.error('Encryption setup failed:', err);
       setError(err instanceof Error ? err.message : 'Failed to set up encryption');
     } finally {
       setLoading(false);

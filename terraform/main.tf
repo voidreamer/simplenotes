@@ -224,9 +224,32 @@ resource "aws_s3_bucket_cors_configuration" "attachments" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "PUT", "POST", "DELETE"]
-    allowed_origins = ["*"]  # Update with your domain in production
+    allowed_origins = [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://${aws_cloudfront_distribution.frontend.domain_name}"
+    ]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "attachments" {
+  bucket = aws_s3_bucket.attachments.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "attachments" {
+  bucket = aws_s3_bucket.attachments.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
   }
 }
 

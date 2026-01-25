@@ -2,12 +2,18 @@
  * UnlockPrompt Component
  *
  * Prompts user to enter their encryption password to unlock their keys.
- * Shown when user has encryption set up but keys are not yet unlocked.
+ * Supports biometric unlock (Face ID / Touch ID) on native apps via Capacitor.
  */
 
-import { useState } from 'react';
-import { Lock, Eye, EyeOff, AlertCircle, Unlock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Lock, Eye, EyeOff, AlertCircle, Unlock, Fingerprint } from 'lucide-react';
 import { useCryptoStore } from '../stores/cryptoStore';
+import {
+  getBiometricStatus,
+  getPasswordWithBiometric,
+  savePasswordForBiometric,
+  BiometricStatus,
+} from '../utils/biometric';
 import styles from './UnlockPrompt.module.css';
 
 interface UnlockPromptProps {
@@ -29,8 +35,46 @@ export default function UnlockPrompt({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [saveBiometric, setSaveBiometric] = useState(false);
+  const [biometricStatus, setBiometricStatus] = useState<BiometricStatus | null>(null);
 
   const { unlock } = useCryptoStore();
+
+  // Check biometric availability on mount
+  useEffect(() => {
+    getBiometricStatus().then(setBiometricStatus);
+  }, []);
+
+  // Try biometric unlock automatically if enabled
+  useEffect(() => {
+    if (biometricStatus?.isEnabled) {
+      handleBiometricUnlock();
+    }
+  }, [biometricStatus?.isEnabled]);
+
+  const handleBiometricUnlock = async () => {
+    if (!biometricStatus?.isAvailable) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const biometricPassword = await getPasswordWithBiometric();
+      if (biometricPassword) {
+        const success = await unlock(encryptedPrivateKey, salt, biometricPassword, publicKey);
+        if (success) {
+          onUnlock();
+          return;
+        }
+      }
+      // Biometric failed or no password saved - fall back to manual entry
+      setError('Biometric unlock failed. Please enter your password.');
+    } catch (err) {
+      setError('Biometric unlock failed. Please enter your password.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +91,10 @@ export default function UnlockPrompt({
       const success = await unlock(encryptedPrivateKey, salt, password, publicKey);
 
       if (success) {
+        // Save password for biometric if user opted in
+        if (saveBiometric && biometricStatus?.isAvailable) {
+          await savePasswordForBiometric(password);
+        }
         onUnlock();
       } else {
         setError('Incorrect encryption password. Please try again.');
@@ -77,6 +125,19 @@ export default function UnlockPrompt({
           </div>
         )}
 
+        {/* Biometric button - show if available and enabled */}
+        {biometricStatus?.isAvailable && biometricStatus?.isEnabled && (
+          <button
+            type="button"
+            onClick={handleBiometricUnlock}
+            disabled={loading}
+            className={styles.biometricButton}
+          >
+            <Fingerprint size={24} />
+            <span>Unlock with {biometricStatus.biometryName}</span>
+          </button>
+        )}
+
         <form onSubmit={handleUnlock} className={styles.form}>
           <div className={styles.inputGroup}>
             <label className={styles.label}>Encryption Password</label>
@@ -87,7 +148,7 @@ export default function UnlockPrompt({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your encryption password"
-                autoFocus
+                autoFocus={!biometricStatus?.isEnabled}
                 className={styles.input}
               />
               <button
@@ -99,6 +160,19 @@ export default function UnlockPrompt({
               </button>
             </div>
           </div>
+
+          {/* Option to enable biometric for next time */}
+          {biometricStatus?.isAvailable && !biometricStatus?.isEnabled && (
+            <label className={styles.biometricCheckbox}>
+              <input
+                type="checkbox"
+                checked={saveBiometric}
+                onChange={(e) => setSaveBiometric(e.target.checked)}
+              />
+              <Fingerprint size={18} />
+              <span>Enable {biometricStatus.biometryName} for faster unlock</span>
+            </label>
+          )}
 
           <button type="submit" disabled={loading} className={styles.unlockButton}>
             {loading ? (

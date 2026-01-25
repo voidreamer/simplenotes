@@ -4,7 +4,7 @@ Household management and membership
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 
 from app.utils.auth import get_current_user
@@ -18,11 +18,11 @@ router = APIRouter()
 
 class HouseholdCreate(BaseModel):
     """Household creation request"""
-    name: str
+    name: str = Field(..., min_length=1, max_length=100)
 
 class HouseholdUpdate(BaseModel):
     """Household update request"""
-    name: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
 
 class HouseholdResponse(BaseModel):
     """Household response model"""

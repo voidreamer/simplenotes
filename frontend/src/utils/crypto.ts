@@ -564,6 +564,108 @@ export async function decryptListContent(
 }
 
 // ============================================
+// File Encryption/Decryption
+// ============================================
+
+export interface EncryptedFileData {
+  ciphertext: ArrayBuffer;  // Encrypted binary data
+  iv: string;               // Base64-encoded initialization vector
+  version: number;          // Encryption version
+}
+
+/**
+ * Encrypt a file (binary data) using AES-GCM
+ * Returns the encrypted ArrayBuffer and IV
+ */
+export async function encryptFile(
+  data: ArrayBuffer,
+  key: CryptoKey
+): Promise<EncryptedFileData> {
+  const iv = generateRandomBytes(12); // 96 bits for GCM
+
+  const ciphertext = await crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv.buffer as ArrayBuffer,
+    },
+    key,
+    data
+  );
+
+  return {
+    ciphertext,
+    iv: arrayBufferToBase64(iv.buffer as ArrayBuffer),
+    version: 1,
+  };
+}
+
+/**
+ * Decrypt a file (binary data) using AES-GCM
+ * Returns the decrypted ArrayBuffer
+ */
+export async function decryptFile(
+  encrypted: EncryptedFileData,
+  key: CryptoKey
+): Promise<ArrayBuffer> {
+  const iv = base64ToArrayBuffer(encrypted.iv);
+
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv: new Uint8Array(iv),
+    },
+    key,
+    encrypted.ciphertext
+  );
+
+  return decrypted;
+}
+
+/**
+ * Pack encrypted file data for storage/transmission
+ * Format: [1 byte version][12 bytes IV][rest is ciphertext]
+ */
+export function packEncryptedFile(data: EncryptedFileData): ArrayBuffer {
+  const iv = base64ToArrayBuffer(data.iv);
+  const totalLength = 1 + iv.byteLength + data.ciphertext.byteLength;
+  const result = new ArrayBuffer(totalLength);
+  const view = new Uint8Array(result);
+
+  // Version byte
+  view[0] = data.version;
+
+  // IV (12 bytes)
+  view.set(new Uint8Array(iv), 1);
+
+  // Ciphertext
+  view.set(new Uint8Array(data.ciphertext), 1 + iv.byteLength);
+
+  return result;
+}
+
+/**
+ * Unpack encrypted file data from storage/transmission
+ */
+export function unpackEncryptedFile(packed: ArrayBuffer): EncryptedFileData {
+  const view = new Uint8Array(packed);
+
+  // Version byte
+  const version = view[0];
+
+  // IV (12 bytes starting at position 1)
+  const iv = packed.slice(1, 13);
+
+  // Ciphertext (rest of the data)
+  const ciphertext = packed.slice(13);
+
+  return {
+    ciphertext,
+    iv: arrayBufferToBase64(iv),
+    version,
+  };
+}
+
+// ============================================
 // Validation
 // ============================================
 
