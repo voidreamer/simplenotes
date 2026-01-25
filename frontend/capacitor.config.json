@@ -8,12 +8,15 @@
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
-      "backgroundColor": "#0f0f23",
-      "showSpinner": false
+      "backgroundColor": "#e8e0d0",
+      "showSpinner": false,
+      "launchAutoHide": true,
+      "splashFullScreen": true,
+      "splashImmersive": true
     },
     "StatusBar": {
       "style": "Dark",
-      "backgroundColor": "#0f0f23"
+      "backgroundColor": "#e8e0d0"
     },
     "Keyboard": {
       "resize": "body",
@@ -21,9 +24,12 @@
     }
   },
   "ios": {
-    "contentInset": "automatic"
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile",
+    "backgroundColor": "#e8e0d0"
   },
   "android": {
-    "allowMixedContent": true
+    "allowMixedContent": false,
+    "backgroundColor": "#e8e0d0"
   }
 }
