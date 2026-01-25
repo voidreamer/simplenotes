@@ -120,13 +120,15 @@ resource "aws_cognito_user_pool_client" "web" {
   callback_urls = [
     "http://localhost:3000/callback",
     "http://localhost:5173/callback",
-    "https://${aws_cloudfront_distribution.frontend.domain_name}/callback"
+    "https://${aws_cloudfront_distribution.frontend.domain_name}/callback",
+    "simplenotes://callback"  # iOS/Android native app
   ]
 
   logout_urls = [
     "http://localhost:3000",
     "http://localhost:5173",
-    "https://${aws_cloudfront_distribution.frontend.domain_name}"
+    "https://${aws_cloudfront_distribution.frontend.domain_name}",
+    "simplenotes://"  # iOS/Android native app
   ]
 
   # Token validity
