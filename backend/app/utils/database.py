@@ -204,6 +204,35 @@ def delete_household(household_id: str) -> bool:
     except ClientError:
         return False
 
+def remove_member_from_household(household_id: str, user_id: str) -> bool:
+    """Remove a member from household"""
+    household = get_household(household_id)
+    if not household:
+        return False
+
+    members = [m for m in household.get("members", []) if m != user_id]
+
+    table = get_table(settings.HOUSEHOLDS_TABLE)
+    try:
+        table.update_item(
+            Key={"household_id": household_id},
+            UpdateExpression="SET members = :m, updated_at = :now",
+            ExpressionAttributeValues={
+                ":m": members,
+                ":now": datetime.utcnow().isoformat()
+            }
+        )
+
+        # Remove household from user's list
+        db_user = get_user_by_id(user_id)
+        if db_user:
+            households = [h for h in db_user.get("households", []) if h != household_id]
+            update_user(user_id, {"households": households})
+
+        return True
+    except ClientError:
+        return False
+
 # ============================================
 # List Operations
 # ============================================

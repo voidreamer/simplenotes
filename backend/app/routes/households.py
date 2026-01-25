@@ -11,7 +11,8 @@ from app.utils.auth import get_current_user
 from app.utils.database import (
     create_household, get_household, get_user_households,
     update_household, delete_household, add_member_to_household,
-    get_user_by_id
+    remove_member_from_household, get_user_by_id,
+    get_household_wrapped_keys, update_household_wrapped_keys
 )
 
 router = APIRouter()
@@ -153,3 +154,34 @@ async def leave_household(household_id: str, user: dict = Depends(get_current_us
         update_user(user["user_id"], {"households": households})
 
     return {"message": "Left household successfully"}
+
+@router.delete("/{household_id}/members/{member_id}")
+async def remove_household_member(
+    household_id: str,
+    member_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Remove a member from household (owner only)"""
+    household = get_household(household_id)
+    if not household:
+        raise HTTPException(status_code=404, detail="Household not found")
+
+    if household["owner_id"] != user["user_id"]:
+        raise HTTPException(status_code=403, detail="Only the owner can remove members")
+
+    if member_id == household["owner_id"]:
+        raise HTTPException(status_code=400, detail="Cannot remove the owner from the household")
+
+    if member_id not in household.get("members", []):
+        raise HTTPException(status_code=404, detail="Member not found in household")
+
+    if not remove_member_from_household(household_id, member_id):
+        raise HTTPException(status_code=500, detail="Failed to remove member")
+
+    # Remove member's wrapped encryption key
+    wrapped_keys = get_household_wrapped_keys(household_id) or {}
+    if member_id in wrapped_keys:
+        del wrapped_keys[member_id]
+        update_household_wrapped_keys(household_id, wrapped_keys)
+
+    return {"message": "Member removed successfully"}
