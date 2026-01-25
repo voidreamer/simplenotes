@@ -63,14 +63,25 @@
 
   /* Status Colors */
   --color-success: #10b981;
+  --color-success-light: color-mix(in srgb, var(--color-success) 15%, transparent);
   --color-warning: #f59e0b;
+  --color-warning-light: color-mix(in srgb, var(--color-warning) 15%, transparent);
   --color-error: #ef4444;
+  --color-error-light: color-mix(in srgb, var(--color-error) 15%, transparent);
   --color-info: #3b82f6;
+  --color-info-light: color-mix(in srgb, var(--color-info) 15%, transparent);
 
   /* List Type Colors */
   --color-note: #6366f1;
+  --color-note-light: color-mix(in srgb, var(--color-note) 15%, transparent);
   --color-checklist: #10b981;
+  --color-checklist-light: color-mix(in srgb, var(--color-checklist) 15%, transparent);
   --color-shopping: #f59e0b;
+  --color-shopping-light: color-mix(in srgb, var(--color-shopping) 15%, transparent);
+
+  /* Danger/Destructive */
+  --color-danger: var(--color-error);
+  --color-danger-light: var(--color-error-light);
 }
 
 /* Reset & Base */
@@ -305,6 +316,30 @@ a:hover {
 
 .input:focus {
   border-color: var(--color-primary);
+}
+
+/* Global Focus Styles for Accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users, keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure buttons and interactive elements have proper focus */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .input::placeholder {

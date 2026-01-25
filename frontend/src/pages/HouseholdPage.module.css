@@ -217,7 +217,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   background: transparent;
   border: none;
-  color: #ef4444;
+  color: var(--color-error);
   font-family: var(--font-body);
   font-size: 0.875rem;
   cursor: pointer;
@@ -226,7 +226,7 @@
 }
 
 .optionsMenuItem:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--color-error-light);
 }
 
 .optionsBackdrop {
@@ -353,30 +353,30 @@
 
 /* Color Classes */
 .colorShopping {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: var(--color-shopping-light);
+  color: var(--color-shopping);
 }
 
 .colorShopping.progressFill {
-  background: #f59e0b;
+  background: var(--color-shopping);
 }
 
 .colorChecklist {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  background: var(--color-checklist-light);
+  color: var(--color-checklist);
 }
 
 .colorChecklist.progressFill {
-  background: #10b981;
+  background: var(--color-checklist);
 }
 
 .colorNote {
-  background: rgba(99, 102, 241, 0.15);
-  color: #6366f1;
+  background: var(--color-note-light);
+  color: var(--color-note);
 }
 
 .colorNote.progressFill {
-  background: #6366f1;
+  background: var(--color-note);
 }
 
 /* List Grid */
@@ -415,15 +415,15 @@
 
 /* Color border variants */
 .colorShoppingBorder {
-  border-left-color: #f59e0b;
+  border-left-color: var(--color-shopping);
 }
 
 .colorChecklistBorder {
-  border-left-color: #10b981;
+  border-left-color: var(--color-checklist);
 }
 
 .colorNoteBorder {
-  border-left-color: #6366f1;
+  border-left-color: var(--color-note);
 }
 
 .listHeader {
@@ -684,23 +684,23 @@
 
 .typeOption.colorShopping:hover,
 .typeOption.colorShopping.typeOptionActive {
-  border-color: #f59e0b;
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--color-shopping);
+  color: var(--color-shopping);
+  background: var(--color-shopping-light);
 }
 
 .typeOption.colorChecklist:hover,
 .typeOption.colorChecklist.typeOptionActive {
-  border-color: #10b981;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--color-checklist);
+  color: var(--color-checklist);
+  background: var(--color-checklist-light);
 }
 
 .typeOption.colorNote:hover,
 .typeOption.colorNote.typeOptionActive {
-  border-color: #6366f1;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--color-note);
+  color: var(--color-note);
+  background: var(--color-note-light);
 }
 
 .modalInput {

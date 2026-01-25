@@ -165,7 +165,13 @@ export default function ChecklistView({
             <div className={styles.dragHandle}>
               <GripVertical size={16} />
             </div>
-            <button className={styles.checkbox} onClick={() => handleToggle(item.id)} />
+            <button
+              className={styles.checkbox}
+              onClick={() => handleToggle(item.id)}
+              role="checkbox"
+              aria-checked={false}
+              aria-label={`Mark "${item.text}" as complete`}
+            />
             {editingItemId === item.id ? (
               <input
                 type="text"
@@ -205,6 +211,9 @@ export default function ChecklistView({
                 <button
                   className={`${styles.checkbox} ${styles.checkboxChecked}`}
                   onClick={() => handleToggle(item.id)}
+                  role="checkbox"
+                  aria-checked={true}
+                  aria-label={`Mark "${item.text}" as incomplete`}
                 >
                   <Check size={14} />
                 </button>
