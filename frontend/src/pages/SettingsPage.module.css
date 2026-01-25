@@ -262,22 +262,22 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: var(--color-error-light);
+  color: var(--color-error);
   font-weight: 600;
   font-family: var(--font-body);
-  border: var(--border-width) solid rgba(239, 68, 68, 0.3);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-error) 30%, transparent);
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 [data-theme="brutalist"] .logoutButton {
-  box-shadow: 3px 3px 0 rgba(239, 68, 68, 0.3);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--color-error) 30%, transparent);
 }
 
 .logoutButton:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: color-mix(in srgb, var(--color-error) 20%, transparent);
 }
 
 /* App Info */
