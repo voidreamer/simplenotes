@@ -68,17 +68,16 @@
   color: var(--color-text-muted);
 }
 
-.featureCheck {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--color-success);
-  color: white;
+.featureIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  flex-shrink: 0;
 }
 
 /* Form */
