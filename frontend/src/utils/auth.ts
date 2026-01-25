@@ -12,12 +12,38 @@ import config from './config';
 import { useAuthStore } from '../stores/store';
 import { api } from './api';
 
+// Check if running in Capacitor native app
+function isCapacitorNative(): boolean {
+  return typeof window !== 'undefined' &&
+    'Capacitor' in window &&
+    (window as any).Capacitor?.isNativePlatform?.() === true;
+}
+
+// Get the appropriate redirect URL for OAuth
+function getRedirectUrl(): string {
+  if (isCapacitorNative()) {
+    // For native apps, use the custom URL scheme
+    return 'simplenotes://callback';
+  }
+  return window.location.origin + '/callback';
+}
+
+function getSignOutUrl(): string {
+  if (isCapacitorNative()) {
+    return 'simplenotes://';
+  }
+  return window.location.origin;
+}
+
 // Configure Amplify
 export function configureAuth() {
   if (!config.cognito.userPoolId || !config.cognito.clientId) {
     console.warn('Cognito not configured, using mock auth');
     return;
   }
+
+  const redirectSignIn = getRedirectUrl();
+  const redirectSignOut = getSignOutUrl();
 
   Amplify.configure({
     Auth: {
@@ -28,8 +54,8 @@ export function configureAuth() {
           oauth: {
             domain: config.cognito.domain.replace('https://', ''),
             scopes: ['email', 'openid', 'profile'],
-            redirectSignIn: [window.location.origin + '/callback'],
-            redirectSignOut: [window.location.origin],
+            redirectSignIn: [redirectSignIn],
+            redirectSignOut: [redirectSignOut],
             responseType: 'code',
             providers: ['Google'],
           },
