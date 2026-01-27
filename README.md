@@ -6,7 +6,7 @@
 
 > Shareable notes, checklists, and shopping lists for households — fully serverless on AWS.
 
-## ✨ Features
+## Features
 
 - **Household Sharing** — Real-time collaboration with family members
 - **Cross-Platform** — iOS, Android, and Web from a single React codebase
@@ -15,7 +15,7 @@
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -44,7 +44,7 @@
 
 ---
 
-## 🚀 Infrastructure (Terraform)
+## Infrastructure (Terraform)
 
 All infrastructure is defined as code in `/terraform`:
 
@@ -69,7 +69,7 @@ terraform apply
 
 ---
 
-## 🔄 CI/CD (GitHub Actions)
+## CI/CD (GitHub Actions)
 
 Fully automated deployment pipeline in `.github/workflows/ci-cd.yml`:
 
@@ -96,7 +96,7 @@ Push to main
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -110,7 +110,7 @@ Push to main
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 simplenotes/
@@ -137,7 +137,7 @@ simplenotes/
 
 ---
 
-## 🏃 Local Development
+## Local Development
 
 ```bash
 # Frontend
@@ -150,7 +150,7 @@ uvicorn app.main:app --reload
 
 ---
 
-## 📱 Mobile Builds
+## Mobile Builds
 
 ```bash
 # iOS
@@ -162,6 +162,6 @@ npx cap add android && npx cap sync && npx cap open android
 
 ---
 
-## 📄 License
+## License
 
 MIT
