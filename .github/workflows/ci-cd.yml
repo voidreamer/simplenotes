@@ -161,6 +161,7 @@ jobs:
           TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
           TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+          TF_VAR_acm_certificate_arn: ${{ secrets.ACM_CERTIFICATE_ARN }}
           TF_VAR_environment: staging
         run: terraform plan -out=tfplan
 
@@ -171,6 +172,7 @@ jobs:
           TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
           TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+          TF_VAR_acm_certificate_arn: ${{ secrets.ACM_CERTIFICATE_ARN }}
           TF_VAR_environment: staging
         run: terraform apply -auto-approve tfplan
 
@@ -280,6 +282,7 @@ jobs:
           TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
           TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+          TF_VAR_acm_certificate_arn: ${{ secrets.ACM_CERTIFICATE_ARN }}
           TF_VAR_environment: prod
         run: terraform plan -out=tfplan
 
@@ -290,6 +293,7 @@ jobs:
           TF_VAR_supabase_url: ${{ secrets.SUPABASE_URL }}
           TF_VAR_supabase_jwt_secret: ${{ secrets.SUPABASE_JWT_SECRET }}
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+          TF_VAR_acm_certificate_arn: ${{ secrets.ACM_CERTIFICATE_ARN }}
           TF_VAR_environment: prod
         run: terraform apply -auto-approve tfplan
 
