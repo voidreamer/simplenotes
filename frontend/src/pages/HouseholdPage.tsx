@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, ArrowUpDown, Pencil, UserMinus, Shield, AlertTriangle } from 'lucide-react';
+import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, ArrowUpDown, Pencil, UserMinus, Shield, AlertTriangle, Lock } from 'lucide-react';
+import { isNoteEncrypted } from '../utils/encryptionHelpers';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
@@ -418,7 +419,12 @@ export default function HouseholdPage() {
                     <span className={`${styles.listIcon} ${styles[config.colorClass]}`}>
                       <Icon size={14} />
                     </span>
-                    <h3 className={styles.listTitle}>{list.title}</h3>
+                    <h3 className={styles.listTitle}>
+                      {list.title}
+                      {isNoteEncrypted(list) && (
+                        <Lock size={12} className={styles.encryptedIcon} title="Encrypted" />
+                      )}
+                    </h3>
                   </div>
                   {(list.updated_at || list.created_at) && (
                     <span className={styles.listDate}>
