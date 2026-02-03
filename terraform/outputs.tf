@@ -50,3 +50,13 @@ output "aws_region" {
   description = "AWS region"
   value       = var.aws_region
 }
+
+output "custom_domain" {
+  description = "Custom domain name (if configured)"
+  value       = var.domain_name != "" ? var.domain_name : null
+}
+
+output "cloudfront_domain" {
+  description = "CloudFront distribution domain (for DNS CNAME)"
+  value       = aws_cloudfront_distribution.frontend.domain_name
+}

@@ -24,6 +24,9 @@ resource "aws_cloudfront_distribution" "frontend" {
   comment             = "${local.prefix} frontend distribution"
   price_class         = "PriceClass_100"  # North America & Europe only (cheapest)
 
+  # Custom domain alias (if set)
+  aliases = var.domain_name != "" ? [var.domain_name] : []
+
   # Origin configuration - S3 bucket
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -113,9 +116,21 @@ resource "aws_cloudfront_distribution" "frontend" {
     }
   }
 
-  # SSL Certificate - use CloudFront default certificate
-  viewer_certificate {
-    cloudfront_default_certificate = true
+  # SSL Certificate - use ACM certificate if custom domain, otherwise CloudFront default
+  dynamic "viewer_certificate" {
+    for_each = var.domain_name != "" ? [1] : []
+    content {
+      acm_certificate_arn      = aws_acm_certificate_validation.frontend[0].certificate_arn
+      ssl_support_method       = "sni-only"
+      minimum_protocol_version = "TLSv1.2_2021"
+    }
+  }
+
+  dynamic "viewer_certificate" {
+    for_each = var.domain_name == "" ? [1] : []
+    content {
+      cloudfront_default_certificate = true
+    }
   }
 
   tags = {
