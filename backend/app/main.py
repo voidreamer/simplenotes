@@ -46,6 +46,10 @@ origins = [
 if settings.FRONTEND_URL:
     origins.append(settings.FRONTEND_URL)
 
+# Add CloudFront URL if using custom domain (both need to work)
+if settings.CLOUDFRONT_URL and settings.CLOUDFRONT_URL not in origins:
+    origins.append(settings.CLOUDFRONT_URL)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

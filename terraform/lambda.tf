@@ -134,7 +134,8 @@ resource "aws_lambda_function" "api" {
       SUPABASE_URL         = var.supabase_url
       SUPABASE_JWT_SECRET  = var.supabase_jwt_secret
       SES_EMAIL            = var.ses_email
-      FRONTEND_URL         = "https://${aws_cloudfront_distribution.frontend.domain_name}"
+      FRONTEND_URL         = var.domain_name != "" ? "https://${var.domain_name}" : "https://${aws_cloudfront_distribution.frontend.domain_name}"
+      CLOUDFRONT_URL       = "https://${aws_cloudfront_distribution.frontend.domain_name}"
     }
   }
 
@@ -168,11 +169,14 @@ resource "aws_apigatewayv2_api" "main" {
     allow_credentials = true
     allow_headers     = ["Content-Type", "Authorization", "X-Amz-Date", "X-Api-Key"]
     allow_methods     = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-    allow_origins     = [
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://${aws_cloudfront_distribution.frontend.domain_name}"
-    ]
+    allow_origins     = concat(
+      [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://${aws_cloudfront_distribution.frontend.domain_name}"
+      ],
+      var.domain_name != "" ? ["https://${var.domain_name}"] : []
+    )
     expose_headers    = ["*"]
     max_age           = 3600
   }

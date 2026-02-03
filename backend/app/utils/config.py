@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     # Frontend
     FRONTEND_URL: str = "http://localhost:5173"
+    CLOUDFRONT_URL: str = ""  # CloudFront URL when using custom domain
 
     class Config:
         env_file = ".env"
