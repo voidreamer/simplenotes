@@ -1,3 +1,8 @@
+/* Rosewood UI — design tokens + glass utilities */
+@import 'rosewood-ui/src/css/variables.css';
+@import 'rosewood-ui/src/css/components/glass.css';
+@import 'rosewood-ui/src/css/components/animations.css';
+
 /* SimpleNotes - Global Styles
    Themeable design system
 */
