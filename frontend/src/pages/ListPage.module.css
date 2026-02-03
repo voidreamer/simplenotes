@@ -404,3 +404,35 @@
     opacity: 0.4;
   }
 }
+
+/* ── Rosewood Glass Theme ── */
+:global([data-theme="rosewood"]) .header {
+  background: rgba(26, 22, 20, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom-color: rgba(232, 168, 192, 0.08);
+}
+
+:global([data-theme="rosewood-light"]) .header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="rosewood"]) .actionButton {
+  background: rgba(32, 28, 26, 0.6);
+  border-color: rgba(232, 168, 192, 0.1);
+  border-radius: 10px;
+}
+
+:global([data-theme="rosewood"]) .actionButton:hover {
+  background: rgba(232, 168, 192, 0.12);
+  border-color: rgba(232, 168, 192, 0.2);
+}
+
+:global([data-theme="rosewood"]) .actionButton.encryptedActive {
+  background: rgba(136, 200, 168, 0.12);
+  border-color: rgba(136, 200, 168, 0.25);
+  color: #88c8a8;
+}

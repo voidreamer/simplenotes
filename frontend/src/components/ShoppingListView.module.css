@@ -537,3 +537,17 @@
     flex-direction: column;
   }
 }
+
+/* ── Rosewood Glass Theme ── */
+:global([data-theme="rosewood"]) .item {
+  background: rgba(32, 28, 26, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(232, 168, 192, 0.06);
+  border-radius: 14px;
+}
+
+:global([data-theme="rosewood"]) .item:hover {
+  background: rgba(53, 47, 43, 0.6);
+  border-color: rgba(232, 168, 192, 0.12);
+}
