@@ -363,7 +363,9 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
-  min-height: 100px;
+  min-height: 80px;
+  max-height: 160px;
+  overflow: hidden;
 }
 
 .listCard:hover {

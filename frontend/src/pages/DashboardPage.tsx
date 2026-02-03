@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, ShoppingCart, CheckCircle2, FileText, Lock } from 'lucide-react';
-import { isNoteEncrypted } from '../utils/encryptionHelpers';
+import { Plus, ShoppingCart, CheckCircle2, FileText, Lock, ChevronRight } from 'lucide-react';
 import { useAuthStore, useHouseholdStore, useListsStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
+import { isNoteEncrypted } from '../utils/encryptionHelpers';
 import styles from './DashboardPage.module.css';
 
 export default function DashboardPage() {
@@ -30,7 +30,6 @@ export default function DashboardPage() {
         const householdsData = await api.getHouseholds() as Household[];
         setHouseholds(householdsData);
 
-        // Load lists for all households
         const allLists: List[] = [];
         for (const household of householdsData) {
           const householdLists = await api.getLists(household.household_id) as List[];
@@ -67,155 +66,160 @@ export default function DashboardPage() {
 
   const getListIcon = (type: string) => {
     switch (type) {
-      case 'shopping':
-        return ShoppingCart;
-      case 'checklist':
-        return CheckCircle2;
-      default:
-        return FileText;
+      case 'shopping': return ShoppingCart;
+      case 'checklist': return CheckCircle2;
+      default: return FileText;
     }
   };
 
-  const getListColorClass = (type: string) => {
+  const getTypeColor = (type: string) => {
     switch (type) {
-      case 'shopping':
-        return styles.colorShopping;
-      case 'checklist':
-        return styles.colorChecklist;
-      default:
-        return styles.colorNote;
+      case 'shopping': return 'var(--color-shopping)';
+      case 'checklist': return 'var(--color-checklist)';
+      default: return 'var(--color-note)';
     }
   };
 
-  const recentLists = lists
-    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 5);
+  const getHouseholdName = (householdId: string) => {
+    return households.find(h => h.household_id === householdId)?.name || '';
+  };
 
-  // Generate consistent color for household based on name
   const getHouseholdColor = (name: string) => {
-    const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
+    const colors = ['#e8a8c0', '#88c8a8', '#b898d0', '#e8c070', '#70b8e8', '#e87070'];
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
   };
+
+  const formatRelativeDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'now';
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays === 1) return 'yesterday';
+    if (diffDays < 7) return `${diffDays}d`;
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  };
+
+  // All lists sorted by recent
+  const recentLists = [...lists]
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
 
   if (loading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner} />
-        <p>Loading your dashboard...</p>
       </div>
     );
   }
 
   return (
     <div className={styles.page}>
-      {/* Welcome Header */}
+      {/* Greeting */}
       <header className={styles.header}>
         <h1 className={styles.greeting}>
-          Welcome back, <span className={styles.userName}>{user?.name?.split(' ')[0] || 'there'}</span>
+          Hi, <span className={styles.userName}>{user?.name?.split(' ')[0] || 'there'}</span>
         </h1>
       </header>
 
-      {/* Households Section */}
+      {/* Households — compact row */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Your Households</h2>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Households</h2>
+          <button className={styles.addBtn} onClick={() => setShowCreateModal(true)}>
+            <Plus size={16} />
+          </button>
+        </div>
 
-        <div className={styles.householdList}>
+        <div className={styles.householdRow}>
           {households.map((household) => {
-            const householdLists = lists.filter(l => l.household_id === household.household_id);
+            const count = lists.filter(l => l.household_id === household.household_id).length;
             return (
               <button
                 key={household.household_id}
-                className={styles.householdCard}
+                className={styles.householdChip}
                 onClick={() => {
                   setCurrentHousehold(household);
                   navigate(`/household/${household.household_id}`);
                 }}
               >
-                <div
-                  className={styles.householdIcon}
-                  style={{ backgroundColor: getHouseholdColor(household.name) }}
-                >
-                  {household.name.charAt(0).toUpperCase()}
-                </div>
-                <div className={styles.cardInfo}>
-                  <h3>{household.name}</h3>
-                  <p>{householdLists.length} list{householdLists.length !== 1 ? 's' : ''} · {household.members?.length || 1} member{(household.members?.length || 1) !== 1 ? 's' : ''}</p>
-                </div>
+                <span
+                  className={styles.chipDot}
+                  style={{ background: getHouseholdColor(household.name) }}
+                />
+                <span className={styles.chipName}>{household.name}</span>
+                <span className={styles.chipCount}>{count}</span>
+                <ChevronRight size={14} className={styles.chipArrow} />
               </button>
             );
           })}
-
-          <button
-            className={styles.addHouseholdButton}
-            onClick={() => setShowCreateModal(true)}
-          >
-            <Plus size={18} />
-            Add Household
-          </button>
         </div>
       </section>
 
-      {/* Recent Lists Section */}
-      {recentLists.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Recent Lists</h2>
+      {/* All Notes — clean list */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>All Notes</h2>
 
-          <div className={styles.recentList}>
+        {recentLists.length === 0 ? (
+          <div className={styles.empty}>
+            <p>No notes yet. Pick a household and create one!</p>
+          </div>
+        ) : (
+          <div className={styles.notesList}>
             {recentLists.map((list) => {
               const Icon = getListIcon(list.type);
-              const colorClass = getListColorClass(list.type);
-              const checkedCount = list.items.filter(i => i.checked).length;
-              const totalCount = list.items.length;
-              const progress = totalCount > 0 ? (checkedCount / totalCount) * 100 : 0;
+              const householdName = getHouseholdName(list.household_id);
 
               return (
                 <button
                   key={list.list_id}
-                  className={styles.recentCard}
+                  className={styles.noteRow}
                   onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
                 >
-                  <div className={styles.recentHeader}>
-                    <div className={`${styles.recentIcon} ${colorClass}`}>
-                      <Icon size={18} />
-                    </div>
-                    <div className={styles.recentInfo}>
-                      <h3>
-                        {list.title}
-                        {isNoteEncrypted(list) && (
-                          <Lock size={12} style={{ display: 'inline', marginLeft: 6, opacity: 0.5, verticalAlign: 'middle' }} title="Encrypted" />
-                        )}
-                      </h3>
-                      <p>{checkedCount} of {totalCount} items</p>
-                    </div>
+                  <div className={styles.noteIcon} style={{ color: getTypeColor(list.type) }}>
+                    <Icon size={16} />
                   </div>
-                  <div className={styles.progressBar}>
-                    <div
-                      className={`${styles.progressFill} ${colorClass}`}
-                      style={{ width: `${progress}%` }}
-                    />
+                  <div className={styles.noteInfo}>
+                    <span className={styles.noteTitle}>
+                      {list.title}
+                      {isNoteEncrypted(list) && (
+                        <Lock size={11} className={styles.lockIcon} />
+                      )}
+                    </span>
+                    <span className={styles.noteMeta}>
+                      {householdName}
+                      {list.type !== 'note' && list.items.length > 0 && (
+                        <> · {list.items.filter(i => i.checked).length}/{list.items.length}</>
+                      )}
+                    </span>
                   </div>
+                  <span className={styles.noteTime}>
+                    {formatRelativeDate(list.updated_at || list.created_at)}
+                  </span>
                 </button>
               );
             })}
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* Create Household Modal */}
       {showCreateModal && (
         <div className={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>Create a Household</h2>
-            <p className={styles.modalSubtitle}>
-              Give your household a name to get started
-            </p>
+            <h2 className={styles.modalTitle}>New Household</h2>
             <form onSubmit={handleCreateHousehold}>
               <input
                 type="text"
                 value={newHouseholdName}
                 onChange={(e) => setNewHouseholdName(e.target.value)}
-                placeholder="e.g., Home, Work, Vacation House"
+                placeholder="e.g., Home, Work"
                 className={styles.modalInput}
                 autoFocus
               />
@@ -232,7 +236,7 @@ export default function DashboardPage() {
                   disabled={creating || !newHouseholdName.trim()}
                   className={styles.submitButton}
                 >
-                  {creating ? 'Creating...' : 'Create Household'}
+                  {creating ? 'Creating...' : 'Create'}
                 </button>
               </div>
             </form>
