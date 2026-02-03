@@ -108,15 +108,6 @@
   text-align: left;
 }
 
-[data-theme="brutalist"] .personalCard {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .personalCard:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
 .personalCard:hover {
   background: var(--color-surface-hover);
 }
@@ -173,15 +164,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
-}
-
-[data-theme="brutalist"] .householdCard {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .householdCard:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .householdCard:hover {
@@ -244,15 +226,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: left;
-}
-
-[data-theme="brutalist"] .recentCard {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .recentCard:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .recentCard:hover {
@@ -376,11 +349,6 @@
   width: 100%;
   max-width: 400px;
 }
-
-[data-theme="brutalist"] .modal {
-  box-shadow: 6px 6px 0 var(--color-shadow);
-}
-
 .modalTitle {
   font-size: 1.25rem;
   font-weight: 600;
@@ -408,11 +376,6 @@
   margin-bottom: var(--spacing-lg);
   transition: border-color var(--transition-fast);
 }
-
-[data-theme="brutalist"] .modalInput {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .modalInput:focus {
   border-color: var(--color-primary);
 }
@@ -450,15 +413,6 @@
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-fast);
-}
-
-[data-theme="brutalist"] .submitButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .submitButton:hover {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .submitButton:hover {

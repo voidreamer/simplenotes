@@ -20,11 +20,6 @@
   overflow-y: auto;
   animation: slideUp var(--transition-normal) ease-out;
 }
-
-[data-theme="brutalist"] .modal {
-  box-shadow: 6px 6px 0 var(--color-shadow);
-}
-
 /* Size variants */
 .sizeSm {
   max-width: 320px;

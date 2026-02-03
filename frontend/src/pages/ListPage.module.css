@@ -42,11 +42,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .backButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .backButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text);
@@ -105,11 +100,6 @@
   outline: none;
   width: 100%;
 }
-
-[data-theme="brutalist"] .titleInput {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .meta {
   display: flex;
   align-items: center;
@@ -152,11 +142,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .actionButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .actionButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text);
@@ -230,11 +215,6 @@
   border-radius: var(--border-radius);
   outline: none;
 }
-
-[data-theme="brutalist"] .addInput {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .addInput:focus {
   border-color: var(--color-primary);
 }
@@ -255,15 +235,6 @@
   color: var(--color-primary-text);
   cursor: pointer;
   transition: all var(--transition-fast);
-}
-
-[data-theme="brutalist"] .addButton {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .addButton:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .addButton:hover {
@@ -293,11 +264,6 @@
   border-radius: var(--border-radius);
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .item {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .item:hover {
   background: var(--color-surface-hover);
 }
@@ -389,11 +355,6 @@
   border: var(--border-width) dashed var(--color-border);
   border-radius: var(--border-radius);
 }
-
-[data-theme="brutalist"] .emptyState {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .deleteButton {

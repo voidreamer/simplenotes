@@ -61,11 +61,6 @@
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--border-radius);
 }
-
-[data-theme="brutalist"] .addForm {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 .addFormRow {
   display: flex;
   gap: var(--spacing-sm);
@@ -190,11 +185,6 @@
   transition: all var(--transition-fast);
   font-family: var(--font-body);
 }
-
-[data-theme="brutalist"] .submitButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .submitButton:hover:not(:disabled) {
   opacity: 0.9;
 }
@@ -265,14 +255,6 @@
 .item:global(.dragOver) {
   border-color: var(--color-primary);
   background: var(--color-surface-hover);
-}
-
-[data-theme="brutalist"] .item:global(.dragOver) {
-  box-shadow: 0 0 0 2px var(--color-primary);
-}
-
-[data-theme="brutalist"] .item {
-  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .item:hover {
@@ -504,11 +486,6 @@
   border: var(--border-width) dashed var(--color-border);
   border-radius: var(--border-radius);
 }
-
-[data-theme="brutalist"] .emptyState {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 .emptyState p {
   font-weight: 600;
   color: var(--color-text);

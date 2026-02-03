@@ -43,20 +43,9 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .saveButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .saveButton:hover:not(:disabled) {
   opacity: 0.9;
 }
-
-[data-theme="brutalist"] .saveButton:hover:not(:disabled) {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
 .saveButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -78,11 +67,6 @@
   outline: none;
   transition: border-color var(--transition-fast);
 }
-
-[data-theme="brutalist"] .textarea {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 .textarea:focus {
   border-color: var(--color-primary);
 }

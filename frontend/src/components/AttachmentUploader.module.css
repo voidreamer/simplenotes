@@ -135,20 +135,6 @@
   color: var(--color-error);
 }
 
-[data-theme="brutalist"] .dropzone {
-  border-style: solid;
-  border-width: 3px;
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .dropzone:hover:not(.disabled) {
-  transform: translate(1px, 1px);
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .uploadItem {
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
 
 @media (max-width: 768px) {
   .dropzone {

@@ -50,11 +50,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .backButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .backButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text);
@@ -124,11 +119,6 @@
   width: 100%;
   max-width: 300px;
 }
-
-[data-theme="brutalist"] .nameInput {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .memberCount {
   font-size: 0.875rem;
   color: var(--color-text-muted);
@@ -157,15 +147,6 @@
   transition: all var(--transition-fast);
 }
 
-[data-theme="brutalist"] .inviteButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .inviteButton:hover {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
 .optionsWrapper {
   position: relative;
 }
@@ -183,11 +164,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .optionsButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .optionsButton:hover {
   background: var(--color-surface-hover);
 }
@@ -204,11 +180,6 @@
   z-index: 100;
   overflow: hidden;
 }
-
-[data-theme="brutalist"] .optionsMenu {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 .optionsMenuItem {
   display: flex;
   align-items: center;
@@ -317,11 +288,6 @@
   z-index: 100;
   overflow: hidden;
 }
-
-[data-theme="brutalist"] .sortMenu {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 .sortOption {
   display: block;
   width: 100%;
@@ -398,15 +364,6 @@
   transition: all var(--transition-fast);
   text-align: left;
   min-height: 100px;
-}
-
-[data-theme="brutalist"] .listCard {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .listCard:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .listCard:hover {
@@ -669,11 +626,6 @@
   width: 100%;
   max-width: 440px;
 }
-
-[data-theme="brutalist"] .modal {
-  box-shadow: 6px 6px 0 var(--color-shadow);
-}
-
 .modalTitle {
   font-size: 1.25rem;
   font-weight: 600;
@@ -751,11 +703,6 @@
   margin-bottom: var(--spacing-lg);
   transition: border-color var(--transition-fast);
 }
-
-[data-theme="brutalist"] .modalInput {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .modalInput:focus {
   border-color: var(--color-primary);
 }
@@ -795,15 +742,6 @@
   transition: all var(--transition-fast);
 }
 
-[data-theme="brutalist"] .submitButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .submitButton:hover {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
 .submitButton:hover {
   opacity: 0.9;
 }
@@ -824,11 +762,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .dangerButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .dangerButton:hover:not(:disabled) {
   opacity: 0.9;
 }

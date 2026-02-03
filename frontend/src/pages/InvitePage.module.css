@@ -35,11 +35,6 @@
   max-width: 400px;
   width: 100%;
 }
-
-[data-theme="brutalist"] .card {
-  box-shadow: 8px 8px 0 var(--color-shadow);
-}
-
 .logo {
   display: flex;
   align-items: center;
@@ -114,15 +109,6 @@
   transition: all var(--transition-normal);
 }
 
-[data-theme="brutalist"] .acceptButton {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .acceptButton:hover:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
 .acceptButton:hover:not(:disabled) {
   opacity: 0.9;
 }
@@ -144,11 +130,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .declineButton {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .declineButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text);
@@ -173,15 +154,6 @@
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--border-radius);
   transition: all var(--transition-normal);
-}
-
-[data-theme="brutalist"] .loginButton {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .loginButton:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .loginButton:hover {
@@ -232,8 +204,4 @@
   font-family: var(--font-body);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--border-radius);
-}
-
-[data-theme="brutalist"] .button {
-  box-shadow: 4px 4px 0 var(--color-shadow);
 }
