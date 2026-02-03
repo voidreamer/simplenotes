@@ -237,6 +237,11 @@
   color: var(--color-success, #10b981);
 }
 
+.encryptedTitle {
+  font-style: italic;
+  opacity: 0.6;
+}
+
 .noteMeta {
   font-size: 0.75rem;
   color: var(--color-text-muted);

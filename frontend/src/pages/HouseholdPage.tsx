@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, UserPlus, ShoppingCart, CheckCircle2, FileText, ArrowLeft, Trash2, MoreVertical, LogOut, ArrowUpDown, Pencil, UserMinus, Shield, AlertTriangle, Lock } from 'lucide-react';
-import { isNoteEncrypted } from '../utils/encryptionHelpers';
+import { isNoteEncrypted, isEncryptedValue } from '../utils/encryptionHelpers';
 import { useHouseholdStore, useListsStore, useAuthStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import { useShortcutEvent } from '../hooks/useKeyboardShortcuts';
@@ -393,16 +393,24 @@ export default function HouseholdPage() {
             const totalCount = list.items.length;
             const progress = totalCount > 0 ? (checkedCount / totalCount) * 100 : 0;
 
+            const encrypted = isNoteEncrypted(list);
+            const displayTitle = isEncryptedValue(list.title) ? 'Encrypted note' : list.title;
+
             // Generate preview content
             const getPreview = () => {
+              if (encrypted) {
+                return '🔒 Unlock to view contents';
+              }
               if (list.type === 'note') {
-                // Strip HTML tags and get first ~80 chars
                 const text = list.content?.replace(/<[^>]*>/g, '') || '';
+                if (isEncryptedValue(text)) return '🔒 Unlock to view contents';
                 return text.slice(0, 80) + (text.length > 80 ? '...' : '');
               } else {
-                // Show first 3 unchecked items
                 const uncheckedItems = list.items.filter(i => !i.checked).slice(0, 3);
-                return uncheckedItems.map(i => i.text).join(' · ') || 'No items yet';
+                const texts = uncheckedItems.map(i => 
+                  isEncryptedValue(i.text) ? '••••' : i.text
+                );
+                return texts.join(' · ') || 'No items yet';
               }
             };
 
@@ -416,14 +424,11 @@ export default function HouseholdPage() {
               >
                 <div className={styles.listHeader}>
                   <div className={styles.listTitleRow}>
-                    <span className={`${styles.listIcon} ${styles[config.colorClass]}`}>
-                      <Icon size={14} />
+                    <span className={`${styles.listIcon} ${encrypted ? '' : styles[config.colorClass]}`}>
+                      {encrypted ? <Lock size={14} /> : <Icon size={14} />}
                     </span>
                     <h3 className={styles.listTitle}>
-                      {list.title}
-                      {isNoteEncrypted(list) && (
-                        <Lock size={12} className={styles.encryptedIcon} title="Encrypted" />
-                      )}
+                      {displayTitle}
                     </h3>
                   </div>
                   {(list.updated_at || list.created_at) && (

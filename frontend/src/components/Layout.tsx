@@ -36,7 +36,7 @@ export default function Layout({ children }: LayoutProps) {
     } else {
       // Save current light theme and switch to dark
       setPreviousLightTheme(theme);
-      setTheme('dark');
+      setTheme('rosewood');
     }
   };
 
