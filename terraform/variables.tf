@@ -32,7 +32,13 @@ variable "supabase_jwt_secret" {
 }
 
 variable "domain_name" {
-  description = "Custom domain name (optional)"
+  description = "Custom domain name (optional, e.g., notes.heybub.app)"
+  type        = string
+  default     = ""
+}
+
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN in us-east-1 for the custom domain (required if domain_name is set)"
   type        = string
   default     = ""
 }

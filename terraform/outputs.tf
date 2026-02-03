@@ -60,3 +60,17 @@ output "cloudfront_domain" {
   description = "CloudFront distribution domain (for DNS CNAME)"
   value       = aws_cloudfront_distribution.frontend.domain_name
 }
+
+output "custom_domain_setup" {
+  description = "Instructions for custom domain setup"
+  value = var.domain_name != "" && var.acm_certificate_arn == "" ? <<-EOT
+    ⚠️  Custom domain set but no ACM certificate provided!
+    
+    To enable HTTPS on ${var.domain_name}:
+    1. Create ACM certificate in us-east-1 for ${var.domain_name}
+    2. Add certificate ARN to GitHub secrets as ACM_CERTIFICATE_ARN
+    3. Re-deploy
+    
+    DNS: Point ${var.domain_name} CNAME to ${aws_cloudfront_distribution.frontend.domain_name}
+  EOT : null
+}
