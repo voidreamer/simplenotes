@@ -119,7 +119,7 @@ def cleanup_user(email: str):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python cleanup_duplicates.py <email>")
-        print("Example: python cleanup_duplicates.py alejomax@gmail.com")
+        print("Example: python cleanup_duplicates.py user@example.com")
         sys.exit(1)
 
     email = sys.argv[1]

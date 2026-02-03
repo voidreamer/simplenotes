@@ -463,6 +463,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.encryptedIcon {
+  flex-shrink: 0;
+  opacity: 0.45;
+  color: var(--color-success, #10b981);
 }
 
 .listDate {

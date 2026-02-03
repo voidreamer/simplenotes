@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trash2, FileText, CheckSquare, ShoppingCart, Pencil } from 'lucide-react';
+import { ArrowLeft, Trash2, FileText, CheckSquare, ShoppingCart, Pencil, Lock, Unlock } from 'lucide-react';
+import { isNoteEncrypted } from '../utils/encryptionHelpers';
+import { useCryptoStore } from '../stores/cryptoStore';
+import { useEncryption } from '../hooks/useEncryption';
+import { useUnlockModal } from '../hooks/useUnlockModal';
+import EncryptionSetup from '../components/EncryptionSetup';
 import { useListsStore, List } from '../stores/store';
 import { api } from '../utils/api';
 import { encryptedApi } from '../utils/encryptedApi';
@@ -19,6 +24,13 @@ export default function ListPage() {
   const [loading, setLoading] = useState(true);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
+  const [encrypting, setEncrypting] = useState(false);
+  const [showEncryptionSetup, setShowEncryptionSetup] = useState(false);
+  const { isUnlocked, hasEncryptionSetup } = useCryptoStore();
+  const { keyData } = useEncryption();
+  const openUnlockModal = useUnlockModal((s) => s.open);
+
+  const noteIsEncrypted = currentList ? isNoteEncrypted(currentList) : false;
 
   useEffect(() => {
     const loadList = async () => {
@@ -136,6 +148,51 @@ export default function ListPage() {
     }
   };
 
+  const handleToggleEncryption = async () => {
+    if (!currentList || !householdId || !listId) return;
+
+    // If encryption not set up, show setup
+    if (!hasEncryptionSetup) {
+      setShowEncryptionSetup(true);
+      return;
+    }
+
+    // If not unlocked, request unlock first
+    if (!isUnlocked) {
+      openUnlockModal(() => {
+        // After unlock, user can click again
+      });
+      return;
+    }
+
+    if (noteIsEncrypted) {
+      // Already encrypted — for now just inform
+      // TODO: implement decrypt (remove encryption from note)
+      alert('This note is encrypted. Decryption of individual notes is coming soon.');
+      return;
+    }
+
+    // Encrypt the note: re-save it through encryptedApi which will encrypt
+    setEncrypting(true);
+    try {
+      const updated = await encryptedApi.updateList(listId, householdId, {
+        title: currentList.title,
+        content: currentList.content,
+        items: currentList.items,
+      });
+      setCurrentList(updated);
+      updateList(listId, householdId, updated);
+      // Reload to get the encrypted version from server
+      const reloaded = await encryptedApi.getList(listId, householdId);
+      setCurrentList(reloaded);
+    } catch (error) {
+      console.error('Failed to encrypt note:', error);
+      alert('Failed to encrypt note. Please try again.');
+    } finally {
+      setEncrypting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -192,6 +249,14 @@ export default function ListPage() {
           </div>
         </div>
         <div className={styles.headerActions}>
+          <button
+            onClick={handleToggleEncryption}
+            className={`${styles.actionButton} ${noteIsEncrypted ? styles.encryptedActive : ''}`}
+            title={noteIsEncrypted ? 'Encrypted' : 'Encrypt this note'}
+            disabled={encrypting}
+          >
+            {noteIsEncrypted ? <Lock size={18} /> : <Unlock size={18} />}
+          </button>
           <button onClick={handleDeleteList} className={styles.actionButton} title="Delete">
             <Trash2 size={18} />
           </button>
@@ -220,6 +285,19 @@ export default function ListPage() {
           />
         )}
       </div>
+      {/* Encryption Setup Modal */}
+      {showEncryptionSetup && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 100,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <EncryptionSetup
+            onComplete={() => setShowEncryptionSetup(false)}
+            onSkip={() => setShowEncryptionSetup(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }
