@@ -65,11 +65,6 @@
   border-radius: var(--border-radius);
   outline: none;
 }
-
-[data-theme="brutalist"] .addInput {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .addInput:focus {
   border-color: var(--color-primary);
 }
@@ -90,15 +85,6 @@
   color: var(--color-primary-text);
   cursor: pointer;
   transition: all var(--transition-fast);
-}
-
-[data-theme="brutalist"] .addButton {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .addButton:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .addButton:hover {
@@ -167,14 +153,6 @@
 .item:global(.dragOver) {
   border-color: var(--color-primary);
   background: var(--color-surface-hover);
-}
-
-[data-theme="brutalist"] .item:global(.dragOver) {
-  box-shadow: 0 0 0 2px var(--color-primary);
-}
-
-[data-theme="brutalist"] .item {
-  box-shadow: 3px 3px 0 var(--color-shadow);
 }
 
 .item:hover {
@@ -354,11 +332,6 @@
   border: var(--border-width) dashed var(--color-border);
   border-radius: var(--border-radius);
 }
-
-[data-theme="brutalist"] .emptyState {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .itemActions {

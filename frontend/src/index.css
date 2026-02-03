@@ -121,27 +121,6 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
-
-/* Background Pattern - only for terminal theme */
-[data-theme="terminal"] body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(0, 255, 0, 0.03) 0px,
-      rgba(0, 255, 0, 0.03) 1px,
-      transparent 1px,
-      transparent 2px
-    );
-  pointer-events: none;
-  z-index: -1;
-}
-
 #root {
   min-height: 100vh;
   display: flex;
@@ -200,15 +179,6 @@ a:hover {
   border-color: var(--color-border);
 }
 
-[data-theme="brutalist"] .btn-primary {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .btn-primary:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
 .btn-primary:hover {
   opacity: 0.9;
 }
@@ -222,11 +192,6 @@ a:hover {
   color: var(--color-text);
   border: var(--border-width) solid var(--color-border);
 }
-
-[data-theme="brutalist"] .btn-secondary {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .btn-secondary:hover {
   background: var(--color-surface-hover);
 }
@@ -268,15 +233,6 @@ a:hover {
   transition: all var(--transition-normal);
 }
 
-[data-theme="brutalist"] .card {
-  box-shadow: 6px 6px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 var(--color-shadow);
-}
-
 .card:hover {
   border-color: var(--color-border);
 }
@@ -309,14 +265,6 @@ a:hover {
   border-radius: var(--border-radius);
   outline: none;
   transition: all var(--transition-fast);
-}
-
-[data-theme="brutalist"] .input {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .input:focus {
-  box-shadow: 4px 4px 0 var(--color-shadow);
 }
 
 .input:focus {
@@ -392,11 +340,6 @@ textarea:focus-visible,
   border-radius: var(--border-radius);
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .list-item {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .list-item:hover {
   background: var(--color-surface-hover);
 }

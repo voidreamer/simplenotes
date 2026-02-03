@@ -27,11 +27,6 @@
   margin-bottom: var(--spacing-lg);
   overflow: hidden;
 }
-
-[data-theme="brutalist"] .section {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
 .sectionHeader {
   display: flex;
   align-items: center;
@@ -109,11 +104,6 @@
   border-radius: var(--border-radius);
   outline: none;
 }
-
-[data-theme="brutalist"] .input {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .input:focus {
   border-color: var(--color-primary);
 }
@@ -128,15 +118,6 @@
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: all var(--transition-normal);
-}
-
-[data-theme="brutalist"] .saveButton {
-  box-shadow: 4px 4px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .saveButton:hover:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
 }
 
 .saveButton:hover:not(:disabled) {
@@ -173,11 +154,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .themeOption {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
 .themeOption:hover {
   background: var(--color-surface-hover);
   border-color: var(--color-primary);
@@ -271,11 +247,6 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-
-[data-theme="brutalist"] .logoutButton {
-  box-shadow: 3px 3px 0 color-mix(in srgb, var(--color-error) 30%, transparent);
-}
-
 .logoutButton:hover {
   background: color-mix(in srgb, var(--color-error) 20%, transparent);
 }

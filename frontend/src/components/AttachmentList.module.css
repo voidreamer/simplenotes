@@ -31,15 +31,6 @@
   border-color: var(--color-primary);
 }
 
-[data-theme="brutalist"] .card {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .card:hover {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
 .preview {
   display: flex;
   align-items: center;
@@ -137,15 +128,6 @@
 
 .deleteButton.confirm:hover:not(:disabled) {
   background: color-mix(in srgb, var(--color-error) 80%, black);
-}
-
-[data-theme="brutalist"] .actionButton {
-  box-shadow: 2px 2px 0 var(--color-shadow);
-}
-
-[data-theme="brutalist"] .actionButton:hover:not(:disabled) {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--color-shadow);
 }
 
 /* Empty state */

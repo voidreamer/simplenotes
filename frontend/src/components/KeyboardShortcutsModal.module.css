@@ -34,13 +34,6 @@
     transform: translateY(0);
   }
 }
-
-[data-theme="brutalist"] .modal,
-[data-theme="sketchy"] .modal,
-[data-theme="sketchyDark"] .modal {
-  box-shadow: 6px 6px 0 var(--color-shadow);
-}
-
 .header {
   display: flex;
   align-items: center;
