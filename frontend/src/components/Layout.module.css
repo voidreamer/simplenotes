@@ -254,3 +254,62 @@
   background: var(--bg-primary);
   overflow-y: auto;
 }
+
+/* ── Rosewood Glass Theme ── */
+:global([data-theme="rosewood"]) .sidebar,
+:global([data-theme="rosewood-light"]) .sidebar {
+  background: rgba(32, 28, 26, 0.65);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-right-color: rgba(232, 168, 192, 0.08);
+}
+
+:global([data-theme="rosewood-light"]) .sidebar {
+  background: rgba(255, 255, 255, 0.72);
+  border-right-color: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="rosewood"]) .mobileHeader,
+:global([data-theme="rosewood-light"]) .mobileHeader {
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+:global([data-theme="rosewood"]) .mobileHeader {
+  background: rgba(26, 22, 20, 0.8);
+  border-bottom-color: rgba(232, 168, 192, 0.08);
+}
+
+:global([data-theme="rosewood-light"]) .mobileHeader {
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="rosewood"]) .sidebarLogo {
+  background: linear-gradient(135deg, #e8a8c0, #b898d0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:global([data-theme="rosewood-light"]) .sidebarLogo {
+  background: linear-gradient(135deg, #d4849c, #9878b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:global([data-theme="rosewood"]) .navItem:hover,
+:global([data-theme="rosewood-light"]) .navItem:hover {
+  background: rgba(232, 168, 192, 0.08);
+}
+
+:global([data-theme="rosewood"]) .navItemActive {
+  background: rgba(232, 168, 192, 0.12);
+  border-color: rgba(232, 168, 192, 0.2);
+}
+
+:global([data-theme="rosewood-light"]) .navItemActive {
+  background: rgba(212, 132, 156, 0.08);
+  border-color: rgba(212, 132, 156, 0.15);
+}

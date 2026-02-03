@@ -538,6 +538,83 @@ textarea:focus-visible,
   background-clip: text;
 }
 
+/* ── Rosewood Glass Theme ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+[data-theme="rosewood"] body,
+[data-theme="rosewood-light"] body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+}
+
+/* Glass surfaces for rosewood themes */
+[data-theme="rosewood"] .card,
+[data-theme="rosewood"] .list-item,
+[data-theme="rosewood"] .input {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(232, 168, 192, 0.1);
+}
+
+[data-theme="rosewood-light"] .card,
+[data-theme="rosewood-light"] .list-item,
+[data-theme="rosewood-light"] .input {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Rosewood buttons */
+[data-theme="rosewood"] .btn-primary,
+[data-theme="rosewood-light"] .btn-primary {
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="rosewood"] .btn-primary:hover,
+[data-theme="rosewood-light"] .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(232, 168, 192, 0.3);
+}
+
+/* Rosewood card hover */
+[data-theme="rosewood"] .card:hover {
+  border-color: rgba(232, 168, 192, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="rosewood-light"] .card:hover {
+  border-color: rgba(212, 132, 156, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Rosewood inputs */
+[data-theme="rosewood"] .input:focus,
+[data-theme="rosewood-light"] .input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(232, 168, 192, 0.15);
+}
+
+/* Rosewood scrollbar */
+[data-theme="rosewood"] ::-webkit-scrollbar-thumb {
+  background: rgba(232, 168, 192, 0.2);
+}
+
+[data-theme="rosewood"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 168, 192, 0.35);
+}
+
+/* Rosewood selection */
+[data-theme="rosewood"] ::selection {
+  background: rgba(232, 168, 192, 0.3);
+}
+
+[data-theme="rosewood-light"] ::selection {
+  background: rgba(212, 132, 156, 0.2);
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   :root {

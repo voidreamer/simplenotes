@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeName = 'brutalist' | 'paper' | 'sketchy' | 'terminal' | 'dark';
+export type ThemeName = 'brutalist' | 'paper' | 'sketchy' | 'terminal' | 'dark' | 'rosewood' | 'rosewood-light';
 
 interface ThemeState {
   theme: ThemeName;
@@ -11,17 +11,17 @@ interface ThemeState {
 }
 
 // Light themes (non-dark)
-export const lightThemes: ThemeName[] = ['brutalist', 'paper', 'sketchy'];
-export const darkThemes: ThemeName[] = ['terminal', 'dark'];
+export const lightThemes: ThemeName[] = ['brutalist', 'paper', 'sketchy', 'rosewood-light'];
+export const darkThemes: ThemeName[] = ['terminal', 'dark', 'rosewood'];
 
 // Valid theme names for migration
-const validThemeNames = ['brutalist', 'paper', 'sketchy', 'terminal', 'dark'];
+const validThemeNames = ['brutalist', 'paper', 'sketchy', 'terminal', 'dark', 'rosewood', 'rosewood-light'];
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'paper',
-      previousLightTheme: 'paper',
+      theme: 'rosewood',
+      previousLightTheme: 'rosewood-light',
       setTheme: (theme) => set({ theme }),
       setPreviousLightTheme: (theme) => set({ previousLightTheme: theme }),
     }),
@@ -173,6 +173,50 @@ export const themes: Record<ThemeName, {
       body: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     },
     borderRadius: '8px',
+    borderWidth: '1px',
+  },
+  rosewood: {
+    name: 'Rosewood',
+    icon: '🌹',
+    colors: {
+      background: '#1a1614',
+      surface: 'rgba(32, 28, 26, 0.72)',
+      surfaceHover: '#352f2b',
+      border: 'rgba(232, 168, 192, 0.12)',
+      text: '#f5f0ec',
+      textMuted: '#a89e98',
+      primary: '#e8a8c0',
+      primaryText: '#1a1614',
+      accent: '#b898d0',
+      shadow: 'rgba(0,0,0,0.4)',
+    },
+    fonts: {
+      heading: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+      body: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+    },
+    borderRadius: '16px',
+    borderWidth: '1px',
+  },
+  'rosewood-light': {
+    name: 'Rosewood Light',
+    icon: '🌸',
+    colors: {
+      background: '#fefdfb',
+      surface: 'rgba(255, 249, 245, 0.85)',
+      surfaceHover: '#f0ebe5',
+      border: 'rgba(0, 0, 0, 0.08)',
+      text: '#1d1d1f',
+      textMuted: '#6e6e73',
+      primary: '#d4849c',
+      primaryText: '#ffffff',
+      accent: '#9878b8',
+      shadow: 'rgba(0,0,0,0.06)',
+    },
+    fonts: {
+      heading: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+      body: "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+    },
+    borderRadius: '16px',
     borderWidth: '1px',
   },
 };
