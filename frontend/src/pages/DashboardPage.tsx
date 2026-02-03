@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, ShoppingCart, CheckCircle2, FileText, Lock, ChevronRight } from 'lucide-react';
 import { useAuthStore, useHouseholdStore, useListsStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
-import { isNoteEncrypted } from '../utils/encryptionHelpers';
+import { isNoteEncrypted, isEncryptedValue } from '../utils/encryptionHelpers';
 import styles from './DashboardPage.module.css';
 
 export default function DashboardPage() {
@@ -175,6 +175,8 @@ export default function DashboardPage() {
             {recentLists.map((list) => {
               const Icon = getListIcon(list.type);
               const householdName = getHouseholdName(list.household_id);
+              const encrypted = isNoteEncrypted(list);
+              const displayTitle = isEncryptedValue(list.title) ? 'Encrypted note' : list.title;
 
               return (
                 <button
@@ -182,15 +184,12 @@ export default function DashboardPage() {
                   className={styles.noteRow}
                   onClick={() => navigate(`/list/${list.list_id}?household=${list.household_id}`)}
                 >
-                  <div className={styles.noteIcon} style={{ color: getTypeColor(list.type) }}>
-                    <Icon size={16} />
+                  <div className={styles.noteIcon} style={{ color: encrypted ? 'var(--color-text-muted)' : getTypeColor(list.type) }}>
+                    {encrypted ? <Lock size={16} /> : <Icon size={16} />}
                   </div>
                   <div className={styles.noteInfo}>
-                    <span className={styles.noteTitle}>
-                      {list.title}
-                      {isNoteEncrypted(list) && (
-                        <Lock size={11} className={styles.lockIcon} />
-                      )}
+                    <span className={`${styles.noteTitle} ${encrypted ? styles.encryptedTitle : ''}`}>
+                      {displayTitle}
                     </span>
                     <span className={styles.noteMeta}>
                       {householdName}
