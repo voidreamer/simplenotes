@@ -42,6 +42,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AuthRedirect({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  if (isLoading) return <LoadingScreen />;
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+}
+
 function App() {
   const { isLoading, setLoading } = useAuthStore();
   const { theme } = useThemeStore();
@@ -70,8 +77,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<LandingPage />} />
+        {/* Public routes - redirect to dashboard if authenticated */}
+        <Route path="/" element={<AuthRedirect><LandingPage /></AuthRedirect>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/callback" element={<CallbackPage />} />
         <Route path="/invite/:inviteId" element={<InvitePage />} />
