@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, ShoppingCart, CheckCircle2, FileText } from 'lucide-react';
+import { Plus, ShoppingCart, CheckCircle2, FileText, Lock } from 'lucide-react';
+import { isNoteEncrypted } from '../utils/encryptionHelpers';
 import { useAuthStore, useHouseholdStore, useListsStore, Household, List } from '../stores/store';
 import { api } from '../utils/api';
 import styles from './DashboardPage.module.css';
@@ -179,7 +180,12 @@ export default function DashboardPage() {
                       <Icon size={18} />
                     </div>
                     <div className={styles.recentInfo}>
-                      <h3>{list.title}</h3>
+                      <h3>
+                        {list.title}
+                        {isNoteEncrypted(list) && (
+                          <Lock size={12} style={{ display: 'inline', marginLeft: 6, opacity: 0.5, verticalAlign: 'middle' }} title="Encrypted" />
+                        )}
+                      </h3>
                       <p>{checkedCount} of {totalCount} items</p>
                     </div>
                   </div>
