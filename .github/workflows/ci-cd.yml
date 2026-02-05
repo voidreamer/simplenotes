@@ -1,7 +1,6 @@
 # SimpleNotes CI/CD Pipeline
-# Runs tests, then deploys to AWS
-# - staging branch -> staging environment
-# - main branch -> production environment
+# Tests via reusable workflows from ci-templates
+# Deploy is project-specific (terraform workspaces + config.js injection)
 
 name: CI/CD Pipeline
 
@@ -11,105 +10,39 @@ on:
   pull_request:
     branches: [main, staging]
 
-env:
-  AWS_REGION: ca-central-1
-  PYTHON_VERSION: "3.11"
-  NODE_VERSION: "20"
-  TF_VERSION: "1.6.0"
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # ============================================
-  # Backend Tests
+  # Tests (reusable workflows)
   # ============================================
   test-backend:
-    name: Backend Tests
-    runs-on: ubuntu-latest
+    uses: voidreamer/ci-templates/.github/workflows/test-python.yml@main
+    with:
+      python-version: "3.11"
+      lint: false
+      test-command: "pytest tests/ -v --cov=app --cov-report=term-missing"
+      test-env: |
+        ENVIRONMENT=test
+        AWS_REGION=ca-central-1
+        USERS_TABLE=test-users
+        HOUSEHOLDS_TABLE=test-households
+        LISTS_TABLE=test-lists
+        INVITES_TABLE=test-invites
+        SUPABASE_URL=https://test.supabase.co
+        SUPABASE_JWT_SECRET=test-jwt-secret
 
-    defaults:
-      run:
-        working-directory: backend
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-          cache-dependency-path: backend/requirements.txt
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov pytest-asyncio
-
-      - name: Run tests
-        env:
-          ENVIRONMENT: test
-          AWS_REGION: ca-central-1
-          USERS_TABLE: test-users
-          HOUSEHOLDS_TABLE: test-households
-          LISTS_TABLE: test-lists
-          INVITES_TABLE: test-invites
-          SUPABASE_URL: https://test.supabase.co
-          SUPABASE_JWT_SECRET: test-jwt-secret
-        run: |
-          pytest tests/ -v --cov=app --cov-report=xml --cov-report=term-missing
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v3
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        with:
-          file: backend/coverage.xml
-          flags: backend
-          fail_ci_if_error: false
-
-  # ============================================
-  # Frontend Tests & Build
-  # ============================================
   test-frontend:
-    name: Frontend Tests & Build
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: frontend
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        run: npm run lint || true
-
-      - name: Run tests
-        run: npm test -- --passWithNoTests || true
-
-      - name: Build
-        run: npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist
-          retention-days: 1
+    uses: voidreamer/ci-templates/.github/workflows/test-node.yml@main
+    with:
+      node-version: "20"
+      test-command: "npm test -- --passWithNoTests || true"
+      lint: false
 
   # ============================================
-  # Deploy to Staging (on staging branch)
+  # Deploy to Staging
   # ============================================
   deploy-staging:
     name: Deploy to Staging
@@ -118,43 +51,38 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
     environment: staging
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    env:
+      AWS_REGION: ca-central-1
+      TF_VERSION: "1.6.0"
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: "3.11"
 
-      - name: Install backend dependencies
+      - name: Install backend deps
         working-directory: backend
-        run: |
-          pip install -r requirements.txt -t .
+        run: pip install -r requirements.txt -t .
 
-      - name: Terraform Init
+      - name: Terraform init
         working-directory: terraform
         run: |
           terraform init
           terraform workspace select staging || terraform workspace new staging
 
-      - name: Terraform Validate
-        working-directory: terraform
-        run: terraform validate
-
-      - name: Terraform Plan
+      - name: Terraform plan
         working-directory: terraform
         env:
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
@@ -165,7 +93,7 @@ jobs:
           TF_VAR_environment: staging
         run: terraform plan -out=tfplan
 
-      - name: Terraform Apply
+      - name: Terraform apply
         working-directory: terraform
         env:
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
@@ -176,61 +104,56 @@ jobs:
           TF_VAR_environment: staging
         run: terraform apply -auto-approve tfplan
 
-      - name: Download frontend build
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist
-
-      - name: Get Terraform outputs
-        id: tf-outputs
+      - name: Get outputs
+        id: tf
         working-directory: terraform
         run: |
-          echo "frontend_bucket=$(terraform output -raw frontend_bucket)" >> $GITHUB_OUTPUT
-          echo "frontend_url=$(terraform output -raw frontend_url)" >> $GITHUB_OUTPUT
-          echo "cloudfront_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
-          echo "api_url=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
+          echo "bucket=$(terraform output -raw frontend_bucket)" >> $GITHUB_OUTPUT
+          echo "url=$(terraform output -raw frontend_url)" >> $GITHUB_OUTPUT
+          echo "cf_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+          echo "api=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
 
-      - name: Update frontend config
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
         run: |
-          cat > frontend/dist/config.js << EOF
+          npm ci
+          npm run build
+
+      - name: Inject runtime config
+        run: |
+          cat > frontend/dist/config.js << 'ENDOFCONFIG'
           window.APP_CONFIG = {
-            API_URL: "${{ steps.tf-outputs.outputs.api_url }}",
+            API_URL: "${{ steps.tf.outputs.api }}",
             SUPABASE_URL: "${{ secrets.SUPABASE_URL }}",
             SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
           };
-          EOF
+          ENDOFCONFIG
 
-      - name: Deploy frontend to S3
+      - name: Deploy to S3
         run: |
-          aws s3 sync frontend/dist s3://${{ steps.tf-outputs.outputs.frontend_bucket }} \
-            --delete \
-            --cache-control "max-age=31536000,public" \
-            --exclude "index.html" \
-            --exclude "config.js"
-          aws s3 cp frontend/dist/index.html s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/index.html \
+          aws s3 sync frontend/dist s3://${{ steps.tf.outputs.bucket }} \
+            --delete --cache-control "max-age=31536000,public" \
+            --exclude "index.html" --exclude "config.js"
+          aws s3 cp frontend/dist/index.html \
+            s3://${{ steps.tf.outputs.bucket }}/index.html \
             --cache-control "no-cache,no-store,must-revalidate"
-          aws s3 cp frontend/dist/config.js s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/config.js \
+          aws s3 cp frontend/dist/config.js \
+            s3://${{ steps.tf.outputs.bucket }}/config.js \
             --cache-control "no-cache,no-store,must-revalidate"
 
-      - name: Invalidate CloudFront cache
+      - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ steps.tf-outputs.outputs.cloudfront_id }} \
-            --paths "/*"
-
-      - name: Output deployment URLs
-        run: |
-          echo "## Staging Deployment Complete!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Environment:** Staging" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Frontend URL:** ${{ steps.tf-outputs.outputs.frontend_url }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**API URL:** ${{ steps.tf-outputs.outputs.api_url }}" >> $GITHUB_STEP_SUMMARY
+            --distribution-id ${{ steps.tf.outputs.cf_id }} --paths "/*"
 
   # ============================================
-  # Deploy to Production (on main branch)
+  # Deploy to Production
   # ============================================
   deploy-production:
     name: Deploy to Production
@@ -239,43 +162,38 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    env:
+      AWS_REGION: ca-central-1
+      TF_VERSION: "1.6.0"
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: "3.11"
 
-      - name: Install backend dependencies
+      - name: Install backend deps
         working-directory: backend
-        run: |
-          pip install -r requirements.txt -t .
+        run: pip install -r requirements.txt -t .
 
-      - name: Terraform Init
+      - name: Terraform init
         working-directory: terraform
         run: |
           terraform init
           terraform workspace select prod || terraform workspace new prod
 
-      - name: Terraform Validate
-        working-directory: terraform
-        run: terraform validate
-
-      - name: Terraform Plan
+      - name: Terraform plan
         working-directory: terraform
         env:
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
@@ -286,7 +204,7 @@ jobs:
           TF_VAR_environment: prod
         run: terraform plan -out=tfplan
 
-      - name: Terraform Apply
+      - name: Terraform apply
         working-directory: terraform
         env:
           TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
@@ -297,55 +215,50 @@ jobs:
           TF_VAR_environment: prod
         run: terraform apply -auto-approve tfplan
 
-      - name: Download frontend build
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist
-
-      - name: Get Terraform outputs
-        id: tf-outputs
+      - name: Get outputs
+        id: tf
         working-directory: terraform
         run: |
-          echo "frontend_bucket=$(terraform output -raw frontend_bucket)" >> $GITHUB_OUTPUT
-          echo "frontend_url=$(terraform output -raw frontend_url)" >> $GITHUB_OUTPUT
-          echo "cloudfront_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
-          echo "api_url=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
+          echo "bucket=$(terraform output -raw frontend_bucket)" >> $GITHUB_OUTPUT
+          echo "url=$(terraform output -raw frontend_url)" >> $GITHUB_OUTPUT
+          echo "cf_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+          echo "api=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
 
-      - name: Update frontend config
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
         run: |
-          cat > frontend/dist/config.js << EOF
+          npm ci
+          npm run build
+
+      - name: Inject runtime config
+        run: |
+          cat > frontend/dist/config.js << 'ENDOFCONFIG'
           window.APP_CONFIG = {
-            API_URL: "${{ steps.tf-outputs.outputs.api_url }}",
+            API_URL: "${{ steps.tf.outputs.api }}",
             SUPABASE_URL: "${{ secrets.SUPABASE_URL }}",
             SUPABASE_ANON_KEY: "${{ secrets.SUPABASE_ANON_KEY }}"
           };
-          EOF
+          ENDOFCONFIG
 
-      - name: Deploy frontend to S3
+      - name: Deploy to S3
         run: |
-          aws s3 sync frontend/dist s3://${{ steps.tf-outputs.outputs.frontend_bucket }} \
-            --delete \
-            --cache-control "max-age=31536000,public" \
-            --exclude "index.html" \
-            --exclude "config.js"
-          aws s3 cp frontend/dist/index.html s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/index.html \
+          aws s3 sync frontend/dist s3://${{ steps.tf.outputs.bucket }} \
+            --delete --cache-control "max-age=31536000,public" \
+            --exclude "index.html" --exclude "config.js"
+          aws s3 cp frontend/dist/index.html \
+            s3://${{ steps.tf.outputs.bucket }}/index.html \
             --cache-control "no-cache,no-store,must-revalidate"
-          aws s3 cp frontend/dist/config.js s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/config.js \
+          aws s3 cp frontend/dist/config.js \
+            s3://${{ steps.tf.outputs.bucket }}/config.js \
             --cache-control "no-cache,no-store,must-revalidate"
 
-      - name: Invalidate CloudFront cache
+      - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ steps.tf-outputs.outputs.cloudfront_id }} \
-            --paths "/*"
-
-      - name: Output deployment URLs
-        run: |
-          echo "## Production Deployment Complete!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Frontend URL:** ${{ steps.tf-outputs.outputs.frontend_url }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**API URL:** ${{ steps.tf-outputs.outputs.api_url }}" >> $GITHUB_STEP_SUMMARY
+            --distribution-id ${{ steps.tf.outputs.cf_id }} --paths "/*"
